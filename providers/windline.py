@@ -9,6 +9,7 @@ import pymongo
 import MySQLdb
 
 import provider
+import wgs84
 
 logger = provider.get_logger('windline')
 
@@ -36,13 +37,13 @@ class Windline(provider.Provider):
 
     def get_property_id(self, cursor, key):
         cursor.execute("SELECT tblstationpropertylistno FROM tblstationpropertylist WHERE uniquename=%s", (key,))
-        return cursor.fetchall()[0]
+        return cursor.fetchone()[0]
 
 
     def get_property_value(self, cursor, station_no, property_id):
         cursor.execute(
             "SELECT value FROM tblstationproperty WHERE tblstationno=%s AND tblstationpropertylistno=%s", (station_no, property_id))
-        return cursor.fetchall()[0]
+        return cursor.fetchone()[0]
 
 
     def get_historic_measures(self, cursor, station_id, data_id, start_date):
@@ -110,9 +111,9 @@ class Windline(provider.Provider):
                                'name': name,
                                'category': 'paragliding',
                                'tags': ['switzerland'],
-                               'altitude': self.get_property_value(mysql_cursor, station_no, altitude_property_id),
-                               'longitude': self.get_property_value(mysql_cursor, station_no, longitude_property_id),
-                               'latitude': self.get_property_value(mysql_cursor, station_no, latitude_property_id),
+                               'altitude': int(self.get_property_value(mysql_cursor, station_no, altitude_property_id)),
+                               'longitude': wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no, longitude_property_id)),
+                               'latitude': wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no, latitude_property_id)),
                                'status': self.get_status(status),
                     }
                     self.stations_collection.insert(station)

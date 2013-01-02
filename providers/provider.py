@@ -36,7 +36,7 @@ class Provider(object):
         self.stations_collection = self.mongo_db.stations
 
     def get_station_id(self, id):
-        return self.provider_prefix + "_" + str(id)
+        return self.provider_prefix + ":" + str(id)
 
     def clean_stations_collection(self):
         self.stations_collection.remove({'provider': self.provider_name})

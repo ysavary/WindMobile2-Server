@@ -12,7 +12,8 @@ import provider
 logger = provider.get_logger('ffvl')
 
 class Ffvl(provider.Provider):
-    provider = 'ffvl'
+    provider_prefix = 'ffvl'
+    provider_name = 'ffvl.fr'
 
     def __init__(self, mongo_url, api_key):
         super(Ffvl, self).__init__(mongo_url)
@@ -60,6 +61,13 @@ class Ffvl(provider.Provider):
         if mandatory:
             dict[key] = None
 
+    def is_kite(self, xml_element):
+        try:
+            child = xml_element.find('forKyte')
+            return (int(child.text) == 1)
+        except:
+            return False
+
 
     def process_data(self):
         try:
@@ -73,10 +81,14 @@ class Ffvl(provider.Provider):
                 try:
                     station_id = self.get_station_id(ffvl_station.find('idBalise').text)
                     station = {'_id': station_id,
-                               'provider': self.provider,
-                               'category': 'paragliding',
-                               'tags_fr': self.get_tags(ffvl_station),
+                               'provider': self.provider_name,
+                               'tags': self.get_tags(ffvl_station),
                                'timezone': '+01:00'}
+
+                    if (self.is_kite(ffvl_station)):
+                        station['category'] = provider.Category.KITE
+                    else:
+                        station['category'] = provider.Category.TAKEOFF
 
                     self.put_xml_element(station, 'short-name', ffvl_station, 'nom')
                     self.put_xml_element(station, 'name', ffvl_station, 'nom')

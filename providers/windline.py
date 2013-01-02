@@ -13,7 +13,8 @@ import provider
 logger = provider.get_logger('windline')
 
 class Windline(provider.Provider):
-    provider = 'windline'
+    provider_prefix = 'windline'
+    provider_name = 'windline.ch'
 
     def __init__(self, mongo_url, windline_url):
         super(Windline, self).__init__(mongo_url)
@@ -66,7 +67,7 @@ class Windline(provider.Provider):
 
             connection_info = urlparse(self.windline_url)
             mysql_connection = MySQLdb.connect(connection_info.hostname, connection_info.username, connection_info.password,
-                connection_info.path[1:])
+                connection_info.path[1:], charset='utf8')
             # Cannot leave cursors open with module 'mysql-connector-python': the loops are too long (db connection timeout) and it's too slow
             # Module 'mysql-python' is buffered by default so we can use the same cursor with fetchall
             mysql_cursor = mysql_connection.cursor()
@@ -104,7 +105,7 @@ class Windline(provider.Provider):
                 try:
                     station_id = self.get_station_id(windline_id)
                     station = {'_id': station_id,
-                               'provider': self.provider,
+                               'provider': self.provider_name,
                                'short-name': short_name,
                                'name': name,
                                'category': 'paragliding',

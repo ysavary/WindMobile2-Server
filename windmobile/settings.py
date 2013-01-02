@@ -1,5 +1,4 @@
 # Django settings for windmobile project.
-import dj_database_url
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -9,8 +8,6 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-
-DATABASES = {'default': dj_database_url.config(default='postgres://localhost/windmobile')}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -142,3 +139,6 @@ LOGGING = {
         },
     }
 }
+
+import dj_database_url
+DATABASES = {'default': dj_database_url.config(default='postgres://localhost/windmobile')}

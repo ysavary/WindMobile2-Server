@@ -10,7 +10,8 @@ import provider
 logger = provider.get_logger('jdc')
 
 class Jdc(provider.Provider):
-    provider = 'jdc'
+    provider_prefix = 'jdc'
+    provider_name = 'jdc.ch'
 
     def __init__(self, mongo_url):
         super(Jdc, self).__init__(mongo_url)
@@ -46,17 +47,16 @@ class Jdc(provider.Provider):
                     jdc_id = jdc_station['serial']
                     station_id = self.get_station_id(jdc_id)
                     station = {'_id': station_id,
-                               'provider': self.provider,
+                               'provider': self.provider_name,
                                'short-name': jdc_station['short-name'],
                                'name': jdc_station['name'],
-                               'category': 'paragliding',
-                               'tags': ['switzerland'],
+                               'category': 'takeoff',
+                               'tags': None,
                                'altitude': jdc_station['altitude'],
                                'latitude': jdc_station['latitude'],
                                'longitude': jdc_station['longitude'],
                                'status': self.get_status(jdc_station['status']),
                                'timezone': jdc_station['timezone'],
-                               'last-measurements': jdc_station['last-measurements']
                     }
                     self.stations_collection.insert(station)
 

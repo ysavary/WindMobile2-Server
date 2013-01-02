@@ -22,6 +22,12 @@ def get_logger(name, level=logging.INFO):
     return logger
 
 
+class Category:
+    TAKEOFF = 'takeoff'
+    LANDING = 'landing'
+    KITE = 'kite'
+
+
 class Provider(object):
     def __init__(self, mongo_url):
         connection = Connection(mongo_url)
@@ -30,7 +36,7 @@ class Provider(object):
         self.stations_collection = self.mongo_db.stations
 
     def get_station_id(self, id):
-        return self.provider + "_" + str(id)
+        return self.provider_prefix + "_" + str(id)
 
     def clean_stations_collection(self):
-        self.stations_collection.remove({'provider': self.provider})
+        self.stations_collection.remove({'provider': self.provider_name})

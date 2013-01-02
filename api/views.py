@@ -2,7 +2,10 @@ import os
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from rest_framework import status
 from pymongo import Connection, uri_parser
+
+import diacritics
 
 @api_view(['GET'])
 def api_root(request, format=None):
@@ -16,7 +19,14 @@ def api_root(request, format=None):
 @api_view(['GET'])
 def station_list(request):
     if request.method == 'GET':
-        return Response(mongo_db.stations.find())
+        query = request.GET.get('query')
+        if query:
+            regexp_query = diacritics.create_regexp(diacritics.normalize(query))
+            return Response(mongo_db.stations.find({'$or': [{'name': {'$regex': regexp_query, '$options': 'i'}},
+                                                            {'short-name': {'$regex': regexp_query, '$options': 'i'}},
+                                                            {'tags': query}]}))
+        else:
+            return Response(mongo_db.stations.find())
 
 
 @api_view(['GET'])

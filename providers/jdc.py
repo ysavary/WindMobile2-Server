@@ -9,6 +9,7 @@ import provider
 
 logger = provider.get_logger('jdc')
 
+
 class Jdc(provider.Provider):
     provider_prefix = 'jdc'
     provider_name = 'jdc.ch'
@@ -29,7 +30,6 @@ class Jdc(provider.Provider):
         else:
             return "hidden"
 
-
     def get_measure(self, dict, key):
         if key in dict:
             return dict[key]
@@ -42,7 +42,7 @@ class Jdc(provider.Provider):
             result = requests.get("http://meteo.jdc.ch/API/?Action=StationView&flags=offline|maintenance|test|online")
 
             self.clean_stations_collection()
-            for jdc_station in result.json['Stations']:
+            for jdc_station in result.json()['Stations']:
                 try:
                     jdc_id = jdc_station['serial']
                     station_id = self.get_station_id(jdc_id)
@@ -57,7 +57,7 @@ class Jdc(provider.Provider):
                                'longitude': jdc_station['longitude'],
                                'status': self.get_status(jdc_station['status']),
                                'timezone': jdc_station['timezone'],
-                    }
+                               }
                     self.stations_collection.insert(station)
 
                     try:
@@ -65,14 +65,14 @@ class Jdc(provider.Provider):
                         result = requests.get(
                             "http://meteo.jdc.ch/API/?Action=DataView&serial={jdc_id}&duration=172800".format(
                                 jdc_id=jdc_id))
-                        if result.json['ERROR'] == 'OK':
+                        if result.json()['ERROR'] == 'OK':
                             try:
                                 kwargs = {'capped': True, 'size': 500000, 'max': 5000}
                                 values_collection = self.mongo_db.create_collection(station_id, **kwargs)
                             except pymongo.errors.CollectionInvalid:
                                 values_collection = self.mongo_db[station_id]
 
-                            measures = result.json['data']['measurements']
+                            measures = result.json()['data']['measurements']
                             new_measures = []
                             for jdc_measure in measures:
                                 key = jdc_measure['unix-time']
@@ -90,8 +90,10 @@ class Jdc(provider.Provider):
                                 start_date = datetime.fromtimestamp(new_measures[0]['_id'])
                                 end_date = datetime.fromtimestamp(new_measures[-1]['_id'])
                                 logger.info(
-                                    "--> from " + start_date.strftime('%Y-%m-%dT%H:%M:%S') + " to " + end_date.strftime('%Y-%m-%dT%H:%M:%S') + ", " +
-                                    station['short-name'] + " (" + station_id + "): " + str(len(new_measures)) + " values inserted")
+                                    "--> from " + start_date.strftime('%Y-%m-%dT%H:%M:%S') + " to " +
+                                    end_date.strftime('%Y-%m-%dT%H:%M:%S') + ", " +
+                                    station['short-name'] + " (" + station_id + "): " +
+                                    str(len(new_measures)) + " values inserted")
 
                     except Exception as e:
                         logger.exception("Error while fetching data for station '{0}':".format(station_id))

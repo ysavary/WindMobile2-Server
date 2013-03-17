@@ -66,6 +66,7 @@ class Windline(provider.Provider):
         try:
             logger.info("Processing WINDLINE data...")
 
+            logger.info("Connecting to '{0}'".format(self.windline_url))
             connection_info = urlparse(self.windline_url)
             mysql_connection = MySQLdb.connect(connection_info.hostname, connection_info.username, connection_info.password,
                 connection_info.path[1:], charset='utf8')

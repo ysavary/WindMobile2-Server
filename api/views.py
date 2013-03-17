@@ -2,7 +2,6 @@ import os
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework import status
 from pymongo import Connection, uri_parser
 
 import diacritics
@@ -11,8 +10,8 @@ import diacritics
 def api_root(request, format=None):
     return Response({
         'List': reverse('station-list', request=request),
-        'Mauborget': reverse('station-detail', ['jdc_1001'], request=request),
-        'Zinal': reverse('station-detail', ['jdc_1003'], request=request),
+        'Mauborget': reverse('station-detail', ['jdc:1001'], request=request),
+        'Zinal': reverse('station-detail', ['jdc:1003'], request=request),
     })
 
 

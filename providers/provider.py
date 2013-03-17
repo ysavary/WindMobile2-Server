@@ -1,21 +1,23 @@
 import os
 import logging
+import sys
 import logging.handlers
 from pymongo import MongoClient, uri_parser
+
 
 def get_logger(name, level=logging.INFO):
     logger = logging.getLogger(name)
     logger.setLevel(level)
-    if os.environ.has_key('WINDMOBILE_LOG_DIR'):
+    if 'WINDMOBILE_LOG_DIR' in os.environ:
         # Limit file to 5Mb
-        handler = logging.handlers.RotatingFileHandler(os.path.join(os.environ(['WINDMOBILE_LOG_DIR'], name + '.log'),
-                                                                    maxBytes=5 * 10 ** 6))
+        handler = logging.handlers.RotatingFileHandler(
+            os.path.join(os.environ.get('WINDMOBILE_LOG_DIR'), name + '.log'), maxBytes=5 * 10 ** 6)
         fmt = logging.Formatter('%(asctime)s %(levelname)s [%(name)s]: %(message)s', '%Y-%m-%dT%H:%M:%S%z')
         handler.setFormatter(fmt)
         logger.addHandler(handler)
 
     # Console
-    handler = logging.StreamHandler()
+    handler = logging.StreamHandler(sys.stdout)
     fmt = logging.Formatter('%(levelname)s [%(name)s]: %(message)s')
     handler.setFormatter(fmt)
     logger.addHandler(handler)

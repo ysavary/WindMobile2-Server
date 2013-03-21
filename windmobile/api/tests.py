@@ -8,7 +8,8 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-import diacritics
+from windmobile.api import diacritics
+
 
 class SimpleTest(TestCase):
     def test_diacritics(self):

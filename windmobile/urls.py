@@ -10,4 +10,5 @@ urlpatterns = patterns(
     url(r'^$', RedirectView.as_view(url='/api/2/', permanent=True)),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/2/', include('windmobile.api.urls')),
+    url(r'^web/', include('windmobile.web.urls')),
 )

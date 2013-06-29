@@ -3,6 +3,7 @@ import logging
 import sys
 import logging.handlers
 from pymongo import MongoClient, uri_parser
+from pymongo.errors import CollectionInvalid
 
 
 def get_logger(name, level=logging.INFO):
@@ -47,3 +48,21 @@ class Provider(object):
 
     def clean_stations_collection(self):
         self.stations_collection.remove({'provider': self.provider_name})
+
+    def get_or_create_measures_collection(self, station_id):
+        try:
+            kwargs = {'capped': True, 'size': 500000, 'max': 5000}
+            return self.mongo_db.create_collection(station_id, **kwargs)
+        except CollectionInvalid:
+            return self.mongo_db[station_id]
+
+    def add_last_measure(self, station_id):
+        measures_collection = self.mongo_db[station_id]
+        if measures_collection:
+            last_measure = measures_collection.find_one({'$query': {}, '$orderby': {'_id': -1}})
+            if last_measure:
+                self.stations_collection.update({'_id': station_id}, {'$set': {'last-measure': last_measure}},
+                                                upsert=False)
+
+
+

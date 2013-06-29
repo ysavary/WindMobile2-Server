@@ -11,9 +11,9 @@ from windmobile.api import diacritics
 @api_view(['GET'])
 def api_root(request):
     return Response({
-        'List': reverse('station_list', request=request),
-        'Mauborget': reverse('station_info', ['jdc-1001'], request=request),
-        'Zinal': reverse('station_data', ['jdc-1003'], request=request),
+        'List': reverse('api.station_list', request=request),
+        'Mauborget': reverse('api.station_info', ['jdc-1001'], request=request),
+        'Zinal': reverse('api.station_data', ['jdc-1003'], request=request),
     })
 
 

@@ -120,11 +120,7 @@ class Windline(provider.Provider):
                     self.stations_collection.insert(station)
 
                     try:
-                        try:
-                            kwargs = {'capped': True, 'size': 500000, 'max': 5000}
-                            values_collection = self.mongo_db.create_collection(station_id, **kwargs)
-                        except pymongo.errors.CollectionInvalid:
-                            values_collection = self.mongo_db[station_id]
+                        values_collection = self.get_or_create_measures_collection(station_id)
 
                         windline_dict = {}
 
@@ -176,6 +172,8 @@ class Windline(provider.Provider):
 
                     except Exception as e:
                         logger.exception("Error while fetching data for station '{0}':".format(station_id))
+
+                    self.add_last_measure(station_id)
 
                 except Exception as e:
                     logger.exception("Error while processing station '{0}':".format(station_id))

@@ -3,7 +3,6 @@ from datetime import datetime
 
 # Modules
 import requests
-import pymongo
 
 import provider
 
@@ -66,11 +65,7 @@ class Jdc(provider.Provider):
                             "http://meteo.jdc.ch/API/?Action=DataView&serial={jdc_id}&duration=172800".format(
                                 jdc_id=jdc_id))
                         if result.json()['ERROR'] == 'OK':
-                            try:
-                                kwargs = {'capped': True, 'size': 500000, 'max': 5000}
-                                values_collection = self.mongo_db.create_collection(station_id, **kwargs)
-                            except pymongo.errors.CollectionInvalid:
-                                values_collection = self.mongo_db[station_id]
+                            values_collection = self.get_or_create_measures_collection(station_id)
 
                             measures = result.json()['data']['measurements']
                             new_measures = []
@@ -97,6 +92,8 @@ class Jdc(provider.Provider):
 
                     except Exception as e:
                         logger.exception("Error while fetching data for station '{0}':".format(station_id))
+
+                    self.add_last_measure(station_id)
 
                 except Exception as e:
                     logger.exception("Error while processing station '{0}':".format(station_id))

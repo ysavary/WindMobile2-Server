@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 
 # Modules
 import requests
@@ -65,30 +64,22 @@ class Jdc(provider.Provider):
                             "http://meteo.jdc.ch/API/?Action=DataView&serial={jdc_id}&duration=172800".format(
                                 jdc_id=jdc_id))
                         if result.json()['ERROR'] == 'OK':
-                            values_collection = self.get_or_create_measures_collection(station_id)
+                            measures_collection = self.get_or_create_measures_collection(station_id)
 
                             measures = result.json()['data']['measurements']
                             new_measures = []
                             for jdc_measure in measures:
                                 key = jdc_measure['unix-time']
-                                if not values_collection.find_one(key):
+                                if not measures_collection.find_one(key):
                                     measure = {'_id': key,
                                                'wind-direction': self.get_measure(jdc_measure, 'wind-direction'),
                                                'wind-average': self.get_measure(jdc_measure, 'wind-average'),
                                                'wind-maximum': self.get_measure(jdc_measure, 'wind-maximum'),
                                                'temperature': self.get_measure(jdc_measure, 'temperature'),
                                                'humidity': self.get_measure(jdc_measure, 'humidity')}
-                                    values_collection.insert(measure)
                                     new_measures.append(measure)
 
-                            if len(new_measures) > 0:
-                                start_date = datetime.fromtimestamp(new_measures[0]['_id'])
-                                end_date = datetime.fromtimestamp(new_measures[-1]['_id'])
-                                logger.info(
-                                    "--> from " + start_date.strftime('%Y-%m-%dT%H:%M:%S') + " to " +
-                                    end_date.strftime('%Y-%m-%dT%H:%M:%S') + ", " +
-                                    station['short-name'] + " (" + station_id + "): " +
-                                    str(len(new_measures)) + " values inserted")
+                            self.insert_new_measures(measures_collection, station, new_measures, logger)
 
                     except Exception as e:
                         logger.exception("Error while fetching data for station '{0}':".format(station_id))

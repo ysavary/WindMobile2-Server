@@ -1,7 +1,8 @@
+import sys
 import os
 import logging
-import sys
 import logging.handlers
+from datetime import datetime
 from pymongo import MongoClient, uri_parser
 from pymongo.errors import CollectionInvalid
 
@@ -55,6 +56,16 @@ class Provider(object):
             return self.mongo_db.create_collection(station_id, **kwargs)
         except CollectionInvalid:
             return self.mongo_db[station_id]
+
+    def insert_new_measures(self, measure_collection, station, new_measures, logger):
+        if len(new_measures) > 0:
+            measure_collection.insert(new_measures)
+
+            start_date = datetime.fromtimestamp(new_measures[0]['_id'])
+            end_date = datetime.fromtimestamp(new_measures[-1]['_id'])
+            logger.info("--> from " + start_date.strftime('%Y-%m-%dT%H:%M:%S') + " to " +
+                        end_date.strftime('%Y-%m-%dT%H:%M:%S') + ", " + station['short-name'] +
+                        " (" + station['_id'] + "): " + str(len(new_measures)) + " values inserted")
 
     def add_last_measure(self, station_id):
         measures_collection = self.mongo_db[station_id]

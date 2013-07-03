@@ -2,6 +2,7 @@ import sys
 import os
 import logging
 import logging.handlers
+from time import time
 from datetime import datetime
 from pymongo import MongoClient, uri_parser
 from pymongo.errors import CollectionInvalid
@@ -31,9 +32,15 @@ def get_logger(name, level=logging.INFO):
     return logger
 
 
+class Status:
+    HIDDEN = 'hidden'
+    RED = 'red'
+    ORANGE = 'orange'
+    GREEN = 'green'
+
+
 class Category:
-    TAKEOFF = 'takeoff'
-    LANDING = 'landing'
+    PARAGLIDING = 'paragliding'
     KITE = 'kite'
 
 
@@ -47,8 +54,8 @@ class Provider(object):
     def get_station_id(self, id):
         return self.provider_prefix + "-" + str(id)
 
-    def clean_stations_collection(self):
-        self.stations_collection.remove({'provider': self.provider_name})
+    def now_unix_time(self):
+        return int(time())
 
     def get_or_create_measures_collection(self, station_id):
         try:

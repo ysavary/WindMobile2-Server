@@ -8,6 +8,7 @@ import calendar
 import MySQLdb
 
 import provider
+from provider import Status, Category
 import wgs84
 
 logger = provider.get_logger('windline')
@@ -28,15 +29,15 @@ class Windline(provider.Provider):
     # Windline status: offline, maintenance, demo or online
     def get_status(self, status):
         if status == 'offline':
-            return 'hidden'
+            return Status.HIDDEN
         elif status == 'maintenance':
-            return 'red'
+            return Status.RED
         elif status == 'demo':
-            return 'orange'
+            return Status.ORANGE
         elif status == 'online':
-            return 'green'
+            return Status.GREEN
         else:
-            return "hidden"
+            return Status.HIDDEN
 
     def get_property_id(self, cursor, key):
         cursor.execute("SELECT tblstationpropertylistno FROM tblstationpropertylist WHERE uniquename=%s", (key,))
@@ -102,7 +103,6 @@ class Windline(provider.Provider):
             humidity_type = 16401
 
             start_date = datetime.utcnow() - timedelta(days=2)
-            self.clean_stations_collection()
 
             # Fetch only stations that have a status (property_id=13)
             mysql_cursor.execute("""SELECT tblstation.tblstationno, stationid, stationname, shortdescription, value
@@ -122,7 +122,7 @@ class Windline(provider.Provider):
                                'provider': self.provider_name,
                                'short-name': short_name,
                                'name': name,
-                               'category': 'paragliding',
+                               'category': Category.PARAGLIDING,
                                'tags': ['switzerland'],
                                'altitude': int(self.get_property_value(mysql_cursor, station_no, altitude_property_id)),
                                'longitude': wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no,
@@ -130,8 +130,9 @@ class Windline(provider.Provider):
                                'latitude': wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no,
                                                                                    latitude_property_id)),
                                'status': self.get_status(status),
-                    }
-                    self.stations_collection.insert(station)
+                               'last-seen': self.now_unix_time()
+                               }
+                    self.stations_collection.save(station)
 
                     try:
                         measures_collection = self.get_or_create_measures_collection(station_id)

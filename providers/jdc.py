@@ -3,6 +3,7 @@ import os
 # Modules
 import requests
 
+from provider import Status, Category
 import provider
 
 logger = provider.get_logger('jdc')
@@ -18,15 +19,15 @@ class Jdc(provider.Provider):
     # Jdc status: offline, maintenance, test or online
     def get_status(self, status):
         if status == 'offline':
-            return 'hidden'
+            return Status.HIDDEN
         elif status == 'maintenance':
-            return 'red'
+            return Status.RED
         elif status == 'test':
-            return 'orange'
+            return Status.ORANGE
         elif status == 'online':
-            return 'green'
+            return Status.GREEN
         else:
-            return "hidden"
+            return Status.HIDDEN
 
     def get_measure(self, dict, key):
         if key in dict:
@@ -39,7 +40,6 @@ class Jdc(provider.Provider):
             logger.info("Processing JDC data...")
             result = requests.get("http://meteo.jdc.ch/API/?Action=StationView&flags=offline|maintenance|test|online")
 
-            self.clean_stations_collection()
             for jdc_station in result.json()['Stations']:
                 try:
                     jdc_id = jdc_station['serial']
@@ -48,15 +48,16 @@ class Jdc(provider.Provider):
                                'provider': self.provider_name,
                                'short-name': jdc_station['short-name'],
                                'name': jdc_station['name'],
-                               'category': 'takeoff',
-                               'tags': None,
+                               'category': Category.PARAGLIDING,
+                               'tags': ['switzerland'],
                                'altitude': jdc_station['altitude'],
                                'latitude': jdc_station['latitude'],
                                'longitude': jdc_station['longitude'],
                                'status': self.get_status(jdc_station['status']),
                                'timezone': jdc_station['timezone'],
+                               'last-seen': self.now_unix_time()
                                }
-                    self.stations_collection.insert(station)
+                    self.stations_collection.save(station)
 
                     try:
                         # Asking 2 days of data

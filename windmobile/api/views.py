@@ -1,6 +1,8 @@
 import os
+from django.http.response import HttpResponseBadRequest
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from pymongo import MongoClient, uri_parser
@@ -19,14 +21,39 @@ def api_root(request):
 
 @api_view(['GET'])
 def station_list(request):
-    query = request.GET.get('query')
-    if query:
-        regexp_query = diacritics.create_regexp(diacritics.normalize(query))
-        return Response(mongo_db.stations.find({'$or': [{'name': {'$regex': regexp_query, '$options': 'i'}},
-                                                        {'short-name': {'$regex': regexp_query, '$options': 'i'}},
-                                                        {'tags': query}]}))
-    else:
+    search = request.QUERY_PARAMS.get('search')
+    latitude = request.QUERY_PARAMS.get('lat')
+    longitude = request.QUERY_PARAMS.get('lon')
+    distance = request.QUERY_PARAMS.get('distance')
+    word = request.QUERY_PARAMS.get('word')
+    language = request.QUERY_PARAMS.get('language', 'english')
+
+    if not (search or latitude or longitude or distance or word):
         return Response(mongo_db.stations.find())
+
+    elif search and not (latitude or longitude or distance or word):
+        regexp_query = diacritics.create_regexp(diacritics.normalize(search))
+        return Response(mongo_db.stations.find({'$or': [{'name': {'$regex': regexp_query, '$options': 'i'}},
+                                                        {'short': {'$regex': regexp_query, '$options': 'i'}},
+                                                        {'tags': search}]}))
+
+    elif latitude and longitude and distance and not (search or word):
+        return Response(mongo_db.stations.find({
+                                               'loc': {
+                                                   '$near': {
+                                                       '$geometry': {
+                                                           'type': 'Point',
+                                                           'coordinates': [float(latitude), float(longitude)]
+                                                       },
+                                                       '$maxDistance': int(distance)
+                                                   }
+                                               }}))
+
+    elif word and not (search or latitude or longitude or distance):
+        return Response(mongo_db.command('text', 'stations', search=word, language=language).get('results', []))
+
+    else:
+        raise ParseError(u"Invalid query parameters")
 
 
 @api_view(['GET'])

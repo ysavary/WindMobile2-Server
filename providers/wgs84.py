@@ -2,6 +2,7 @@ import re
 
 p = re.compile('[^\\d\\w]+')
 
+
 def parse_dms(input):
     parts = p.split(input)
     return convert_dms_to_dd(parts[0], parts[1], parts[2], parts[3])

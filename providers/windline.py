@@ -7,18 +7,17 @@ import calendar
 #import mysql.connector
 import MySQLdb
 
-import provider
-from provider import Status, Category
+from provider import get_logger, Provider, ProviderException, Status, Category
 import wgs84
 
-logger = provider.get_logger('windline')
+logger = get_logger('windline')
 
 
 class NoMeasure(Exception):
     pass
 
 
-class Windline(provider.Provider):
+class Windline(Provider):
     provider_prefix = 'windline'
     provider_name = 'windline.ch'
 
@@ -41,13 +40,19 @@ class Windline(provider.Provider):
 
     def get_property_id(self, cursor, key):
         cursor.execute("SELECT tblstationpropertylistno FROM tblstationpropertylist WHERE uniquename=%s", (key,))
-        return cursor.fetchone()[0]
+        try:
+            return cursor.fetchone()[0]
+        except TypeError:
+            raise ProviderException(u"No property '{0}'".format(key))
 
     def get_property_value(self, cursor, station_no, property_id):
         cursor.execute(
             "SELECT value FROM tblstationproperty WHERE tblstationno=%s AND tblstationpropertylistno=%s",
             (station_no, property_id))
-        return cursor.fetchone()[0]
+        try:
+            return cursor.fetchone()[0]
+        except TypeError:
+            raise ProviderException(u"No property value for property '{0}'".format(property_id))
 
     def get_measures(self, cursor, station_id, data_id, start_date):
         cursor.execute("""SELECT measuredate, data FROM tblstationdata
@@ -67,17 +72,15 @@ class Windline(provider.Provider):
             date = row[0]
             if date <= end_date:
                 return float(row[1])
-        logger.info("get_last_measure_value: {0} {1}".format(date, end_date))
         raise NoMeasure()
 
-    def to_wind_value(self, value):
-        return round(float(value) * 3.6, 1)
+    def ms_to_kmh(self, value):
+        return float(value) * 3.6
 
     def process_data(self):
         try:
-            logger.info("Processing WINDLINE data...")
+            logger.info(u"Processing WINDLINE data...")
 
-            logger.info("Connecting to '{0}'".format(self.windline_url))
             connection_info = urlparse(self.windline_url)
             mysql_connection = MySQLdb.connect(connection_info.hostname, connection_info.username,
                                                connection_info.password, connection_info.path[1:], charset='utf8')
@@ -118,24 +121,20 @@ class Windline(provider.Provider):
                 status = row[4]
                 try:
                     station_id = self.get_station_id(windline_id)
-                    station = {'_id': station_id,
-                               'provider': self.provider_name,
-                               'short-name': short_name,
-                               'name': name,
-                               'category': Category.PARAGLIDING,
-                               'tags': ['switzerland'],
-                               'altitude': int(self.get_property_value(mysql_cursor, station_no, altitude_property_id)),
-                               'longitude': wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no,
-                                                                                    longitude_property_id)),
-                               'latitude': wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no,
-                                                                                   latitude_property_id)),
-                               'status': self.get_status(status),
-                               'last-seen': self.now_unix_time()
-                               }
-                    self.stations_collection.save(station)
+                    station = self.create_station(
+                        station_id,
+                        short_name,
+                        name,
+                        Category.PARAGLIDING,
+                        ['switzerland'],
+                        self.get_property_value(mysql_cursor, station_no, altitude_property_id),
+                        wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no, latitude_property_id)),
+                        wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no, longitude_property_id)),
+                        self.get_status(status))
+                    self.stations_collection().save(station)
 
                     try:
-                        measures_collection = self.get_or_create_measures_collection(station_id)
+                        measures_collection = self.measures_collection(station_id)
                         new_measures = []
 
                         wind_average_rows = self.get_measures(
@@ -154,54 +153,54 @@ class Windline(provider.Provider):
                             try:
                                 key = calendar.timegm(row[0].timetuple())
                                 if not measures_collection.find_one(key):
-                                    measure = {'_id': key,
-                                               'wind-average': self.to_wind_value(row[1])}
+                                    wind_average = self.ms_to_kmh(row[1])
 
                                     measure_date = row[0]
 
-                                    wind_maximum = self.get_measure_value(
+                                    wind_maximum = self.ms_to_kmh(self.get_measure_value(
                                         wind_maximum_rows,
-                                        measure_date - timedelta(seconds=10), measure_date + timedelta(seconds=10))
-                                    measure['wind-maximum'] = self.to_wind_value(wind_maximum)
+                                        measure_date - timedelta(seconds=10), measure_date + timedelta(seconds=10)))
 
                                     wind_direction = self.get_measure_value(
                                         wind_direction_rows,
                                         measure_date - timedelta(seconds=10), measure_date + timedelta(seconds=10))
-                                    measure['wind-direction'] = wind_direction
 
                                     temperature = self.get_last_measure_value(
                                         temperature_rows,
                                         measure_date + timedelta(seconds=10))
-                                    measure['temperature'] = temperature
 
                                     humidity = self.get_last_measure_value(
                                         humidity_rows,
                                         measure_date + timedelta(seconds=10))
-                                    measure['humidity'] = humidity
 
+                                    measure = self.create_measure(
+                                        key,
+                                        wind_direction,
+                                        wind_average,
+                                        wind_maximum,
+                                        temperature,
+                                        humidity)
                                     new_measures.append(measure)
                             except NoMeasure:
                                 pass
 
                         self.insert_new_measures(measures_collection, station, new_measures, logger)
 
-                    except Exception as e:
-                        logger.exception("Error while fetching data for station '{0}':".format(station_id))
+                    except (ProviderException, StandardError) as e:
+                        logger.error(u"Error while processing measures for station '{0}': {1}".format(station_id, e))
 
                     self.add_last_measure(station_id)
 
-                except Exception as e:
-                    logger.exception("Error while processing station '{0}':".format(station_id))
+                except (ProviderException, StandardError) as e:
+                    logger.error(u"Error while processing station '{0}': {1}".format(station_id, e))
 
-
-        except Exception as e:
-            logger.exception("Error while fetching WINDLINE data:")
+        except (ProviderException, StandardError) as e:
+            logger.error(u"Error while processing WINDLINE: {0}".format(e))
         finally:
-            try:
-                mysql_cursor.close()
-                mysql_connection.close()
-            except:
-                pass
+            mysql_cursor.close()
+            mysql_connection.close()
+
+        logger.info(u"Done !")
 
 windline = Windline(os.environ['WINDMOBILE_MONGO_URL'], os.environ['WINDMOBILE_WINDLINE_URL'])
 windline.process_data()

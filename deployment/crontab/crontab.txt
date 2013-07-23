@@ -1,0 +1,3 @@
+* * * * * /home/windmobile/WindMobile2-Server/jdc.sh
+* * * * * /home/windmobile/WindMobile2-Server/windline.sh
+* * * * * /home/windmobile/WindMobile2-Server/ffvl.sh

@@ -1,11 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>WindMobile</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.0/jquery.mobile-1.3.0.min.css" />
-    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-    <script src="http://code.jquery.com/mobile/1.3.0/jquery.mobile-1.3.0.min.js"></script>
-</head>
-<body>
-</body>
+{% load staticfiles %}
+
+<!doctype html>
+<html ng-app="WindMobileModule">
+
+<!--link rel="stylesheet" type="text/css" href="{% static "web/css/bootstrap.css" %}" /-->
+<link rel="stylesheet" type="text/css" href="{% static "web/css/windmobile.css" %}" />
+
+<script src="{% static "web/js/jquery-1.10.2.js" %}"></script>
+<script src="{% static "web/js/jquery.sparkline.js" %}"></script>
+<script src="{% static "web/js/moment.js" %}"></script>
+<script src="{% static "web/js/angular.js" %}"></script>
+{% block content %}
+{% endblock %}
+</html>

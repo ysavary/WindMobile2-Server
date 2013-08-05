@@ -1,0 +1,28 @@
+.station-list {
+}
+
+.station-card {
+    display: inline-block;
+    position: relative;
+    vertical-align: top;
+    width: 20%;
+    min-width: 128px;
+    margin: 5px;
+    padding: 5px;
+    border: 2px solid black;
+    border-radius: 8px;
+}
+
+.station-card > .title {
+    float: left;
+    max-width: 100px;
+    overflow: hidden;
+}
+
+.station-card > .last-update {
+    float: right;
+}
+
+.station-card > .altitude {
+    clear: both;
+}

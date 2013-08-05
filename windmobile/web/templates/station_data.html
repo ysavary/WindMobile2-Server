@@ -1,7 +1,0 @@
-{% load web_extras %}
-{% block content %}
-    <h2>Station data</h2>
-    Date: {{ data.0|value:'_id' }}
-    Wind direction {{ data.0|value:'wind-direction' }}
-    Temperature {{ data.0.temperature }}
-{% endblock %}

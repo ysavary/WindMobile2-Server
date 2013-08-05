@@ -29,13 +29,13 @@ def station_list(request):
     language = request.QUERY_PARAMS.get('language', 'english')
 
     if not (search or latitude or longitude or distance or word):
-        return Response(mongo_db.stations.find())
+        return Response(mongo_db.stations.find().limit(20))
 
     elif search and not (latitude or longitude or distance or word):
         regexp_query = diacritics.create_regexp(diacritics.normalize(search))
         return Response(mongo_db.stations.find({'$or': [{'name': {'$regex': regexp_query, '$options': 'i'}},
                                                         {'short': {'$regex': regexp_query, '$options': 'i'}},
-                                                        {'tags': search}]}))
+                                                        {'tags': search}]}).limit(20))
 
     elif latitude and longitude and distance and not (search or word):
         return Response(mongo_db.stations.find({
@@ -47,7 +47,7 @@ def station_list(request):
                                                        },
                                                        '$maxDistance': int(distance)
                                                    }
-                                               }}))
+                                               }}).limit(20))
 
     elif word and not (search or latitude or longitude or distance):
         return Response(mongo_db.command('text', 'stations', search=word, language=language).get('results', []))
@@ -57,7 +57,7 @@ def station_list(request):
 
 
 @api_view(['GET'])
-def station_info(request, id):
+def station(request, id):
     station_info = mongo_db.stations.find_one(id)
     if station_info:
         return Response(station_info)
@@ -66,11 +66,11 @@ def station_info(request, id):
 
 
 @api_view(['GET'])
-def station_data(request, id):
+def historic(request, id):
         if id in mongo_db.collection_names():
-            return Response(mongo_db[id].find().sort('_id', -1).limit(1))
+            return Response(mongo_db[id].find().sort('_id', -1).limit(10))
         else:
-            return Response({'detail': "No collection with name '%s'" % id}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': "No historic data for id '%s'" % id}, status=status.HTTP_404_NOT_FOUND)
 
 
 mongo_url = os.environ['WINDMOBILE_MONGO_URL']

@@ -1,20 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>WindMobile</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.0/jquery.mobile-1.3.0.min.css" />
-    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-    <script src="http://code.jquery.com/mobile/1.3.0/jquery.mobile-1.3.0.min.js"></script>
-</head>
-<body>
-{% load web_extras %}
+{% extends "base.html" %}
+{% load staticfiles %}
+
 {% block content %}
-    <h2>Stations</h2>
-    <ul data-role="listview" data-filter="true" data-filter-placeholder="Search fruits..." data-inset="true">
-        {% for station in station_list %}
-            <li><a href="{% url "web.station_data" station|value:'_id' %}">{{ station.name }}</a></li>
-        {% endfor %}
-    </ul>
-{% endblock %}
+<script src="{% static "web/js/stations_controller.js" %}"></script>
+<body ng-controller="StationsController">
+    <div class="search">
+    Search: <input type="text" ng-model="query" ng-change="list()">
+    </div>
+    <div class="station-list">
+        <div class="station-card" ng-repeat="station in stations" ng-controller="StationController">
+            <div class="title">[[ station.name ]]</div>
+            <div class="last-update">[[ station.last._id|fromNow ]]</div>
+            <div class="altitude">Altitude: [[ station.alt ]]</div>
+            <div class="wind">Direction: [[ station.last['w-dir'] ]]</div>
+            <div class="wind">Average: [[ station.last['w-avg'] ]]</div>
+            <div class="wind">Max: [[ station.last['w-max'] ]]</div>
+            <minichart data="[[ historic ]]"></minichart>
+        </div>
+    </div>
 </body>
+{% endblock content %}

@@ -1,5 +1,6 @@
 import calendar
 from datetime import datetime
+from pytz import timezone
 import os
 import json
 import re
@@ -32,7 +33,9 @@ class MeteoSwiss(Provider):
                 "http://www.meteoswiss.admin.ch/web/en/weather/current_weather.par0013.html?allStations=1").text)
 
             update_tag = root.xpath('.//p[starts-with(text(),"Updated")]')[0]
-            update_time = datetime.strptime(update_tag.text.strip(), 'Updated on %d.%m.%Y, %H.%M')
+            switzerland = timezone('Europe/Zurich')
+            update_time = switzerland.localize(
+                datetime.strptime(update_tag.text.strip(), 'Updated on %d.%m.%Y, %H.%M'))
             key = calendar.timegm(update_time.utctimetuple())
 
             name_pattern = re.compile(u"(?P<name>.*?) \((?P<alt>[0-9]+) m asl\)")
@@ -58,7 +61,7 @@ class MeteoSwiss(Provider):
                             wgs84 = location['wgs84']
 
                     if wgs84:
-                        latitude, longitude = wgs84.split(',')
+                        longitude, latitude = wgs84.split(',')
                     else:
                         logger.error(u"Unable to find wgs84 for station '{0}'".format(station_name))
                         continue
@@ -69,8 +72,16 @@ class MeteoSwiss(Provider):
                     else:
                         status = Status.RED
 
-                    station = self.create_station(station_id, station_name, station_name, '', ['switzerland'], altitude, latitude,
-                                                  longitude, status)
+                    station = self.create_station(
+                        station_id,
+                        station_name,
+                        station_name,
+                        '',
+                        ['switzerland'],
+                        altitude,
+                        latitude,
+                        longitude,
+                        status)
                     self.stations_collection().save(station)
 
                     if status == Status.GREEN:

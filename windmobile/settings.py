@@ -146,3 +146,10 @@ LOGGING = {
 
 import dj_database_url
 DATABASES = {'default': dj_database_url.config(default='postgres://localhost/windmobile')}
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.UnicodeJSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
+}

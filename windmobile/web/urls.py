@@ -5,6 +5,6 @@ from . import views
 
 urlpatterns = patterns(
     '',
-    url(r'^$', RedirectView.as_view(url='/web/stations/', permanent=True)),
+    url(r'^$', RedirectView.as_view(url='stations/', permanent=True)),
     url(r'^stations/$', views.station_list, name='web.station_list'),
 )

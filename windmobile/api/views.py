@@ -1,5 +1,6 @@
 import os
-from django.http.response import HttpResponseBadRequest
+from urlparse import urljoin
+
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ParseError
@@ -14,8 +15,11 @@ from windmobile.api import diacritics
 def api_root(request):
     return Response({
         'List': reverse('api.station_list', request=request),
-        'Mauborget': reverse('api.station_info', ['jdc-1001'], request=request),
-        'Zinal': reverse('api.station_data', ['jdc-1003'], request=request),
+        'Search': urljoin(reverse('api.station_list', request=request), u"?search=dole"),
+        'Geo search': urljoin(reverse('api.station_list', request=request), u"?lat=46.78&lon=6.63&distance=20000"),
+        'Text search': urljoin(reverse('api.station_list', request=request), u"?word=sommet"),
+        'Mauborget': reverse('api.station', ['jdc-1001'], request=request),
+        'Historic Mauborget': reverse('api.historic', ['jdc-1001'], request=request),
     })
 
 

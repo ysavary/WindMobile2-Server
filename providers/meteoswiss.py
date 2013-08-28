@@ -45,11 +45,13 @@ class MeteoSwiss(Provider):
             for element in r:
                 try:
                     div_wind_id = element.attrib['id']
-                    station_id = div_wind_id[-3:]
+                    meteoswiss_id = div_wind_id[-3:]
+                    station_id = self.get_station_id(meteoswiss_id)
+
                     try:
-                        station_text = root.xpath("//a[contains(@href,'" + station_id + "')]/img/@title")[0]
+                        station_text = root.xpath("//a[contains(@href,'" + meteoswiss_id + "')]/img/@title")[0]
                     except IndexError:
-                        logger.error(u"Unable to find station with id '{0}'".format(station_id))
+                        logger.error(u"Unable to find station with id '{0}'".format(meteoswiss_id))
                         continue
                     match = name_pattern.match(station_text)
                     station_name = match.group('name')
@@ -63,7 +65,7 @@ class MeteoSwiss(Provider):
                     if wgs84:
                         longitude, latitude = wgs84.split(',')
                     else:
-                        logger.error(u"Unable to find wgs84 for station '{0}'".format(station_name))
+                        logger.error(u"Unable to find wgs84 for station '{0}'".format(meteoswiss_id))
                         continue
 
                     wind_text = root.xpath("//div[@id='" + div_wind_id + "']/span/text()")[0]

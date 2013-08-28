@@ -13,14 +13,32 @@ from windmobile.api import diacritics
 
 @api_view(['GET'])
 def api_root(request):
-    return Response({
-        'List': urljoin(reverse('api.stations', request=request), u"?limit=100"),
-        'Search': urljoin(reverse('api.stations', request=request), u"?search=dole"),
-        'Geo search': urljoin(reverse('api.stations', request=request), u"?lat=46.78&lon=6.63&distance=20000"),
-        'Text search': urljoin(reverse('api.stations', request=request), u"?word=sommet"),
-        'Mauborget': reverse('api.station', ['jdc-1001'], request=request),
-        'Historic Mauborget': reverse('api.historic', ['jdc-1001'], request=request),
-    })
+    return Response({'API examples': [
+        {
+            'List (max 100)':
+            urljoin(reverse('api.stations', request=request), '?limit=100')
+        },
+        {
+            'Search (ignore accents)':
+            urljoin(reverse('api.stations', request=request), '?search=dole')
+        },
+        {
+            'Geo search (20 km)':
+            urljoin(reverse('api.stations', request=request), '?lat=46.78&lon=6.63&distance=20000')
+        },
+        {
+            'Text search':
+            urljoin(reverse('api.stations', request=request), '?word=sommet')
+        },
+        {
+            'Mauborget':
+            reverse('api.station', ['jdc-1001'], request=request)
+        },
+        {
+            'Historic Mauborget (1 hour)':
+            urljoin(reverse('api.historic', ['jdc-1001'], request=request), '?duration=3600')
+        },
+    ]})
 
 
 @api_view(['GET'])
@@ -63,19 +81,29 @@ def stations(request):
 
 @api_view(['GET'])
 def station(request, id):
-    station_info = mongo_db.stations.find_one(id)
-    if station_info:
-        return Response(station_info)
+    station = mongo_db.stations.find_one(id)
+    if station:
+        return Response(station)
     else:
         return Response({'detail': "No station with id '%s'" % id}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])
 def historic(request, id):
-        if id in mongo_db.collection_names():
-            return Response(mongo_db[id].find().sort('_id', -1).limit(10))
-        else:
-            return Response({'detail': "No historic data for id '%s'" % id}, status=status.HTTP_404_NOT_FOUND)
+    duration = int(request.QUERY_PARAMS.get('duration', 3600))
+
+    if duration > 7 * 24 * 3600:
+        raise ParseError(u"Duration > 7 days")
+
+    if id in mongo_db.collection_names():
+        station = mongo_db.stations.find_one(id)
+        if not station or not 'last' in station:
+            return Response({'detail': "No station with id '%s'" % id}, status=status.HTTP_404_NOT_FOUND)
+        last_time = station['last']['_id']
+        start_time = last_time - duration;
+        return Response(mongo_db[id].find({'_id': {'$gte': start_time}}).sort('_id', -1))
+    else:
+        return Response({'detail': "No historic data for id '%s'" % id}, status=status.HTTP_404_NOT_FOUND)
 
 
 mongo_url = os.environ['WINDMOBILE_MONGO_URL']

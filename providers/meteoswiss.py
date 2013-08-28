@@ -29,8 +29,11 @@ class MeteoSwiss(Provider):
                 locations = json.load(in_file)
 
             parser = HTMLParser(tree=treebuilders.getTreeBuilder("lxml"), namespaceHTMLElements=False)
+            headers = {'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) "
+                                     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.57 Safari/537.36"}
             root = parser.parse(requests.get(
-                "http://www.meteoswiss.admin.ch/web/en/weather/current_weather.par0013.html?allStations=1").text)
+                "http://www.meteoswiss.admin.ch/web/en/weather/current_weather.par0013.html?allStations=1",
+                headers=headers).text)
 
             update_tag = root.xpath('.//p[starts-with(text(),"Updated")]')[0]
             switzerland = timezone('Europe/Zurich')

@@ -1,10 +1,10 @@
 from django.views import generic
 
 
-class StationList(generic.TemplateView):
-    template_name = "station_list.html"
+class StationsView(generic.TemplateView):
+    template_name = "stations.html"
 
-station_list = StationList.as_view()
+stations = StationsView.as_view()
 
 
 class MapView(generic.TemplateView):

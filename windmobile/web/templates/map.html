@@ -2,9 +2,6 @@
 {% load staticfiles %}
 
 {% block content %}
-<script src="http://maps.googleapis.com/maps/api/js?sensor=false&language=en"></script>
-<script src="{% static "web/js/angular-google-maps.js" %}"></script>
-<script src="{% static "web/js/stations_controller.js" %}"></script>
 <body ng-controller="MapController">
 <div class="google-map"
     center="center"

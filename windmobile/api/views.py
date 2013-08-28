@@ -14,17 +14,17 @@ from windmobile.api import diacritics
 @api_view(['GET'])
 def api_root(request):
     return Response({
-        'List': reverse('api.station_list', request=request),
-        'Search': urljoin(reverse('api.station_list', request=request), u"?search=dole"),
-        'Geo search': urljoin(reverse('api.station_list', request=request), u"?lat=46.78&lon=6.63&distance=20000"),
-        'Text search': urljoin(reverse('api.station_list', request=request), u"?word=sommet"),
+        'List': urljoin(reverse('api.stations', request=request), u"?limit=100"),
+        'Search': urljoin(reverse('api.stations', request=request), u"?search=dole"),
+        'Geo search': urljoin(reverse('api.stations', request=request), u"?lat=46.78&lon=6.63&distance=20000"),
+        'Text search': urljoin(reverse('api.stations', request=request), u"?word=sommet"),
         'Mauborget': reverse('api.station', ['jdc-1001'], request=request),
         'Historic Mauborget': reverse('api.historic', ['jdc-1001'], request=request),
     })
 
 
 @api_view(['GET'])
-def station_list(request):
+def stations(request):
     search = request.QUERY_PARAMS.get('search')
     latitude = request.QUERY_PARAMS.get('lat')
     longitude = request.QUERY_PARAMS.get('lon')

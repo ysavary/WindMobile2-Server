@@ -7,4 +7,5 @@ urlpatterns = patterns(
     '',
     url(r'^$', RedirectView.as_view(url='stations/', permanent=True)),
     url(r'^stations/$', views.station_list, name='web.station_list'),
+    url(r'^map/$', views.map, name='web.map'),
 )

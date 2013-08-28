@@ -31,15 +31,16 @@ def station_list(request):
     distance = request.QUERY_PARAMS.get('distance')
     word = request.QUERY_PARAMS.get('word')
     language = request.QUERY_PARAMS.get('language', 'english')
+    limit = int(request.QUERY_PARAMS.get('limit', 20))
 
     if not (search or latitude or longitude or distance or word):
-        return Response(mongo_db.stations.find().limit(20))
+        return Response(mongo_db.stations.find().limit(limit))
 
     elif search and not (latitude or longitude or distance or word):
         regexp_query = diacritics.create_regexp(diacritics.normalize(search))
         return Response(mongo_db.stations.find({'$or': [{'name': {'$regex': regexp_query, '$options': 'i'}},
                                                         {'short': {'$regex': regexp_query, '$options': 'i'}},
-                                                        {'tags': search}]}).limit(20))
+                                                        {'tags': search}]}).limit(limit))
 
     elif latitude and longitude and distance and not (search or word):
         return Response(mongo_db.stations.find({
@@ -51,7 +52,7 @@ def station_list(request):
                                                        },
                                                        '$maxDistance': int(distance)
                                                    }
-                                               }}).limit(20))
+                                               }}).limit(limit))
 
     elif word and not (search or latitude or longitude or distance):
         return Response(mongo_db.command('text', 'stations', search=word, language=language).get('results', []))

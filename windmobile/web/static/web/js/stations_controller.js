@@ -1,4 +1,4 @@
-var module = angular.module('WindMobileModule', [], function ($interpolateProvider) {
+var module = angular.module('WindMobileModule', ['google-maps'], function ($interpolateProvider) {
         $interpolateProvider.startSymbol('[[');
         $interpolateProvider.endSymbol(']]');
     })
@@ -63,4 +63,26 @@ function StationController($scope, $http) {
             })
     }
     $scope.getHistoric()
+}
+
+function MapController($scope, $http) {
+    $scope.center = {
+            latitude: 0,
+            longitude: 0
+    };
+    $scope.zoom= 5;
+    $scope.markers = [];
+
+    $scope.list = function () {
+        $http({method: 'GET', url: '/api/2/stations/', params: {limit: 1000}}).
+            success(function (stations) {
+                for (var i = 0; i < stations.length; i++) {
+                    $scope.markers.push({
+                        latitude: stations[i].loc.lat,
+                        longitude: stations[i].loc.lon
+                    });
+                }
+            });
+    }
+    $scope.list();
 }

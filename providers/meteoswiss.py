@@ -25,7 +25,7 @@ class MeteoSwiss(Provider):
         try:
             logger.info(u"Processing METEOSWISS data...")
 
-            with open('swissmetnet.json') as in_file:
+            with open(os.path.join(os.path.dirname(__file__), 'swissmetnet.json')) as in_file:
                 locations = json.load(in_file)
 
             parser = HTMLParser(tree=treebuilders.getTreeBuilder("lxml"), namespaceHTMLElements=False)

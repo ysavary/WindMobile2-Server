@@ -10,29 +10,29 @@ var module = angular.module('WindMobileModule', ['google-maps'], function ($inte
                 return "Unknown";
             }
         }
-    });
-
-module.directive('minichart', function () {
-    return {
-        restrict: "E",
-        scope: {
-            data: "@"
-        },
-        compile: function (tElement, tAttrs, transclude) {
-            return function (scope, element, attrs) {
-                attrs.$observe('data', function (newValue) {
-                    element.html(newValue);
-                    element.sparkline('html', {
-                        type: 'line',
-                        spotColor: false,
-                        minSpotColor: false,
-                        maxSpotColor: false
+    })
+    .directive('minichart', function () {
+        return {
+            restrict: "E",
+            scope: {
+                data: "@"
+            },
+            compile: function (tElement, tAttrs, transclude) {
+                return function (scope, element, attrs) {
+                    attrs.$observe('data', function (newValue) {
+                        element.html(newValue);
+                        element.sparkline('html', {
+                            type: 'line',
+                            spotColor: false,
+                            minSpotColor: false,
+                            maxSpotColor: false,
+                            width: '40px'
+                        });
                     });
-                });
-            };
-        }
-    };
-});
+                };
+            }
+        };
+    });
 
 function StationsController($scope, $http) {
     $scope.list = function () {

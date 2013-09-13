@@ -5,7 +5,7 @@
       "_default_": {
         "dynamic_templates": [{
           "template_1": {
-            "path_match": "@fields.station_id",
+            "path_match": "station_id",
             "match_mapping_type": "string",
             "mapping": {
               "type": "string",

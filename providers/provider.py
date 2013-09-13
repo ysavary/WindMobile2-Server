@@ -120,7 +120,7 @@ class Provider(object):
         return station
 
     def create_measure(self, _id, wind_direction, wind_average, wind_maximum, temperature, humidity,
-                       wind_direction_instant=None, wind_minimum=None, pressure=None, luminosity=None):
+                       wind_direction_instant=None, wind_minimum=None, pressure=None, luminosity=None, rain=None):
 
         # Mandatory keys: json 'null' if not present
         measure = {'_id': _id,
@@ -132,14 +132,16 @@ class Provider(object):
                    }
 
         # Optional keys
-        if wind_direction_instant:
+        if wind_direction_instant is not None:
             measure['w-inst'] = to_float(wind_direction_instant, 1),
-        if wind_minimum:
+        if wind_minimum is not None:
             measure['w-min'] = to_float(wind_minimum, 1),
-        if pressure:
+        if pressure is not None:
             measure['pres'] = to_int(pressure)
-        if luminosity:
+        if luminosity is not None:
             measure['lum'] = to_int(luminosity)
+        if rain is not None:
+            measure['rain'] = to_float(rain, 1)
 
         return measure
 

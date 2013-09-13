@@ -69,7 +69,9 @@ class Jdc(Provider):
                                         jdc_measure.get('wind-average'),
                                         jdc_measure.get('wind-maximum'),
                                         jdc_measure.get('temperature'),
-                                        jdc_measure.get('humidity'))
+                                        jdc_measure.get('humidity'),
+                                        pressure=jdc_measure.get('pressure', None),
+                                        rain=jdc_measure.get('rain', None))
                                     new_measures.append(measure)
 
                             self.insert_new_measures(measures_collection, station, new_measures, logger)

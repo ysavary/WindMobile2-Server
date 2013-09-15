@@ -119,11 +119,12 @@ class Provider(object):
         return station
 
     def save_station(self, _id, short_name, name, category, tags, altitude, latitude, longitude, status,
-                       description=None, url=None, timezone=None, uptime=None, language=None):
+                     description=None, url=None, timezone=None, uptime=None, language=None):
 
         station = self.__create_station(short_name, name, category, tags, altitude, latitude, longitude, status,
                                         description, url, timezone, uptime, language)
         self.stations_collection().update({'_id': _id}, {'$set': station}, upsert=True)
+        return self.stations_collection().find_one(_id)
 
     def create_measure(self, _id, wind_direction, wind_average, wind_maximum, temperature, humidity,
                        wind_direction_instant=None, wind_minimum=None, pressure=None, luminosity=None, rain=None):

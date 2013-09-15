@@ -87,11 +87,10 @@ class Provider(object):
     def now_unix_time(self):
         return int(time())
 
-    def create_station(self, _id, short_name, name, category, tags, altitude, latitude, longitude, status,
-                       description=None, url=None, timezone=None, uptime=None, language=None):
+    def __create_station(self, short_name, name, category, tags, altitude, latitude, longitude, status,
+                         description=None, url=None, timezone=None, uptime=None, language=None):
 
-        station = {'_id': _id,
-                   'prov': self.provider_name,
+        station = {'prov': self.provider_name,
                    'short': short_name,
                    'name': name,
                    'cat': category,
@@ -118,6 +117,13 @@ class Provider(object):
             station['language'] = language
 
         return station
+
+    def save_station(self, _id, short_name, name, category, tags, altitude, latitude, longitude, status,
+                       description=None, url=None, timezone=None, uptime=None, language=None):
+
+        station = self.__create_station(short_name, name, category, tags, altitude, latitude, longitude, status,
+                                        description, url, timezone, uptime, language)
+        self.stations_collection().update({'_id': _id}, {'$set': station}, upsert=True)
 
     def create_measure(self, _id, wind_direction, wind_average, wind_maximum, temperature, humidity,
                        wind_direction_instant=None, wind_minimum=None, pressure=None, luminosity=None, rain=None):
@@ -160,4 +166,4 @@ class Provider(object):
         if measures_collection:
             last_measure = measures_collection.find_one({'$query': {}, '$orderby': {'_id': -1}})
             if last_measure:
-                self.stations_collection().update({'_id': station_id}, {'$set': {'last': last_measure}}, upsert=False)
+                self.stations_collection().update({'_id': station_id}, {'$set': {'last': last_measure}})

@@ -37,7 +37,7 @@ class Jdc(Provider):
                 try:
                     jdc_id = jdc_station['serial']
                     station_id = self.get_station_id(jdc_id)
-                    station = self.create_station(
+                    station = self.save_station(
                         station_id,
                         jdc_station['short-name'],
                         jdc_station['name'],
@@ -48,7 +48,6 @@ class Jdc(Provider):
                         jdc_station['longitude'],
                         self.get_status(jdc_station['status']),
                         timezone=jdc_station['timezone'])
-                    self.stations_collection().save(station)
 
                     try:
                         # Asking 2 days of data

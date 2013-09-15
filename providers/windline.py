@@ -121,7 +121,7 @@ class Windline(Provider):
                 status = row[4]
                 try:
                     station_id = self.get_station_id(windline_id)
-                    station = self.create_station(
+                    station = self.save_station(
                         station_id,
                         short_name,
                         name,
@@ -131,7 +131,6 @@ class Windline(Provider):
                         wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no, latitude_property_id)),
                         wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no, longitude_property_id)),
                         self.get_status(status))
-                    self.stations_collection().save(station)
 
                     try:
                         measures_collection = self.measures_collection(station_id)

@@ -65,7 +65,7 @@ class Ffvl(Provider):
                 try:
                     station_id = self.get_station_id(ffvl_station.find('idBalise').text)
 
-                    station = self.create_station(
+                    self.save_station(
                         station_id,
                         self.get_xml_element(ffvl_station, 'nom'),
                         self.get_xml_element(ffvl_station, 'nom'),
@@ -77,7 +77,6 @@ class Ffvl(Provider):
                         self.get_status(self.get_xml_element(ffvl_station, 'active')),
                         description=self.get_xml_element(ffvl_station, 'description'),
                         url=self.get_xml_attribute(ffvl_station, 'url', 'value'))
-                    self.stations_collection().save(station)
 
                 except (ProviderException, StandardError) as e:
                     logger.error(u"Error while processing station '{0}': {1}".format(station_id, e))

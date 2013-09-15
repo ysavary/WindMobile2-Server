@@ -77,7 +77,7 @@ class MeteoSwiss(Provider):
                     else:
                         status = Status.RED
 
-                    station = self.create_station(
+                    station = self.save_station(
                         station_id,
                         station_name,
                         station_name,
@@ -87,7 +87,6 @@ class MeteoSwiss(Provider):
                         latitude,
                         longitude,
                         status)
-                    self.stations_collection().save(station)
 
                     if status == Status.GREEN:
                         measures_collection = self.measures_collection(station_id)

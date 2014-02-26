@@ -16,27 +16,27 @@ def api_root(request):
     return Response({'API examples': [
         {
             'List (max 100)':
-            urljoin(reverse('api.stations', request=request), '?limit=100')
+                urljoin(reverse('api.stations', request=request), '?limit=100')
         },
         {
             'Search (ignore accents)':
-            urljoin(reverse('api.stations', request=request), '?search=dole')
+                urljoin(reverse('api.stations', request=request), '?search=dole')
         },
         {
             'Geo search (20 km)':
-            urljoin(reverse('api.stations', request=request), '?lat=46.78&lon=6.63&distance=20000')
+                urljoin(reverse('api.stations', request=request), '?lat=46.78&lon=6.63&distance=20000')
         },
         {
             'Text search':
-            urljoin(reverse('api.stations', request=request), '?word=sommet')
+                urljoin(reverse('api.stations', request=request), '?word=sommet')
         },
         {
             'Mauborget':
-            reverse('api.station', ['jdc-1001'], request=request)
+                reverse('api.station', ['jdc-1001'], request=request)
         },
         {
             'Historic Mauborget (1 hour)':
-            urljoin(reverse('api.historic', ['jdc-1001'], request=request), '?duration=3600')
+                urljoin(reverse('api.historic', ['jdc-1001'], request=request), '?duration=3600')
         },
     ]})
 
@@ -52,25 +52,27 @@ def stations(request):
     limit = int(request.QUERY_PARAMS.get('limit', 20))
 
     if not (search or latitude or longitude or distance or word):
-        return Response(mongo_db.stations.find().limit(limit))
+        return Response(list(mongo_db.stations.find().limit(limit)))
 
     elif search and not (latitude or longitude or distance or word):
         regexp_query = diacritics.create_regexp(diacritics.normalize(search))
-        return Response(mongo_db.stations.find({'$or': [{'name': {'$regex': regexp_query, '$options': 'i'}},
-                                                        {'short': {'$regex': regexp_query, '$options': 'i'}},
-                                                        {'tags': search}]}).limit(limit))
+        return Response(list(mongo_db.stations.find({
+            '$or': [{'name': {'$regex': regexp_query, '$options': 'i'}},
+                    {'short': {'$regex': regexp_query, '$options': 'i'}},
+                    {'tags': search}]
+        }).limit(limit)))
 
     elif latitude and longitude and distance and not (search or word):
-        return Response(mongo_db.stations.find({
-                                               'loc': {
-                                                   '$near': {
-                                                       '$geometry': {
-                                                           'type': 'Point',
-                                                           'coordinates': [float(latitude), float(longitude)]
-                                                       },
-                                                       '$maxDistance': int(distance)
-                                                   }
-                                               }}).limit(limit))
+        return Response(list(mongo_db.stations.find({
+            'loc': {
+                '$near': {
+                    '$geometry': {
+                        'type': 'Point',
+                        'coordinates': [float(latitude), float(longitude)]
+                    },
+                    '$maxDistance': int(distance)
+                }
+            }}).limit(limit)))
 
     elif word and not (search or latitude or longitude or distance):
         return Response(mongo_db.command('text', 'stations', search=word, language=language).get('results', []))
@@ -101,7 +103,7 @@ def historic(request, id):
             return Response({'detail': "No station with id '%s'" % id}, status=status.HTTP_404_NOT_FOUND)
         last_time = station['last']['_id']
         start_time = last_time - duration;
-        return Response(mongo_db[id].find({'_id': {'$gte': start_time}}).sort('_id', -1))
+        return Response(list(mongo_db[id].find({'_id': {'$gte': start_time}}).sort('_id', -1)))
     else:
         return Response({'detail': "No historic data for id '%s'" % id}, status=status.HTTP_404_NOT_FOUND)
 

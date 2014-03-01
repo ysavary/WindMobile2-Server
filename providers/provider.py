@@ -4,8 +4,7 @@ import logging
 import logging.handlers
 from time import time
 from datetime import datetime
-from pymongo import MongoClient, uri_parser
-import pymongo
+from pymongo import uri_parser, MongoClient, GEOSPHERE
 from pymongo.errors import CollectionInvalid
 
 
@@ -71,7 +70,7 @@ class Provider(object):
 
     def stations_collection(self):
         collection = self.mongo_db.stations
-        collection.ensure_index([('loc', pymongo.GEOSPHERE)])
+        collection.ensure_index([('loc', GEOSPHERE)])
         collection.ensure_index([('name', 'text'), ('desc', 'text')], language='french')
         return collection
 

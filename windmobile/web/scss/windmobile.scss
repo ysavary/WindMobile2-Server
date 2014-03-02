@@ -1,0 +1,96 @@
+$background-color: #191919;
+$light-background-color: #222;
+
+$text-color: #8d8d8d;
+$highlight-text-color: #ddd;
+
+$small-font-size: 12px;
+$font-size: 15px;
+
+body {
+    background-color: $background-color;
+}
+
+#toolbar {
+    width: auto;
+    height: 44px;
+    background: $light-background-color;
+
+    > button#drawer-toggle {
+        float: left;
+        width: 44px;
+        height: 44px;
+        background: image-url('open.png') center center no-repeat;
+        border: none;
+    }
+    > div#search {
+        float: left;
+        line-height: 44px;
+        color: #8d8d8d;
+        padding-left: 20px;
+
+        > input {
+            height: 18px;
+            font-size: 14;
+            border-radius: 5px;
+        }
+    }
+    > h1 {
+        width: auto;
+        line-height: 44px;
+        text-align: center;
+        overflow: hidden;
+        margin: 0;
+        color: $highlight-text-color;
+        font-size: 16px;
+    }
+}
+
+.station-list {
+}
+
+.station-card {
+    display: inline-block;
+    position: relative;
+    vertical-align: top;
+    width: 20%;
+    min-width: 128px;
+    margin: 5px;
+    padding: 5px;
+    border: 1.5px solid $highlight-text-color;
+    border-radius: 8px;
+    color: $text-color;
+    font-size: $font-size;
+    background-color: $light-background-color;
+
+    > .title {
+        float: left;
+        max-width: 100px;
+        overflow: hidden;
+        color: $highlight-text-color;
+        font-size: 20px;
+    }
+    > .last-update {
+        float: right;
+        font-size: $small-font-size;
+    }
+    > .altitude {
+        clear: both;
+        font-size: $small-font-size;
+    }
+    > .wind-avg {
+        font-size: 25px;
+        color: $highlight-text-color;
+    }
+    > .wind-max {
+        float: left;
+        font-size: 17px;
+        color: $highlight-text-color;
+    }
+    > .unit {
+        margin: 0 0 0 20px;
+    }
+    > .wind-direction {
+        float: right;
+    }
+}

@@ -1,18 +1,27 @@
 {% load staticfiles %}
 
 <!doctype html>
-<html ng-app="WindMobileModule">
+<html ng-app="WindMobileApp">
 
-<!--link rel="stylesheet" type="text/css" href="{% static "web/css/bootstrap.css" %}" /-->
+<head>
+<link rel="stylesheet" type="text/css" href="{% static "web/css/snap.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "web/css/angular-snap.css" %}" />
 <link rel="stylesheet" type="text/css" href="{% static "web/css/windmobile.css" %}" />
 
-<script src="{% static "web/js/jquery-1.10.2.js" %}"></script>
+<script src="{% static "web/js/jquery-2.0.3.js" %}"></script>
 <script src="{% static "web/js/jquery.sparkline.js" %}"></script>
 <script src="{% static "web/js/moment.js" %}"></script>
-<script src="http://maps.googleapis.com/maps/api/js?sensor=false&language=en"></script>
+<script src="{% static "web/js/snap.svg.js" %}"></script>
 <script src="{% static "web/js/angular.js" %}"></script>
+<script src="{% static "web/js/snap.js" %}"></script>
+<script src="{% static "web/js/angular-snap.js" %}"></script>
+<script src="http://maps.googleapis.com/maps/api/js?sensor=false&language=en"></script>
 <script src="{% static "web/js/angular-google-maps.js" %}"></script>
 <script src="{% static "web/js/windmobile.js" %}"></script>
+
+<title>WindMobile 2.0</title>
+</head>
+
 {% block content %}
 {% endblock %}
 </html>

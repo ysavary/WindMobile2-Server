@@ -7,10 +7,24 @@
 		<p>I'm a drawer! I maybe I've got some sweet navigation links.</p>
 	</snap-drawer>
 	<snap-content snap-options="snapOptions">
-		<div id="toolbar">
-			<button id="drawer-toggle" snap-toggle></button>
-			<div id="search">Search: <input type="text" ng-model="query" ng-change="list()"></div>
-			<h1>WindMobile</h1>
+		<div class="navbar navbar-fixed-top navbar-inverse">
+			<div class="navbar-inner">
+				<div class="container-fluid">
+					<a class="navbar-brand" href="#">
+						<img src="/static/web/images/windmobile.png">
+						WindMobile
+					</a>
+					<div class="navbar-form navbar-left" role="search">
+						<div class="form-group has-feedback">
+							<input type="text" class="form-control" placeholder="Search" ng-model="query" ng-change="list()">
+							<span class="glyphicon glyphicon-search form-control-feedback"></span>
+						</div>
+					</div>
+					<ul class="nav navbar-nav navbar-right">
+						<li><a href="#">Link</a></li>
+					</ul>
+				</div>
+			</div>
 		</div>
 		<div class="station-list">
 			<div class="station-card" ng-repeat="station in stations" ng-controller="StationController">

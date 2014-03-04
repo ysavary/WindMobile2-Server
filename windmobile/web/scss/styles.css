@@ -1,0 +1,49 @@
+/*
+Syntax error: File to import not found or unreadable: bootstrap.
+              Load path: /Users/yann/Documents/WindMobile/WindMobile2/WindMobile2-Server/windmobile/web/scss
+        on line 3 of styles.scss
+
+1: // customize bootstrap variables here:
+2: @import "variables";
+3: @import "bootstrap";
+
+Backtrace:
+styles.scss:3
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/import_node.rb:67:in `rescue in import'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/import_node.rb:45:in `import'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/import_node.rb:28:in `imported_file'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/import_node.rb:37:in `css_import?'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/visitors/perform.rb:217:in `visit_import'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/visitors/base.rb:37:in `visit'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/visitors/perform.rb:100:in `visit'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/visitors/base.rb:53:in `block in visit_children'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/visitors/base.rb:53:in `map'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/visitors/base.rb:53:in `visit_children'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/visitors/perform.rb:109:in `block in visit_children'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/visitors/perform.rb:121:in `with_environment'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/visitors/perform.rb:108:in `visit_children'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/visitors/base.rb:37:in `block in visit'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/visitors/perform.rb:128:in `visit_root'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/visitors/base.rb:37:in `visit'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/visitors/perform.rb:100:in `visit'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/visitors/perform.rb:7:in `visit'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/tree/root_node.rb:20:in `render'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/engine.rb:315:in `_render'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/engine.rb:262:in `render'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/plugin/compiler.rb:362:in `update_stylesheet'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/plugin/compiler.rb:203:in `block in update_stylesheets'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/plugin/compiler.rb:201:in `each'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/plugin/compiler.rb:201:in `update_stylesheets'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/plugin.rb:81:in `update_stylesheets'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/exec.rb:443:in `watch_or_update'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/exec.rb:326:in `process_result'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/exec.rb:41:in `parse'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/lib/sass/exec.rb:21:in `parse!'
+/usr/local/Cellar/ruby193/1.9.3-p545/lib/ruby/gems/1.9.1/gems/sass-3.2.14/bin/scss:13:in `<top (required)>'
+/usr/local/opt/ruby193/bin/scss:23:in `load'
+/usr/local/opt/ruby193/bin/scss:23:in `<main>'
+*/
+body:before {
+  white-space: pre;
+  font-family: monospace;
+  content: "Syntax error: File to import not found or unreadable: bootstrap.\A               Load path: /Users/yann/Documents/WindMobile/WindMobile2/WindMobile2-Server/windmobile/web/scss\A         on line 3 of styles.scss\A \A 1: // customize bootstrap variables here:\A 2: @import \"variables\";\A 3: @import \"bootstrap\";"; }

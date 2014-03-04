@@ -1,4 +1,5 @@
 *.pyc
 .idea
+.sass-cache
 envdir
 windmobile/static

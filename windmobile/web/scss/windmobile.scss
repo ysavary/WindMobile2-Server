@@ -1,3 +1,4 @@
+$grid-float-breakpoint: 500px;
 @import "bootstrap";
 
 $background-color: #191919;
@@ -11,6 +12,11 @@ $font-size: 15px;
 
 body {
     background-color: $background-color;
+}
+
+.brand-img {
+    height: 40px;
+    margin-right: 10px;
 }
 
 .station-list {

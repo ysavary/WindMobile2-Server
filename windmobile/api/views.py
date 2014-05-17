@@ -48,7 +48,7 @@ def stations(request):
     longitude = request.QUERY_PARAMS.get('lon')
     distance = request.QUERY_PARAMS.get('distance')
     word = request.QUERY_PARAMS.get('word')
-    language = request.QUERY_PARAMS.get('language', 'english')
+    language = request.QUERY_PARAMS.get('language', 'fr')
     limit = int(request.QUERY_PARAMS.get('limit', 20))
 
     if not (search or latitude or longitude or distance or word):
@@ -62,9 +62,9 @@ def stations(request):
                     {'tags': search}]
         }).limit(limit)))
 
-    elif latitude and longitude and distance and not (search or word):
-        return Response(list(mongo_db.stations.find({
-            'loc': {
+    elif latitude and longitude and not (search or word):
+        if distance:
+            geo_search = {'loc': {
                 '$near': {
                     '$geometry': {
                         'type': 'Point',
@@ -72,10 +72,20 @@ def stations(request):
                     },
                     '$maxDistance': int(distance)
                 }
-            }}).limit(limit)))
+            }}
+        else:
+            geo_search = {'loc': {
+                '$near': {
+                    '$geometry': {
+                        'type': 'Point',
+                        'coordinates': [float(latitude), float(longitude)]
+                    }
+                }
+            }}
+        return Response(list(mongo_db.stations.find(geo_search).limit(limit)))
 
     elif word and not (search or latitude or longitude or distance):
-        return Response(mongo_db.command('text', 'stations', search=word, language=language).get('results', []))
+        return Response(list(mongo_db.stations.find({'$text': {'$search': word, '$language': language}}).limit(limit)))
 
     else:
         raise ParseError(u"Invalid query parameters")

@@ -71,7 +71,7 @@ class Provider(object):
     def stations_collection(self):
         collection = self.mongo_db.stations
         collection.ensure_index([('loc', GEOSPHERE)])
-        collection.ensure_index([('name', 'text'), ('desc', 'text')], language='french')
+        collection.ensure_index([('name', 'text'), ('desc', 'text')], default_language='fr')
         return collection
 
     def measures_collection(self, station_id):

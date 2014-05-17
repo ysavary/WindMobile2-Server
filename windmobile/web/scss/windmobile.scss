@@ -27,7 +27,7 @@ body {
     position: relative;
     vertical-align: top;
     width: 20%;
-    min-width: 128px;
+    min-width: 200px;
     margin: 5px;
     padding: 5px;
     border: 1.5px solid $highlight-text-color;
@@ -51,19 +51,30 @@ body {
         clear: both;
         font-size: $small-font-size;
     }
-    > .wind-avg {
-        font-size: 25px;
-        color: $highlight-text-color;
-    }
-    > .wind-max {
+    > .wind-section {
         float: left;
-        font-size: 17px;
-        color: $highlight-text-color;
+        width: 50%;
+        > .wind-avg {
+            font-size: 25px;
+            color: $highlight-text-color;
+        }
+        > .wind-max {
+            float: left;
+            font-size: 17px;
+            color: $highlight-text-color;
+        }
+        > .unit {
+            float: right;
+            margin: 0 20px 0 0;
+        }
+        > #mini-chart {
+            clear: both;
+            float:left;
+        }
     }
-    > .unit {
-        margin: 0 0 0 20px;
-    }
-    > .wind-direction {
+    > #wind-direction {
         float: right;
+        width: 80px;
+        height: 80px;
     }
 }

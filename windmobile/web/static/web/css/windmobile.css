@@ -7611,7 +7611,7 @@ body {
   position: relative;
   vertical-align: top;
   width: 20%;
-  min-width: 128px;
+  min-width: 200px;
   margin: 5px;
   padding: 5px;
   border: 1.5px solid #dddddd;
@@ -7639,21 +7639,34 @@ body {
   font-size: 12px;
 }
 /* line 54, ../../../scss/windmobile.scss */
-.station-card > .wind-avg {
+.station-card > .wind-section {
+  float: left;
+  width: 50%;
+}
+/* line 57, ../../../scss/windmobile.scss */
+.station-card > .wind-section > .wind-avg {
   font-size: 25px;
   color: #dddddd;
 }
-/* line 58, ../../../scss/windmobile.scss */
-.station-card > .wind-max {
+/* line 61, ../../../scss/windmobile.scss */
+.station-card > .wind-section > .wind-max {
   float: left;
   font-size: 17px;
   color: #dddddd;
 }
-/* line 63, ../../../scss/windmobile.scss */
-.station-card > .unit {
-  margin: 0 0 0 20px;
-}
 /* line 66, ../../../scss/windmobile.scss */
-.station-card > .wind-direction {
+.station-card > .wind-section > .unit {
   float: right;
+  margin: 0 20px 0 0;
+}
+/* line 70, ../../../scss/windmobile.scss */
+.station-card > .wind-section > #mini-chart {
+  clear: both;
+  float: left;
+}
+/* line 75, ../../../scss/windmobile.scss */
+.station-card > #wind-direction {
+  float: right;
+  width: 80px;
+  height: 80px;
 }

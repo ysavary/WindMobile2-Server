@@ -22,8 +22,8 @@ var app = angular.module('WindMobileApp', ['snap', 'google-maps'], function ($in
                     attrs.$observe('data', function (newValue) {
                         element.html(newValue);
                         element.sparkline('html', {
-                            width: '60px',
-                            height: '20px',
+                            width: '80px',
+                            height: '25px',
                             type: 'line',
                             spotColor: false,
                             minSpotColor: false,
@@ -48,10 +48,10 @@ var app = angular.module('WindMobileApp', ['snap', 'google-maps'], function ($in
                         var radius = Math.min(width, height) / 2;
 
                         var paper = Snap(element[0]);
-                        var circle = paper.circle(width/2, height/2, radius);
+                        var circle = paper.circle(width/2, height/2, radius-1);
                         circle.attr({
                             stroke: "#fff",
-                            strokeWidth: 2
+                            strokeWidth: 1
                         });
 
                         // The center

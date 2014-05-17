@@ -139,9 +139,9 @@ class Provider(object):
 
         # Optional keys
         if wind_direction_instant is not None:
-            measure['w-inst'] = to_float(wind_direction_instant, 1),
+            measure['w-inst'] = to_float(wind_direction_instant, 1)
         if wind_minimum is not None:
-            measure['w-min'] = to_float(wind_minimum, 1),
+            measure['w-min'] = to_float(wind_minimum, 1)
         if pressure is not None:
             measure['pres'] = to_int(pressure)
         if luminosity is not None:

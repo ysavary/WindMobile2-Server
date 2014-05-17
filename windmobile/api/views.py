@@ -13,9 +13,9 @@ from windmobile.api import diacritics
 
 @api_view(['GET'])
 def api_root(request):
-    return Response({'API examples': [
+    return Response({'API documentation (default limit=20)': [
         {
-            'List (max 100)':
+            'List 100 stations':
                 urljoin(reverse('api.stations', request=request), '?limit=100')
         },
         {
@@ -23,7 +23,11 @@ def api_root(request):
                 urljoin(reverse('api.stations', request=request), '?search=dole')
         },
         {
-            'Geo search (20 km)':
+            'Geo search 3 stations around Yverdon':
+                urljoin(reverse('api.stations', request=request), '?lat=46.78&lon=6.63&limit=3')
+        },
+        {
+            'Geo search 20 km around Yverdon':
                 urljoin(reverse('api.stations', request=request), '?lat=46.78&lon=6.63&distance=20000')
         },
         {

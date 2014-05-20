@@ -133,7 +133,10 @@ app.controller('StationController', ['$scope', '$http', function ($scope, $http)
     $scope.getHistoric();
 }]);
 
-app.controller('MapController', ['$scope', '$http', function ($scope, $http) {
+app.controller('MapController', ['$scope', '$http', '$compile', function ($scope, $http, $compile) {
+
+    $scope.test = "TEST !";
+
     $scope.geoList = function (position) {
         var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         $scope.map.setCenter(currentPosition);
@@ -156,11 +159,22 @@ app.controller('MapController', ['$scope', '$http', function ($scope, $http) {
                         map: $scope.map
                     });
 
-                    marker.info = new google.maps.InfoWindow({
-                        content: "<div>" + station["name"] + "</div>"
-                    });
+                    //var content = '<div id="infobox-content" ng-include src="\'/static/web/templates/_infobox.html\'"></div>';
+                    var element = $compile('<div>[[ stations ]]</div>')($scope);
+                    //$scope.$apply();
+
+                    var openInfo = null;
                     google.maps.event.addListener(marker, 'click', function () {
-                        this.info.open($scope.map, this);
+                        if (openInfo) {
+                            openInfo.close();
+                        }
+                        var element = $compile('<div>[[ test ]]</div>')($scope);
+                        $scope.$apply();
+                        openInfo = new InfoBox({
+                            //content: "<div>Test</div>"
+                            content: element[0]
+                        });
+                        openInfo.open($scope.map, this);
                     });
                 }
             });

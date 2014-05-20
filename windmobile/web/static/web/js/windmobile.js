@@ -1,7 +1,7 @@
-var app = angular.module('WindMobileApp', ['snap', 'google-maps'], function ($interpolateProvider) {
-        $interpolateProvider.startSymbol('[[');
-        $interpolateProvider.endSymbol(']]');
-    })
+var app = angular.module('WindMobileApp', ['ngMap'], function ($interpolateProvider) {
+    $interpolateProvider.startSymbol('[[');
+    $interpolateProvider.endSymbol(']]');
+})
     .filter('fromNow', function () {
         return function (input) {
             if (input) {
@@ -41,29 +41,29 @@ var app = angular.module('WindMobileApp', ['snap', 'google-maps'], function ($in
             restrict: "A",
             compile: function (tElement, tAttrs, transclude) {
                 return function (scope, element, attrs) {
-                    scope.$watch('historic', function(newValue, oldValue) {
+                    scope.$watch('historic', function (newValue, oldValue) {
                         var width = parseFloat($(element[0]).width());
                         var height = parseFloat($(element[0]).height());
 
                         var radius = Math.min(width, height) / 2;
 
                         var paper = Snap(element[0]);
-                        var circle = paper.circle(width/2, height/2, radius-1);
+                        var circle = paper.circle(width / 2, height / 2, radius - 1);
                         circle.attr({
                             stroke: "#fff",
                             strokeWidth: 1
                         });
 
                         // The center
-                        var lastX = width/2;
-                        var lastY = width/2;
+                        var lastX = width / 2;
+                        var lastY = width / 2;
 
                         var currentRadius = 0.0;
                         for (var i = 0; i < scope.historic.length; i++) {
                             var direction = scope.historic[i]['w-dir'];
 
                             currentRadius += radius / scope.historic.length;
-                            var directionRadian = (direction + 90) * (Math.PI/180);
+                            var directionRadian = (direction + 90) * (Math.PI / 180);
 
                             var x = radius - Math.cos(directionRadian) * currentRadius;
                             var y = radius - Math.sin(directionRadian) * currentRadius;
@@ -83,10 +83,19 @@ var app = angular.module('WindMobileApp', ['snap', 'google-maps'], function ($in
         }
     });
 
-app.controller('StationsController', ['$scope', '$http', function($scope, $http) {
+app.controller('StationsController', ['$scope', '$http', function ($scope, $http) {
     $scope.snapOptions = {
         disable: 'right'
     };
+    $scope.geoList = function (position) {
+        var params = {};
+        params.lat = position.coords.latitude;
+        params.lon = position.coords.longitude;
+        $http({method: 'GET', url: '/api/2/stations/', params: params}).
+            success(function (data) {
+                $scope.stations = data;
+            })
+    }
     $scope.list = function () {
         var params = {};
         params.search = $scope.query;
@@ -95,10 +104,15 @@ app.controller('StationsController', ['$scope', '$http', function($scope, $http)
                 $scope.stations = data;
             })
     }
-    $scope.list();
+    $scope.getGeoLocation = function () {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition($scope.geoList, $scope.list);
+        }
+    }
+    $scope.getGeoLocation();
 }]);
 
-app.controller('StationController', ['$scope', '$http', function($scope, $http) {
+app.controller('StationController', ['$scope', '$http', function ($scope, $http) {
     $scope.getHistoric = function () {
         $scope.historic = [];
         $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=3600'}).
@@ -119,24 +133,42 @@ app.controller('StationController', ['$scope', '$http', function($scope, $http) 
     $scope.getHistoric();
 }]);
 
-app.controller('MapController', ['$scope', '$http', function($scope, $http) {
-    $scope.center = {
-            latitude: 0,
-            longitude: 0
-    };
-    $scope.zoom= 5;
-    $scope.markers = [];
+app.controller('MapController', ['$scope', '$http', function ($scope, $http) {
+    $scope.geoList = function (position) {
+        var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        $scope.map.setCenter(currentPosition);
 
-    $scope.list = function () {
-        $http({method: 'GET', url: '/api/2/stations/', params: {limit: 1000}}).
+        var params = {};
+        params.lat = position.coords.latitude;
+        params.lon = position.coords.longitude;
+        params.limit = 1000;
+
+
+        $http({method: 'GET', url: '/api/2/stations/', params: params}).
             success(function (stations) {
                 for (var i = 0; i < stations.length; i++) {
-                    $scope.markers.push({
-                        latitude: stations[i].loc.lat,
-                        longitude: stations[i].loc.lon
+                    var station = stations[i];
+
+                    var position = new google.maps.LatLng(station.loc.lat, station.loc.lon);
+                    var marker = new google.maps.Marker({
+                        title: station["short-name"],
+                        position: position,
+                        map: $scope.map
+                    });
+
+                    marker.info = new google.maps.InfoWindow({
+                        content: "<div>" + station["name"] + "</div>"
+                    });
+                    google.maps.event.addListener(marker, 'click', function () {
+                        this.info.open($scope.map, this);
                     });
                 }
             });
     }
-    $scope.list();
+    $scope.getGeoLocation = function () {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition($scope.geoList, $scope.list);
+        }
+    }
+    $scope.getGeoLocation();
 }]);

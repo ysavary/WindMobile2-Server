@@ -1,4 +1,4 @@
-$grid-float-breakpoint: 500px;
+$grid-float-breakpoint: 450px;
 @import "bootstrap";
 
 $background-color: #191919;
@@ -12,14 +12,15 @@ $font-size: 15px;
 
 body {
     background-color: $background-color;
+    padding-top: 70px;
 }
 
-.brand-img {
-    height: 40px;
-    margin-right: 10px;
-}
-
-.station-list {
+.map {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .station-card {
@@ -27,7 +28,7 @@ body {
     position: relative;
     vertical-align: top;
     width: 20%;
-    min-width: 200px;
+    min-width: 180px;
     margin: 5px;
     padding: 5px;
     border: 1.5px solid $highlight-text-color;
@@ -41,7 +42,7 @@ body {
         max-width: 100px;
         overflow: hidden;
         color: $highlight-text-color;
-        font-size: 20px;
+        font-size: 18px;
     }
     > .last-update {
         float: right;
@@ -55,12 +56,12 @@ body {
         float: left;
         width: 50%;
         > .wind-avg {
-            font-size: 25px;
+            font-size: 23px;
             color: $highlight-text-color;
         }
         > .wind-max {
             float: left;
-            font-size: 17px;
+            font-size: $font-size;
             color: $highlight-text-color;
         }
         > .unit {
@@ -69,7 +70,7 @@ body {
         }
         > #mini-chart {
             clear: both;
-            float:left;
+            float: left;
         }
     }
     > #wind-direction {

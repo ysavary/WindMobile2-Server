@@ -13,7 +13,7 @@ from windmobile.api import diacritics
 
 @api_view(['GET'])
 def api_root(request):
-    return Response({'API documentation (default limit=20)': [
+    return Response({'API documentation (default limit=10)': [
         {
             'List 100 stations':
                 urljoin(reverse('api.stations', request=request), '?limit=100')
@@ -53,7 +53,7 @@ def stations(request):
     distance = request.QUERY_PARAMS.get('distance')
     word = request.QUERY_PARAMS.get('word')
     language = request.QUERY_PARAMS.get('language', 'fr')
-    limit = int(request.QUERY_PARAMS.get('limit', 20))
+    limit = int(request.QUERY_PARAMS.get('limit', 10))
 
     if not (search or latitude or longitude or distance or word):
         return Response(list(mongo_db.stations.find().limit(limit)))

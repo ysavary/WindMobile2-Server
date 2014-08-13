@@ -7674,3 +7674,8 @@ body {
   width: 80px;
   height: 80px;
 }
+
+/* line 83, ../../../scss/windmobile.scss */
+.transparent-background {
+  background-color: rgba(0, 0, 0, 0.8);
+}

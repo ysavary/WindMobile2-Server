@@ -14,15 +14,17 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="#">WindMobile</a>
+				<a class="navbar-brand windmobile" href="#">WindMobile</a>
 			</div>
-			<form class="navbar-form navbar-left" role="search">
-				<div class="form-group">
-					<input type="text" class="form-control" placeholder="Search" ng-model="query" ng-change="list()">
-				</div>
-			</form>
-
 			<div class="navbar-collapse collapse navbar-right" id="navbar-collapse">
+				<form class="navbar-form navbar-left search" role="search">
+					<div class="input-group">
+						<input type="text" class="form-control" ng-model="query" ng-change="list()">
+					    <span class="input-group-addon">
+					        <i class="glyphicon glyphicon-search"></i>
+					    </span>
+					</div>
+				</form>
 				<ul class="nav navbar-nav">
 					<li><a href="/stations"><span class="glyphicon glyphicon-map-marker"></span>Stations</a></li>
 					<li><a href="#">Aide</a></li>

@@ -7,7 +7,7 @@ angular.module('windMobile.list', ['ngRoute'])
         });
     }])
 
-    .controller('ListController', ['$scope', '$http', function ($scope, $http) {
+    .controller('ListController', ['$scope', '$http', '$location', function ($scope, $http, $location) {
         $scope.snapOptions = {
             disable: 'right'
         };
@@ -39,6 +39,9 @@ angular.module('windMobile.list', ['ngRoute'])
             } else {
                 $scope.getGeoLocation();
             }
+        };
+        $scope.selectStation = function (station) {
+            $location.path('/station/' + station._id);
         };
         $scope.list();
     }])

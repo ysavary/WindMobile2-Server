@@ -36,6 +36,7 @@ body {
     color: $text-color;
     font-size: $font-size;
     background-color: $light-background-color;
+    cursor: pointer;
 
     > .title {
         float: left;

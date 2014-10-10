@@ -1,0 +1,45 @@
+<body ng-controller="ListController">
+
+<!-- Fixed navbar -->
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand windmobile" href="#">WindMobile</a>
+        </div>
+        <div class="navbar-collapse collapse navbar-right" id="navbar-collapse">
+            <form class="navbar-form navbar-left search" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" ng-model="query" ng-change="list()">
+                    <span class="input-group-addon">
+                        <i class="glyphicon glyphicon-search"></i>
+                    </span>
+                </div>
+            </form>
+            <ul class="nav navbar-nav">
+                <li><a href="#/map"><span class="glyphicon glyphicon-map-marker"></span>Map</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="station-card" ng-repeat="station in stations" ng-controller="StationController">
+        <div class="title">[[ station.name ]]</div>
+        <div class="last-update">[[ station.last._id|fromNow ]]</div>
+        <div class="altitude">[[ station.alt ]] meters</div>
+        <div class="wind-section">
+            <div class="wind-avg">[[ station.last['w-avg'].toFixed(1) ]]</div>
+            <div class="wind-max">[[ station.last['w-max'].toFixed(1) ]]</div>
+            <div class="unit">km/h</div>
+            <mini-chart id="mini-chart" data="[[ miniChartData ]]"></mini-chart>
+        </div>
+        <svg id="wind-direction" obj="" wind-direction></svg>
+    </div>
+</div>
+</body>

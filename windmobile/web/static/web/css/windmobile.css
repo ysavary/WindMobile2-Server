@@ -8064,51 +8064,50 @@ body {
 /* line 47, ../../../scss/windmobile.scss */
 .station-card > .title {
   float: left;
-  max-width: 100px;
   overflow: hidden;
   color: #ddd;
   font-size: 18px;
 }
-/* line 54, ../../../scss/windmobile.scss */
+/* line 53, ../../../scss/windmobile.scss */
 .station-card > .last-update {
   float: right;
   font-size: 12px;
 }
-/* line 58, ../../../scss/windmobile.scss */
+/* line 57, ../../../scss/windmobile.scss */
 .station-card > .altitude {
   clear: both;
   font-size: 12px;
 }
-/* line 62, ../../../scss/windmobile.scss */
+/* line 61, ../../../scss/windmobile.scss */
 .station-card > .wind-section {
   float: left;
   width: 50%;
 }
-/* line 65, ../../../scss/windmobile.scss */
+/* line 64, ../../../scss/windmobile.scss */
 .station-card > .wind-section > .wind-avg {
   font-size: 23px;
   color: #ddd;
 }
-/* line 69, ../../../scss/windmobile.scss */
+/* line 68, ../../../scss/windmobile.scss */
 .station-card > .wind-section > .wind-max {
   float: left;
   font-size: 15px;
   color: #ddd;
 }
-/* line 74, ../../../scss/windmobile.scss */
+/* line 73, ../../../scss/windmobile.scss */
 .station-card > .wind-section > #mini-chart {
   margin-top: 5px;
   clear: both;
   float: left;
 }
-/* line 80, ../../../scss/windmobile.scss */
+/* line 79, ../../../scss/windmobile.scss */
 .station-card > #wind-direction {
   float: right;
   width: 70px;
   height: 70px;
 }
 
-/* line 87, ../../../scss/windmobile.scss */
+/* line 86, ../../../scss/windmobile.scss */
 .station-card-detail {
   display: inline-block;
   position: absolute;
@@ -8123,7 +8122,7 @@ body {
   font-size: 15px;
   background-color: #222;
 }
-/* line 101, ../../../scss/windmobile.scss */
+/* line 100, ../../../scss/windmobile.scss */
 .station-card-detail > .title {
   float: left;
   max-width: 100px;
@@ -8131,67 +8130,67 @@ body {
   color: #ddd;
   font-size: 18px;
 }
-/* line 108, ../../../scss/windmobile.scss */
+/* line 107, ../../../scss/windmobile.scss */
 .station-card-detail > .last-update {
   float: right;
   font-size: 12px;
 }
-/* line 112, ../../../scss/windmobile.scss */
+/* line 111, ../../../scss/windmobile.scss */
 .station-card-detail > .altitude {
   clear: both;
   font-size: 12px;
 }
-/* line 116, ../../../scss/windmobile.scss */
+/* line 115, ../../../scss/windmobile.scss */
 .station-card-detail > .wind-section {
   float: left;
   width: 50%;
 }
-/* line 119, ../../../scss/windmobile.scss */
+/* line 118, ../../../scss/windmobile.scss */
 .station-card-detail > .wind-section > .wind-avg {
   font-size: 23px;
   color: #ddd;
 }
-/* line 123, ../../../scss/windmobile.scss */
+/* line 122, ../../../scss/windmobile.scss */
 .station-card-detail > .wind-section > .wind-max {
   float: left;
   font-size: 15px;
   color: #ddd;
 }
-/* line 128, ../../../scss/windmobile.scss */
+/* line 127, ../../../scss/windmobile.scss */
 .station-card-detail > .wind-section > .unit {
   float: right;
   margin: 0 20px 0 0;
 }
-/* line 132, ../../../scss/windmobile.scss */
+/* line 131, ../../../scss/windmobile.scss */
 .station-card-detail > .wind-section > #mini-chart {
   clear: both;
   float: left;
 }
-/* line 137, ../../../scss/windmobile.scss */
+/* line 136, ../../../scss/windmobile.scss */
 .station-card-detail > #wind-direction {
   float: right;
   width: 80px;
   height: 80px;
 }
-/* line 142, ../../../scss/windmobile.scss */
+/* line 141, ../../../scss/windmobile.scss */
 .station-card-detail > #wind-chart {
   width: 100%;
   height: 300px;
   margin-bottom: 100px;
 }
 
-/* line 149, ../../../scss/windmobile.scss */
+/* line 148, ../../../scss/windmobile.scss */
 .transparent-background {
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* line 153, ../../../scss/windmobile.scss */
+/* line 152, ../../../scss/windmobile.scss */
 .windmobile {
   background: url("/static/web/images/windmobile.png") no-repeat left 5px top;
   padding-left: 85px;
 }
 
-/* line 158, ../../../scss/windmobile.scss */
+/* line 157, ../../../scss/windmobile.scss */
 .search {
   width: 250px;
 }

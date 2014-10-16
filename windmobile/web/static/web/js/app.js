@@ -29,6 +29,8 @@ var app = angular.module('windMobile', ['ngRoute', 'windMobile.list', 'windMobil
                             width: '80px',
                             height: '25px',
                             type: 'line',
+                            chartRangeMin: 0,
+                            disableInteraction: true,
                             spotColor: false,
                             minSpotColor: false,
                             maxSpotColor: false,

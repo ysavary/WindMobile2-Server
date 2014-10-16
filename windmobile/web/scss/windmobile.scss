@@ -27,16 +27,22 @@ body {
     display: inline-block;
     position: relative;
     vertical-align: top;
-    width: 20%;
-    min-width: 180px;
+    width: 30%;
+    min-width: 160px;
+    max-width: 250px;
     margin: 5px;
     padding: 5px;
     border: 1.5px solid $highlight-text-color;
     border-radius: 8px;
     color: $text-color;
-    font-size: $font-size;
     background-color: $light-background-color;
+    font-size: $font-size;
+    text-align: left;
     cursor: pointer;
+
+    .unit {
+      color: $text-color;
+    }
 
     > .title {
         float: left;
@@ -65,19 +71,16 @@ body {
             font-size: $font-size;
             color: $highlight-text-color;
         }
-        > .unit {
-            float: right;
-            margin: 0 20px 0 0;
-        }
         > #mini-chart {
+            margin-top: 5px;
             clear: both;
             float: left;
         }
     }
     > #wind-direction {
         float: right;
-        width: 80px;
-        height: 80px;
+        width: 70px;
+        height: 70px;
     }
 }
 

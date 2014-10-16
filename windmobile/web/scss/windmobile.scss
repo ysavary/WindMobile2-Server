@@ -81,6 +81,68 @@ body {
     }
 }
 
+.station-card-detail {
+    display: inline-block;
+    position: absolute;
+    width: 500px;
+    right: 0;
+    left: 0;
+    margin: auto;
+    padding: 5px;
+    border: 1.5px solid $highlight-text-color;
+    border-radius: 8px;
+    color: $text-color;
+    font-size: $font-size;
+    background-color: $light-background-color;
+
+    > .title {
+        float: left;
+        max-width: 100px;
+        overflow: hidden;
+        color: $highlight-text-color;
+        font-size: 18px;
+    }
+    > .last-update {
+        float: right;
+        font-size: $small-font-size;
+    }
+    > .altitude {
+        clear: both;
+        font-size: $small-font-size;
+    }
+    > .wind-section {
+        float: left;
+        width: 50%;
+        > .wind-avg {
+            font-size: 23px;
+            color: $highlight-text-color;
+        }
+        > .wind-max {
+            float: left;
+            font-size: $font-size;
+            color: $highlight-text-color;
+        }
+        > .unit {
+            float: right;
+            margin: 0 20px 0 0;
+        }
+        > #mini-chart {
+            clear: both;
+            float: left;
+        }
+    }
+    > #wind-direction {
+        float: right;
+        width: 80px;
+        height: 80px;
+    }
+    > #wind-chart {
+        width: 100%;
+        height: 300px;
+        margin-bottom: 100px;
+    }
+}
+
 .transparent-background {
     background-color: rgba(0, 0, 0, 0.8);
 }

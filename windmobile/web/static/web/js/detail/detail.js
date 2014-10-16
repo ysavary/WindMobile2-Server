@@ -49,7 +49,7 @@ angular.module('windMobile.detail', ['ngRoute'])
                                 [1, '#252ccb']
                             ]
                         },
-                        lineWidth: 2,
+                        lineWidth: 1,
                         lineColor: '#ffffff',
                         marker: {
                             enabled: false
@@ -60,7 +60,7 @@ angular.module('windMobile.detail', ['ngRoute'])
                         name: 'windMax',
                         type: 'spline',
                         color: '#e32d2d',
-                        lineWidth: 2,
+                        lineWidth: 1,
                         marker: {
                             enabled: false
                         },
@@ -72,10 +72,7 @@ angular.module('windMobile.detail', ['ngRoute'])
                         windMaxSerie.data.push([date, data[i]['w-max']]);
                         windAvgSerie.data.push([date, data[i]['w-avg']]);
                     }
-                    $('#chart').highcharts({
-                        title: {
-                            text: 'Wind speed'
-                        },
+                    $('#wind-chart').highcharts('StockChart', {
                         legend: {
                             enabled: false
                         },
@@ -84,18 +81,76 @@ angular.module('windMobile.detail', ['ngRoute'])
                         },
                         plotOptions: {
                             series: {
-                                animation: false
+                                animation: false,
+                                states: {
+                                    hover: {
+                                        enabled: false
+                                    }
+                                }
                             }
+                        },
+                        tooltip: {
+                            enabled: false
                         },
                         xAxis: {
                             type: 'datetime'
                         },
                         yAxis: {
+                            gridLineWidth: 0.5,
                             title: {
                                 text: 'km/h'
                             }
                         },
-                        series: [windAvgSerie, windMaxSerie]
+                        series: [windAvgSerie, windMaxSerie],
+                        navigator: {
+                            enabled: false
+                        },
+                        scrollbar: {
+                            enabled: false
+                        },
+                        rangeSelector: {
+                            inputEnabled: false,
+                            buttons: [{
+                                type: 'day',
+                                count: 2,
+                                text: '2 days'
+                            }, {
+                                type: 'day',
+                                count: 1,
+                                text: '1 day'
+                            }, {
+                                type: 'hour',
+                                count: 12,
+                                text: '12 hours'
+                            }, {
+                                type: 'hour',
+                                count: 6,
+                                text: '6 hours'
+                            }],
+                            selected:3,
+                            buttonTheme: {
+                                width: 50,
+                                fill: 'none',
+                                stroke: 'none',
+                                'stroke-width': 0,
+                                r: 8,
+                                style: {
+                                    color: '#8d8d8d'
+                                },
+                                states: {
+                                    hover: {
+                                        fill: 'none'
+                                    },
+                                    select: {
+                                        fill: 'none',
+                                        style: {
+                                            color: '#ddd',
+                                            fontWeight: 'bold'
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     });
                 });
         };

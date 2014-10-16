@@ -8107,17 +8107,89 @@ body {
 }
 
 /* line 84, ../../../scss/windmobile.scss */
+.station-card-detail {
+  display: inline-block;
+  position: absolute;
+  width: 500px;
+  right: 0;
+  left: 0;
+  margin: auto;
+  padding: 5px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  color: #8d8d8d;
+  font-size: 15px;
+  background-color: #222;
+}
+/* line 98, ../../../scss/windmobile.scss */
+.station-card-detail > .title {
+  float: left;
+  max-width: 100px;
+  overflow: hidden;
+  color: #ddd;
+  font-size: 18px;
+}
+/* line 105, ../../../scss/windmobile.scss */
+.station-card-detail > .last-update {
+  float: right;
+  font-size: 12px;
+}
+/* line 109, ../../../scss/windmobile.scss */
+.station-card-detail > .altitude {
+  clear: both;
+  font-size: 12px;
+}
+/* line 113, ../../../scss/windmobile.scss */
+.station-card-detail > .wind-section {
+  float: left;
+  width: 50%;
+}
+/* line 116, ../../../scss/windmobile.scss */
+.station-card-detail > .wind-section > .wind-avg {
+  font-size: 23px;
+  color: #ddd;
+}
+/* line 120, ../../../scss/windmobile.scss */
+.station-card-detail > .wind-section > .wind-max {
+  float: left;
+  font-size: 15px;
+  color: #ddd;
+}
+/* line 125, ../../../scss/windmobile.scss */
+.station-card-detail > .wind-section > .unit {
+  float: right;
+  margin: 0 20px 0 0;
+}
+/* line 129, ../../../scss/windmobile.scss */
+.station-card-detail > .wind-section > #mini-chart {
+  clear: both;
+  float: left;
+}
+/* line 134, ../../../scss/windmobile.scss */
+.station-card-detail > #wind-direction {
+  float: right;
+  width: 80px;
+  height: 80px;
+}
+/* line 139, ../../../scss/windmobile.scss */
+.station-card-detail > #wind-chart {
+  width: 100%;
+  height: 300px;
+  margin-bottom: 100px;
+}
+
+/* line 146, ../../../scss/windmobile.scss */
 .transparent-background {
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* line 88, ../../../scss/windmobile.scss */
+/* line 150, ../../../scss/windmobile.scss */
 .windmobile {
   background: url("/static/web/images/windmobile.png") no-repeat left 5px top;
   padding-left: 85px;
 }
 
-/* line 93, ../../../scss/windmobile.scss */
+/* line 155, ../../../scss/windmobile.scss */
 .search {
   width: 250px;
 }

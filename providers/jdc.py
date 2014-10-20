@@ -12,6 +12,9 @@ class Jdc(Provider):
     provider_prefix = 'jdc'
     provider_name = 'jdc.ch'
 
+    connect_timeout = 7
+    read_timeout = 30
+
     def __init__(self, mongo_url):
         super(Jdc, self).__init__(mongo_url)
 
@@ -31,7 +34,8 @@ class Jdc(Provider):
     def process_data(self):
         try:
             logger.info(u"Processing JDC data...")
-            result = requests.get("http://meteo.jdc.ch/API/?Action=StationView&flags=offline|maintenance|test|online")
+            result = requests.get("http://meteo.jdc.ch/API/?Action=StationView&flags=offline|maintenance|test|online",
+                                  timeout=(self.connect_timeout, self.read_timeout))
 
             for jdc_station in result.json()['Stations']:
                 try:
@@ -53,7 +57,8 @@ class Jdc(Provider):
                         # Asking 2 days of data
                         result = requests.get(
                             "http://meteo.jdc.ch/API/?Action=DataView&serial={jdc_id}&duration=172800"
-                            "&flags=offline|maintenance|test|online".format(jdc_id=jdc_id))
+                            "&flags=offline|maintenance|test|online".format(jdc_id=jdc_id),
+                            timeout=(self.connect_timeout, self.read_timeout))
                         if result.json()['ERROR'] == 'OK':
                             measures_collection = self.measures_collection(station_id)
 

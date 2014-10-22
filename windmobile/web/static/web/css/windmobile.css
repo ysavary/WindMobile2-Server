@@ -1868,7 +1868,7 @@ dd {
 .dl-horizontal dd:after {
   clear: both;
 }
-@media (min-width: 615px) {
+@media (min-width: 0px) {
   /* line 211, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_type.scss */
   .dl-horizontal dt {
     float: left;
@@ -4500,7 +4500,7 @@ tbody.collapse.in {
   margin-bottom: 1px;
 }
 
-@media (min-width: 615px) {
+@media (min-width: 0px) {
   /* line 205, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_dropdowns.scss */
   .navbar-right .dropdown-menu {
     right: 0;
@@ -5110,7 +5110,7 @@ tbody.collapse.in {
 .navbar:after {
   clear: both;
 }
-@media (min-width: 615px) {
+@media (min-width: 0px) {
   /* line 11, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar {
     border-radius: 4px;
@@ -5126,7 +5126,7 @@ tbody.collapse.in {
 .navbar-header:after {
   clear: both;
 }
-@media (min-width: 615px) {
+@media (min-width: 0px) {
   /* line 31, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar-header {
     float: left;
@@ -5155,7 +5155,7 @@ tbody.collapse.in {
 .navbar-collapse.in {
   overflow-y: auto;
 }
-@media (min-width: 615px) {
+@media (min-width: 0px) {
   /* line 50, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar-collapse {
     width: auto;
@@ -5201,7 +5201,7 @@ tbody.collapse.in {
   margin-right: -15px;
   margin-left: -15px;
 }
-@media (min-width: 615px) {
+@media (min-width: 0px) {
   /* line 108, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .container > .navbar-header,
   .container > .navbar-collapse,
@@ -5217,7 +5217,7 @@ tbody.collapse.in {
   z-index: 1000;
   border-width: 0 0 1px;
 }
-@media (min-width: 615px) {
+@media (min-width: 0px) {
   /* line 128, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar-static-top {
     border-radius: 0;
@@ -5234,7 +5234,7 @@ tbody.collapse.in {
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
 }
-@media (min-width: 615px) {
+@media (min-width: 0px) {
   /* line 138, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar-fixed-top,
   .navbar-fixed-bottom {
@@ -5267,7 +5267,7 @@ tbody.collapse.in {
 .navbar-brand:hover, .navbar-brand:focus {
   text-decoration: none;
 }
-@media (min-width: 615px) {
+@media (min-width: 0px) {
   /* line 177, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar > .container .navbar-brand, .navbar > .container-fluid .navbar-brand {
     margin-left: -15px;
@@ -5302,7 +5302,7 @@ tbody.collapse.in {
 .navbar-toggle .icon-bar + .icon-bar {
   margin-top: 4px;
 }
-@media (min-width: 615px) {
+@media (min-width: 0px) {
   /* line 190, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar-toggle {
     display: none;
@@ -5319,7 +5319,7 @@ tbody.collapse.in {
   padding-bottom: 10px;
   line-height: 20px;
 }
-@media (max-width: 614px) {
+@media (max-width: -1px) {
   /* line 240, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar-nav .open .dropdown-menu {
     position: static;
@@ -5344,7 +5344,7 @@ tbody.collapse.in {
     background-image: none;
   }
 }
-@media (min-width: 615px) {
+@media (min-width: 0px) {
   /* line 229, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar-nav {
     float: left;
@@ -5365,7 +5365,7 @@ tbody.collapse.in {
   }
 }
 
-@media (min-width: 615px) {
+@media (min-width: 0px) {
   /* line 289, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar-left {
     float: left !important;
@@ -5388,13 +5388,13 @@ tbody.collapse.in {
   margin-top: 8px;
   margin-bottom: 8px;
 }
-@media (max-width: 614px) {
+@media (max-width: -1px) {
   /* line 315, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar-form .form-group {
     margin-bottom: 5px;
   }
 }
-@media (min-width: 615px) {
+@media (min-width: 0px) {
   /* line 303, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar-form {
     width: auto;
@@ -5446,7 +5446,7 @@ tbody.collapse.in {
   margin-top: 15px;
   margin-bottom: 15px;
 }
-@media (min-width: 615px) {
+@media (min-width: 0px) {
   /* line 375, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar-text {
     float: left;
@@ -5518,7 +5518,7 @@ tbody.collapse.in {
   background-color: #e7e7e7;
   color: #555;
 }
-@media (max-width: 614px) {
+@media (max-width: -1px) {
   /* line 470, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar-default .navbar-nav .open .dropdown-menu > li > a {
     color: #777;
@@ -5619,7 +5619,7 @@ tbody.collapse.in {
   background-color: #090909;
   color: #fff;
 }
-@media (max-width: 614px) {
+@media (max-width: -1px) {
   /* line 604, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar-inverse .navbar-nav .open .dropdown-menu > .dropdown-header {
     border-color: #090909;
@@ -8024,13 +8024,34 @@ button.close {
     display: none !important;
   }
 }
-/* line 13, ../../../scss/windmobile.scss */
+@media (max-width: 500px) {
+  /* line 18, ../../../../../../../../../../../usr/local/lib/ruby/gems/2.1.0/gems/bootstrap-sass-3.2.0.2/assets/stylesheets/bootstrap/mixins/_responsive-visibility.scss */
+  .hidden-xxs {
+    display: none !important;
+  }
+}
+/* line 17, ../../../scss/windmobile.scss */
 body {
   background-color: #191919;
   padding-top: 70px;
 }
 
-/* line 18, ../../../scss/windmobile.scss */
+/* line 22, ../../../scss/windmobile.scss */
+.navbar-brand {
+  padding: 3px;
+}
+/* line 25, ../../../scss/windmobile.scss */
+.navbar-brand img {
+  height: 70px;
+}
+
+/* line 30, ../../../scss/windmobile.scss */
+.navbar-form {
+  min-width: 200px;
+  width: 200px;
+}
+
+/* line 35, ../../../scss/windmobile.scss */
 .map {
   height: 100%;
   width: 100%;
@@ -8039,7 +8060,7 @@ body {
   left: 0;
 }
 
-/* line 26, ../../../scss/windmobile.scss */
+/* line 43, ../../../scss/windmobile.scss */
 .station-card {
   display: inline-block;
   position: relative;
@@ -8057,61 +8078,63 @@ body {
   text-align: left;
   cursor: pointer;
 }
-/* line 43, ../../../scss/windmobile.scss */
+/* line 60, ../../../scss/windmobile.scss */
 .station-card .unit {
+  font-size: 12px;
   color: #8d8d8d;
 }
-/* line 47, ../../../scss/windmobile.scss */
+/* line 65, ../../../scss/windmobile.scss */
 .station-card > .title {
   float: left;
   overflow: hidden;
   color: #ddd;
   font-size: 18px;
 }
-/* line 53, ../../../scss/windmobile.scss */
+/* line 71, ../../../scss/windmobile.scss */
 .station-card > .last-update {
   float: right;
   font-size: 12px;
 }
-/* line 57, ../../../scss/windmobile.scss */
+/* line 75, ../../../scss/windmobile.scss */
 .station-card > .altitude {
   clear: both;
   font-size: 12px;
 }
-/* line 61, ../../../scss/windmobile.scss */
+/* line 79, ../../../scss/windmobile.scss */
 .station-card > .wind-section {
   float: left;
   width: 50%;
 }
-/* line 64, ../../../scss/windmobile.scss */
+/* line 82, ../../../scss/windmobile.scss */
 .station-card > .wind-section > .wind-avg {
   font-size: 23px;
   color: #ddd;
 }
-/* line 68, ../../../scss/windmobile.scss */
+/* line 86, ../../../scss/windmobile.scss */
 .station-card > .wind-section > .wind-max {
   float: left;
   font-size: 15px;
   color: #ddd;
 }
-/* line 73, ../../../scss/windmobile.scss */
+/* line 91, ../../../scss/windmobile.scss */
 .station-card > .wind-section > #mini-chart {
   margin-top: 5px;
   clear: both;
   float: left;
 }
-/* line 79, ../../../scss/windmobile.scss */
+/* line 97, ../../../scss/windmobile.scss */
 .station-card > #wind-direction {
   float: right;
   width: 70px;
   height: 70px;
 }
 
-/* line 86, ../../../scss/windmobile.scss */
+/* line 104, ../../../scss/windmobile.scss */
 .station-card-detail {
   display: inline-block;
   position: absolute;
-  width: 500px;
+  width: 90%;
+  max-width: 600px;
   right: 0;
   left: 0;
   margin: auto;
@@ -8122,7 +8145,7 @@ body {
   font-size: 15px;
   background-color: #222;
 }
-/* line 100, ../../../scss/windmobile.scss */
+/* line 119, ../../../scss/windmobile.scss */
 .station-card-detail > .title {
   float: left;
   max-width: 100px;
@@ -8130,67 +8153,56 @@ body {
   color: #ddd;
   font-size: 18px;
 }
-/* line 107, ../../../scss/windmobile.scss */
+/* line 126, ../../../scss/windmobile.scss */
 .station-card-detail > .last-update {
   float: right;
   font-size: 12px;
 }
-/* line 111, ../../../scss/windmobile.scss */
+/* line 130, ../../../scss/windmobile.scss */
 .station-card-detail > .altitude {
   clear: both;
   font-size: 12px;
 }
-/* line 115, ../../../scss/windmobile.scss */
+/* line 134, ../../../scss/windmobile.scss */
 .station-card-detail > .wind-section {
   float: left;
   width: 50%;
 }
-/* line 118, ../../../scss/windmobile.scss */
+/* line 137, ../../../scss/windmobile.scss */
 .station-card-detail > .wind-section > .wind-avg {
   font-size: 23px;
   color: #ddd;
 }
-/* line 122, ../../../scss/windmobile.scss */
+/* line 141, ../../../scss/windmobile.scss */
 .station-card-detail > .wind-section > .wind-max {
   float: left;
   font-size: 15px;
   color: #ddd;
 }
-/* line 127, ../../../scss/windmobile.scss */
+/* line 146, ../../../scss/windmobile.scss */
 .station-card-detail > .wind-section > .unit {
   float: right;
   margin: 0 20px 0 0;
 }
-/* line 131, ../../../scss/windmobile.scss */
+/* line 150, ../../../scss/windmobile.scss */
 .station-card-detail > .wind-section > #mini-chart {
   clear: both;
   float: left;
 }
-/* line 136, ../../../scss/windmobile.scss */
+/* line 155, ../../../scss/windmobile.scss */
 .station-card-detail > #wind-direction {
   float: right;
   width: 80px;
   height: 80px;
 }
-/* line 141, ../../../scss/windmobile.scss */
+/* line 160, ../../../scss/windmobile.scss */
 .station-card-detail > #wind-chart {
   width: 100%;
   height: 300px;
   margin-bottom: 100px;
 }
 
-/* line 148, ../../../scss/windmobile.scss */
+/* line 167, ../../../scss/windmobile.scss */
 .transparent-background {
   background-color: rgba(0, 0, 0, 0.8);
-}
-
-/* line 152, ../../../scss/windmobile.scss */
-.windmobile {
-  background: url("/static/web/images/windmobile.png") no-repeat left 5px top;
-  padding-left: 85px;
-}
-
-/* line 157, ../../../scss/windmobile.scss */
-.search {
-  width: 250px;
 }

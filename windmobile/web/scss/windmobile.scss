@@ -1,5 +1,9 @@
-$grid-float-breakpoint: 615px;
+$grid-float-breakpoint: 0px;
 @import "bootstrap";
+
+@media (max-width: 500px) {
+    @include responsive-invisibility('.hidden-xxs');
+}
 
 $background-color: #191919;
 $light-background-color: #222;
@@ -13,6 +17,19 @@ $font-size: 15px;
 body {
     background-color: $background-color;
     padding-top: 70px;
+}
+
+.navbar-brand {
+    padding: 3px;
+
+    img {
+        height: 70px;
+    }
+}
+
+.navbar-form {
+  min-width: 200px;
+  width: 200px;
 }
 
 .map {
@@ -41,6 +58,7 @@ body {
     cursor: pointer;
 
     .unit {
+      font-size: $small-font-size;
       color: $text-color;
     }
 
@@ -86,7 +104,8 @@ body {
 .station-card-detail {
     display: inline-block;
     position: absolute;
-    width: 500px;
+    width: 90%;
+    max-width: 600px;
     right: 0;
     left: 0;
     margin: auto;
@@ -147,13 +166,4 @@ body {
 
 .transparent-background {
     background-color: rgba(0, 0, 0, 0.8);
-}
-
-.windmobile {
-    background: url("/static/web/images/windmobile.png") no-repeat left 5px top;
-    padding-left: 85px;
-}
-
-.search {
-    width: 250px;
 }

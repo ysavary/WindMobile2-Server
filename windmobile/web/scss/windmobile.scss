@@ -28,8 +28,16 @@ body {
 }
 
 .navbar-form {
-  min-width: 200px;
-  width: 200px;
+    .input-group {
+        width: 250px;
+    }
+}
+@media (max-width: 600px) {
+    .navbar-form {
+        .input-group {
+            width: 150px;
+        }
+    }
 }
 
 .map {

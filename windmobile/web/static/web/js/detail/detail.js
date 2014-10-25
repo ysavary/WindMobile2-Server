@@ -8,6 +8,10 @@ angular.module('windMobile.detail', ['ngRoute'])
     }])
 
     .controller('DetailController', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
+        $scope.$back = function() {
+            window.history.back();
+        };
+
         $scope.stationId = $routeParams.stationId;
 
         $scope.getData = function () {

@@ -30,7 +30,11 @@ angular.module('windMobile.list', ['ngRoute'])
         };
         $scope.getGeoLocation = function () {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition($scope.geoSearch, $scope.search);
+                navigator.geolocation.getCurrentPosition($scope.geoSearch, $scope.search, {
+                    enableHighAccuracy: true,
+                    timeout: 3000,
+                    maximumAge: 300000
+                });
             }
         };
         $scope.list = function () {

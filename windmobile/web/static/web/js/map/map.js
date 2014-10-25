@@ -112,7 +112,11 @@ angular.module('windMobile.map', ['ngRoute', 'ngMap'])
 
         $scope.getGeoLocation = function () {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition($scope.geoSearch, $scope.search);
+                navigator.geolocation.getCurrentPosition($scope.geoSearch, $scope.search, {
+                    enableHighAccuracy: true,
+                    timeout: 3000,
+                    maximumAge: 300000
+                });
             }
         };
 

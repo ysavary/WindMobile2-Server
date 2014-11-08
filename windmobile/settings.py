@@ -80,6 +80,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -110,6 +111,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'corsheaders',
     'rest_framework',
     'windmobile.provider',
     'windmobile.api',
@@ -157,6 +159,8 @@ LOGGING = {
         },
     }
 }
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 import dj_database_url
 DATABASES = {'default': dj_database_url.config(default='postgres://localhost/windmobile')}

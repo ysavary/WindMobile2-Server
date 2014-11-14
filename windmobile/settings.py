@@ -111,6 +111,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'rest_framework',
+    'rest_framework_swagger',
     'windmobile.provider',
     'windmobile.api',
     'windmobile.web'
@@ -156,6 +157,10 @@ LOGGING = {
             'level': 'DEBUG',
         },
     }
+}
+
+SWAGGER_SETTINGS = {
+    "api_version": '2.0'
 }
 
 import dj_database_url

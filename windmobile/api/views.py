@@ -1,74 +1,64 @@
+# coding=utf-8
 import os
-from urlparse import urljoin
 
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from pymongo import MongoClient, uri_parser
 
 from windmobile.api import diacritics
 
 
 @api_view(['GET'])
-def api_root(request):
-    return Response({'API documentation (default limit=10)': [
-        {
-            'List 100 stations':
-                urljoin(reverse('api.stations', request=request), '?limit=100')
-        },
-        {
-            'Search (ignore accents)':
-                urljoin(reverse('api.stations', request=request), '?search=dole')
-        },
-        {
-            'Geo search 3 stations around Yverdon':
-                urljoin(reverse('api.stations', request=request), '?lat=46.78&lon=6.63&limit=3')
-        },
-        {
-            'Geo search 20 km around Yverdon':
-                urljoin(reverse('api.stations', request=request), '?lat=46.78&lon=6.63&distance=20000')
-        },
-        {
-            'Text search':
-                urljoin(reverse('api.stations', request=request), '?word=sommet')
-        },
-        {
-            'Mauborget':
-                reverse('api.station', ['jdc-1001'], request=request)
-        },
-        {
-            'Historic Mauborget (1 hour)':
-                urljoin(reverse('api.historic', ['jdc-1001'], request=request), '?duration=3600')
-        },
-    ]})
-
-
-@api_view(['GET'])
 def stations(request):
+    """
+    Search stations queries
+
+    Examples:
+    - Get 5 stations from jdc.ch: <a href=/api/2/stations/?limit=5&provider=jdc.ch>/api/2/stations/?limit=5&provider=jdc.ch</a>
+    - Search (ignore accents): <a href=/api/2/stations/?search=dole>/api/2/stations/?search=dole</a>
+    - Search for 3 stations around Yverdon: <a href=/api/2/stations/?lat=46.78&lon=6.63&limit=3>/api/2/stations/?lat=46.78&lon=6.63&limit=3</a>
+    - Search 20 km around Yverdon: <a href=/api/2/stations/?lat=46.78&lon=6.63&distance=20000>/api/2/stations/?lat=46.78&lon=6.63&distance=20000</a>
+    - Text search: <a href=/api/2/stations/?word=sommet>/api/2/stations/?word=sommet</a>
+
+    Query parameters:
+    limit     -- Nb stations to return (default=10)
+    provider  -- Return only station of the given provider
+    search    -- String to search (ignoring accent)
+    lat       -- Geo search: latitude ie 46.78
+    lon       -- Geo search: longitude ie 6.63
+    distance  -- Geo search: distance from lat, lon
+    word      -- Full text search
+    language  -- Language of the query (default 'fr')
+    """
+    limit = int(request.QUERY_PARAMS.get('limit', 10))
+    provider = request.QUERY_PARAMS.get('provider')
     search = request.QUERY_PARAMS.get('search')
     latitude = request.QUERY_PARAMS.get('lat')
     longitude = request.QUERY_PARAMS.get('lon')
     distance = request.QUERY_PARAMS.get('distance')
     word = request.QUERY_PARAMS.get('word')
     language = request.QUERY_PARAMS.get('language', 'fr')
-    limit = int(request.QUERY_PARAMS.get('limit', 10))
+
+    if provider:
+        query = {'prov': provider}
+    else:
+        query = {}
 
     if not (search or latitude or longitude or distance or word):
-        return Response(list(mongo_db.stations.find().limit(limit)))
+        return Response(list(mongo_db.stations.find(query).limit(limit)))
 
     elif search and not (latitude or longitude or distance or word):
         regexp_query = diacritics.create_regexp(diacritics.normalize(search))
-        return Response(list(mongo_db.stations.find({
-            '$or': [{'name': {'$regex': regexp_query, '$options': 'i'}},
-                    {'short': {'$regex': regexp_query, '$options': 'i'}},
-                    {'tags': search}]
-        }).limit(limit)))
+        query['$or'] = [{'name': {'$regex': regexp_query, '$options': 'i'}},
+                        {'short': {'$regex': regexp_query, '$options': 'i'}},
+                        {'tags': search}]
+        return Response(list(mongo_db.stations.find(query).limit(limit)))
 
     elif latitude and longitude and not (search or word):
         if distance:
-            geo_search = {'loc': {
+            query['loc'] = {
                 '$near': {
                     '$geometry': {
                         'type': 'Point',
@@ -76,50 +66,104 @@ def stations(request):
                     },
                     '$maxDistance': int(distance)
                 }
-            }}
+            }
         else:
-            geo_search = {'loc': {
+            query['loc'] = {
                 '$near': {
                     '$geometry': {
                         'type': 'Point',
                         'coordinates': [float(latitude), float(longitude)]
                     }
                 }
-            }}
-        return Response(list(mongo_db.stations.find(geo_search).limit(limit)))
+            }
+        return Response(list(mongo_db.stations.find(query).limit(limit)))
 
     elif word and not (search or latitude or longitude or distance):
-        return Response(list(mongo_db.stations.find({'$text': {'$search': word, '$language': language}}).limit(limit)))
+        query['$text'] = {'$search': word, '$language': language}
+        return Response(list(mongo_db.stations.find(query).limit(limit)))
 
     else:
         raise ParseError(u"Invalid query parameters")
 
+@api_view(['GET'])
+def station_json_doc(request):
+    """
+    JSON station data documentation
+
+    """
+    return Response({
+        "_id": "[string] unique ID {providerCode}-{providerId} (jdc-1010)",
+        "prov": "[string] provider name (jdc.ch)",
+
+        "short": "[string] short name",
+        "name": "[string] name",
+        "alt": "[integer] altitude [m]",
+
+        "status": "green|orange|red",
+        "timezone": "[string]: (+01:00)",
+
+        "loc": {
+            "lat": "[float] latitude",
+            "lon": "[float] longitude"
+        },
+        "tags": "[array of string] tags",
+        "cat": "[string] category",
+        "seen": "[integer] last time updated (unix time)",
+
+        "last": {
+            "_id": "[integer] unix time",
+            "w-dir": "[integer] wind direction [°](0-359)",
+            "w-avg": "[integer] wind speed [km/h]",
+            "w-max": "[integer] wind speed max [km/h]",
+            "temp": "[integer] temperature [°C]",
+            "hum": "[integer] air humidity [%rH]",
+            "rain": "[integer] rain [l/m²]",
+            "pres": "[integer] air pressure [hPa]"
+        }
+    })
+
 
 @api_view(['GET'])
-def station(request, id):
-    station = mongo_db.stations.find_one(id)
+def station(request, station_id):
+    """
+    Get station data
+
+    <a href=/api/2/stations/station_json_doc>JSON station data documentation</a>
+
+    Example:
+    - Mauborget: <a href=/api/2/stations/jdc-1001>/api/2/stations/jdc-1001</a>
+
+    """
+    station = mongo_db.stations.find_one(station_id)
     if station:
         return Response(station)
     else:
-        return Response({'detail': "No station with id '%s'" % id}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': "No station with id '%s'" % station_id}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])
-def historic(request, id):
+def station_historic(request, station_id):
+    """
+    Get data history of a station
+
+    Example:
+    - Historic Mauborget (1 hour): <a href=/api/2/stations/jdc-1001/historic/?duration=3600>/api/2/stations/jdc-1001/historic/?duration=3600</a>
+
+    """
     duration = int(request.QUERY_PARAMS.get('duration', 3600))
 
     if duration > 7 * 24 * 3600:
         raise ParseError(u"Duration > 7 days")
 
-    if id in mongo_db.collection_names():
-        station = mongo_db.stations.find_one(id)
+    if station_id in mongo_db.collection_names():
+        station = mongo_db.stations.find_one(station_id)
         if not station or not 'last' in station:
-            return Response({'detail': "No station with id '%s'" % id}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': "No station with id '%s'" % station_id}, status=status.HTTP_404_NOT_FOUND)
         last_time = station['last']['_id']
         start_time = last_time - duration;
-        return Response(list(mongo_db[id].find({'_id': {'$gte': start_time}}).sort('_id', -1)))
+        return Response(list(mongo_db[station_id].find({'_id': {'$gte': start_time}}).sort('_id', -1)))
     else:
-        return Response({'detail': "No historic data for id '%s'" % id}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': "No historic data for id '%s'" % station_id}, status=status.HTTP_404_NOT_FOUND)
 
 
 mongo_url = os.environ['WINDMOBILE_MONGO_URL']

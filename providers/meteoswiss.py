@@ -1,13 +1,12 @@
 import calendar
 from datetime import datetime
+import io
 from pytz import timezone
 import os
 import json
-import re
 
 # Modules
 import requests
-from html5lib import HTMLParser, treebuilders
 
 from provider import get_logger, Provider, ProviderException, Status
 
@@ -25,102 +24,68 @@ class MeteoSwiss(Provider):
         try:
             logger.info(u"Processing METEOSWISS data...")
 
-            with open(os.path.join(os.path.dirname(__file__), 'swissmetnet.json')) as in_file:
-                locations = json.load(in_file)
+            with open(os.path.join(os.path.dirname(__file__), 'meteoswiss/vqha69.json')) as in_file:
+                descriptions = json.load(in_file)
 
-            parser = HTMLParser(tree=treebuilders.getTreeBuilder("lxml"), namespaceHTMLElements=False)
-            headers = {'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) "
-                                     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.57 Safari/537.36"}
-            root = parser.parse(requests.get(
-                "http://www.meteoswiss.admin.ch/web/en/weather/current_weather.par0013.html?allStations=1",
-                headers=headers).text)
+            data_file = io.StringIO(
+                requests.get("http://data.geo.admin.ch/ch.meteoschweiz.swissmetnet/VQHA69.txt").text)
+            lines = data_file.readlines()
+            keys = lines[2].strip().split('|')
 
-            update_tag = root.xpath('.//p[starts-with(text(),"Updated")]')[0]
-            switzerland = timezone('Europe/Zurich')
-            update_time = switzerland.localize(
-                datetime.strptime(update_tag.text.strip(), 'Updated on %d.%m.%Y, %H.%M'))
-            key = calendar.timegm(update_time.utctimetuple())
-
-            name_pattern = re.compile(u"(?P<name>.*?) \((?P<alt>[0-9]+) m asl\)")
-            wind_pattern = re.compile(u"(?P<dir>[0-9]+)\|(?P<average>[0-9]+)\|(?P<max>[0-9]+)")
-
-            r = root.xpath("//div[@class='karte_text_hidden']")
-            for element in r:
+            for line in lines[3:]:
                 try:
-                    div_wind_id = element.attrib['id']
-                    meteoswiss_id = div_wind_id[-3:]
-                    station_id = self.get_station_id(meteoswiss_id)
+                    data = {}
+                    for i, key in enumerate(keys):
+                        values = line.strip().split('|')
+                        if values[i] != '-':
+                            data[key] = values[i]
+                        else:
+                            data[key] = None
 
-                    try:
-                        station_text = root.xpath("//a[contains(@href,'" + meteoswiss_id + "')]/img/@title")[0]
-                    except IndexError:
-                        logger.error(u"Unable to find station with id '{0}'".format(meteoswiss_id))
-                        continue
-                    match = name_pattern.match(station_text)
-                    station_name = match.group('name')
-                    altitude = match.group('alt')
+                    description = descriptions[data['stn']]
 
-                    wgs84 = None
-                    for location in locations:
-                        if location['name'] == station_name:
-                            wgs84 = location['wgs84']
-
-                    if wgs84:
-                        longitude, latitude = wgs84.split(',')
-                    else:
-                        logger.error(u"Unable to find wgs84 for station '{0}'".format(meteoswiss_id))
-                        continue
-
-                    wind_text = root.xpath("//div[@id='" + div_wind_id + "']/span/text()")[0]
-                    if not wind_text == '-|-|-':
-                        status = Status.GREEN
-                    else:
-                        status = Status.RED
-
+                    station_id = self.get_station_id(data['stn'])
                     station = self.save_station(
                         station_id,
-                        station_name,
-                        station_name,
+                        description['name'],
+                        description['name'],
                         '',
                         ['switzerland'],
-                        altitude,
-                        latitude,
-                        longitude,
-                        status)
+                        description['altitude'],
+                        description['location']['lat'],
+                        description['location']['lon'],
+                        Status.GREEN)
 
-                    if status == Status.GREEN:
-                        measures_collection = self.measures_collection(station_id)
-                        new_measures = []
+                    switzerland = timezone('Europe/Zurich')
+                    update_time = switzerland.localize(datetime.strptime(data['time'], '%Y%m%d%H%M'))
+                    key = calendar.timegm(update_time.utctimetuple())
 
-                        match = wind_pattern.match(wind_text)
-                        wind_direction = match.group('dir')
-                        wind_average = match.group('average')
-                        wind_maximum = match.group('max')
+                    measures_collection = self.measures_collection(station_id)
+                    new_measures = []
 
-                        if not measures_collection.find_one(key):
-                            last_measure = measures_collection.find_one({'$query': {}, '$orderby': {'_id': -1}})
-                            measure = self.create_measure(
-                                key,
-                                wind_direction,
-                                wind_average,
-                                wind_maximum,
-                                None,
-                                None)
+                    if not measures_collection.find_one(key):
+                        measure = self.create_measure(
+                            key,
+                            data['dkl010z0'],
+                            data['fu3010z0'],
+                            data['fu3010z1'],
+                            data['tre200s0'],
+                            data['ure200s0'],
+                            pressure=data['prestas0'],
+                            rain=data['rre150z0'],
+                            luminosity=data['sre000z0'])
+                        new_measures.append(measure)
 
-                            if not last_measure == measure:
-                                new_measures.append(measure)
-                            else:
-                                logger.info(u"Same value as last measure for station '{0}'".format(station_name))
-
-                        self.insert_new_measures(measures_collection, station, new_measures, logger)
-                        self.add_last_measure(station_id)
+                    self.insert_new_measures(measures_collection, station, new_measures, logger)
+                    self.add_last_measure(station_id)
 
                 except (ProviderException, StandardError) as e:
-                    logger.error(u"Error while processing measures for station '{0}': {1}".format(station_id, e))
+                    logger.error(u"Error while processing station '{0}': {1}".format(station_id, e))
 
         except (ProviderException, StandardError) as e:
             logger.error(u"Error while processing METEOSWISS: {0}".format(e))
 
+        logger.info(u"...Done!")
 
 meteoswiss = MeteoSwiss(os.environ['WINDMOBILE_MONGO_URL'])
 meteoswiss.process_data()

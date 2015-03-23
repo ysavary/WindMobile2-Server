@@ -50,7 +50,7 @@ class Category:
 
 def to_int(value):
     try:
-        return int(value)
+        return int(round(float(value)))
     except (TypeError, ValueError):
         return None
 

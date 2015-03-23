@@ -123,7 +123,7 @@ class Ffvl(Provider):
                 self.add_last_measure(station_id)
 
         except (ProviderException, StandardError) as e:
-            logger.error(u"Error while processing measures: {0}", e)
+            logger.error(u"Error while processing FFVL: {0}", e)
 
         logger.info(u"...Done!")
 

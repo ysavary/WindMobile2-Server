@@ -59,7 +59,11 @@ class Jdc(Provider):
                             "http://meteo.jdc.ch/API/?Action=DataView&serial={jdc_id}&duration=172800"
                             "&flags=offline|maintenance|test|online".format(jdc_id=jdc_id),
                             timeout=(self.connect_timeout, self.read_timeout))
-                        if result.json()['ERROR'] == 'OK':
+                        try:
+                            json = result.json()
+                        except ValueError:
+                            raise ProviderException(u"Action=Data return invalid json response")
+                        if json['ERROR'] == 'OK':
                             measures_collection = self.measures_collection(station_id)
 
                             measures = result.json()['data']['measurements']
@@ -81,7 +85,7 @@ class Jdc(Provider):
                             self.insert_new_measures(measures_collection, station, new_measures, logger)
                         else:
                             raise ProviderException(
-                                u"Action=Data return an error: '{0}'".format(result.json()['ERROR']))
+                                u"Action=Data return an error: '{0}'".format(json['ERROR']))
 
                     except (ProviderException, StandardError) as e:
                         logger.error(u"Error while processing measures for station '{0}': {1}".format(station_id, e))

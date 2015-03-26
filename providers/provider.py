@@ -8,6 +8,15 @@ from pymongo import uri_parser, MongoClient, GEOSPHERE
 from pymongo.errors import CollectionInvalid
 
 
+class NoExceptionFormatter(logging.Formatter):
+    def format(self, record):
+        record.exc_text = ''  # ensure formatException gets called
+        return super(NoExceptionFormatter, self).format(record)
+
+    def formatException(self, record):
+        return ''
+
+
 def get_logger(name, level=logging.INFO):
     logger = logging.getLogger(name)
     logger.setLevel(level)
@@ -20,9 +29,14 @@ def get_logger(name, level=logging.INFO):
 
     if 'WINDMOBILE_LOG_DIR' in os.environ:
         try:
-            # Limit file to 5Mb
+            handler = logging.handlers.TimedRotatingFileHandler(
+                os.path.join(os.environ['WINDMOBILE_LOG_DIR'], name + '.log'), when='midnight', backupCount=20)
+            fmt = NoExceptionFormatter('%(asctime)s %(levelname)s [%(name)s]: %(message)s', '%Y-%m-%dT%H:%M:%S%z')
+            handler.setFormatter(fmt)
+            logger.addHandler(handler)
+
             handler = logging.handlers.RotatingFileHandler(
-                os.path.join(os.environ['WINDMOBILE_LOG_DIR'], name + '.log'), maxBytes=5 * 10 ** 6)
+                os.path.join(os.environ['WINDMOBILE_LOG_DIR'], name + '.stacktraces.log'), maxBytes=50 * 10 ** 6)
             fmt = logging.Formatter('%(asctime)s %(levelname)s [%(name)s]: %(message)s', '%Y-%m-%dT%H:%M:%S%z')
             handler.setFormatter(fmt)
             logger.addHandler(handler)

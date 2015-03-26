@@ -62,7 +62,7 @@ def stations(request):
                 '$near': {
                     '$geometry': {
                         'type': 'Point',
-                        'coordinates': [float(latitude), float(longitude)]
+                        'coordinates': [float(longitude), float(latitude)]
                     },
                     '$maxDistance': int(distance)
                 }
@@ -72,7 +72,7 @@ def stations(request):
                 '$near': {
                     '$geometry': {
                         'type': 'Point',
-                        'coordinates': [float(latitude), float(longitude)]
+                        'coordinates': [float(longitude), float(latitude)]
                     }
                 }
             }
@@ -103,8 +103,8 @@ def station_json_doc(request):
         "timezone": "[string]: (+01:00)",
 
         "loc": {
-            "lat": "[float] latitude",
-            "lon": "[float] longitude"
+            'type': 'Point',
+            'coordinates': "[ [float] longitude, [float] latitude ]"
         },
         "tags": "[array of string] tags",
         "cat": "[string] category",

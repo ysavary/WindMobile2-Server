@@ -78,10 +78,10 @@ class Ffvl(Provider):
                         description=self.get_xml_element(ffvl_station, 'description'),
                         url=self.get_xml_attribute(ffvl_station, 'url', 'value'))
 
-                except (ProviderException, StandardError) as e:
+                except Exception as e:
                     logger.error(u"Error while processing station '{0}': {1}".format(station_id, e))
 
-        except (ProviderException, StandardError) as e:
+        except Exception as e:
             logger.error(u"Error while processing stations: {0}".format(e))
 
         try:
@@ -117,12 +117,12 @@ class Ffvl(Provider):
 
                     self.insert_new_measures(measures_collection, station, new_measures, logger)
 
-                except (ProviderException, StandardError) as e:
+                except Exception as e:
                     logger.error(u"Error while processing measures for station '{0}': {1}".format(station_id, e))
 
                 self.add_last_measure(station_id)
 
-        except (ProviderException, StandardError) as e:
+        except Exception as e:
             logger.error(u"Error while processing FFVL: {0}", e)
 
         logger.info(u"...Done!")

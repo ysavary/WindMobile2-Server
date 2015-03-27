@@ -79,10 +79,10 @@ class MeteoSwiss(Provider):
                     self.insert_new_measures(measures_collection, station, new_measures, logger)
                     self.add_last_measure(station_id)
 
-                except (ProviderException, StandardError) as e:
+                except Exception as e:
                     logger.error(u"Error while processing station '{0}': {1}".format(station_id, e))
 
-        except (ProviderException, StandardError) as e:
+        except Exception as e:
             logger.error(u"Error while processing METEOSWISS: {0}".format(e))
 
         logger.info(u"...Done!")

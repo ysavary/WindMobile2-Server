@@ -87,15 +87,15 @@ class Jdc(Provider):
                             raise ProviderException(
                                 u"Action=Data return an error: '{0}'".format(json['ERROR']))
 
-                    except (ProviderException, StandardError) as e:
+                    except Exception as e:
                         logger.error(u"Error while processing measures for station '{0}': {1}".format(station_id, e))
 
                     self.add_last_measure(station_id)
 
-                except (ProviderException, StandardError) as e:
+                except Exception as e:
                     logger.error(u"Error while processing station '{0}': {1}".format(station_id, e))
 
-        except (ProviderException, StandardError) as e:
+        except Exception as e:
             logger.error(u"Error while processing JDC: {0}".format(e))
 
         logger.info(u"Done !")

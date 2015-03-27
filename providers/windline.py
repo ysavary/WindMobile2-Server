@@ -151,7 +151,8 @@ class Windline(Provider):
                         for row in wind_average_rows:
                             try:
                                 key = calendar.timegm(row[0].timetuple())
-                                if not measures_collection.find_one(key):
+                                if not key in [measure['_id'] for measure in new_measures] and \
+                                        not measures_collection.find_one(key):
                                     wind_average = self.ms_to_kmh(row[1])
 
                                     measure_date = row[0]
@@ -185,15 +186,15 @@ class Windline(Provider):
 
                         self.insert_new_measures(measures_collection, station, new_measures, logger)
 
-                    except (ProviderException, StandardError) as e:
-                        logger.error(u"Error while processing measures for station '{0}': {1}".format(station_id, e))
+                    except Exception as e:
+                        logger.exception(u"Error while processing measures for station '{0}': {1}".format(station_id, e))
 
                     self.add_last_measure(station_id)
 
-                except (ProviderException, StandardError) as e:
+                except Exception as e:
                     logger.error(u"Error while processing station '{0}': {1}".format(station_id, e))
 
-        except (ProviderException, StandardError) as e:
+        except Exception as e:
             logger.error(u"Error while processing WINDLINE: {0}".format(e))
         finally:
             mysql_cursor.close()

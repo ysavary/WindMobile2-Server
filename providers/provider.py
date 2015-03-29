@@ -110,8 +110,11 @@ class Provider(object):
                    'tags': tags,
                    'alt': to_int(altitude),
                    'loc': {
-                       'lat': to_float(latitude, 6),
-                       'lon': to_float(longitude, 6)
+                       'type': 'Point',
+                       'coordinates': [
+                           to_float(longitude, 6),
+                           to_float(latitude, 6)
+                       ]
                    },
                    'status': status,
                    'seen': self.now_unix_time()

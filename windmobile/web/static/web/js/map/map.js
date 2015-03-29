@@ -27,7 +27,7 @@ angular.module('windMobile.map', ['ngRoute', 'ngMap'])
             for (var i = 0; i < stations.length; i++) {
                 var station = stations[i];
 
-                var position = new google.maps.LatLng(station.loc.lat, station.loc.lon);
+                var position = new google.maps.LatLng(station.loc.coordinates[1], station.loc.coordinates[0]);
                 var marker = new google.maps.Marker({
                     title: station["short"],
                     position: position,

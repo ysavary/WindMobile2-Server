@@ -56,8 +56,8 @@ class MeteoSwiss(Provider):
                         description['location']['lon'],
                         Status.GREEN)
 
-                    switzerland = timezone('Europe/Zurich')
-                    update_time = switzerland.localize(datetime.strptime(data['time'], '%Y%m%d%H%M'))
+                    utc = timezone('UTC')
+                    update_time = utc.localize(datetime.strptime(data['time'], '%Y%m%d%H%M'))
                     key = calendar.timegm(update_time.utctimetuple())
 
                     measures_collection = self.measures_collection(station_id)

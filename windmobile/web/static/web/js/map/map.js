@@ -55,7 +55,7 @@ angular.module('windMobile.map', ['ngRoute', 'ngMap'])
                     } else if (windAverage >= 15 && windAverage < 20) {
                         color = 'DeepSkyBlue'
                     } else if (windAverage >= 20 && windAverage < 25) {
-                        color = 'MediumBlue'
+                        color = 'RoyalBlue'
                     } else if (windAverage >= 25 && windAverage < 30) {
                         color = 'BlueViolet'
                     } else if (windAverage >= 30 && windAverage < 35) {

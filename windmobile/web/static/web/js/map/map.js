@@ -43,24 +43,24 @@ angular.module('windMobile.map', ['ngRoute', 'ngMap'])
 
                 if ((station.status == "green") && (station.last)) {
                     var position = new google.maps.LatLng(station.loc.coordinates[1], station.loc.coordinates[0]);
-                    var windAverage = station.last['w-avg'];
+                    var windMax = station.last['w-max'];
 
                     var color;
-                    if (windAverage === undefined) {
+                    if (windMax === undefined) {
                         color = 'DarkGray'
-                    } else if (windAverage >= 0 && windAverage < 10) {
+                    } else if (windMax >= 0 && windMax < 10) {
                         color = 'MediumAquaMarine';
-                    } else if (windAverage >= 10 && windAverage < 15) {
+                    } else if (windMax >= 10 && windMax < 20) {
                         color = 'SeaGreen'
-                    } else if (windAverage >= 15 && windAverage < 20) {
+                    } else if (windMax >= 20 && windMax < 25) {
                         color = 'DarkCyan'
-                    } else if (windAverage >= 20 && windAverage < 25) {
-                        color = 'RoyalBlue'
-                    } else if (windAverage >= 25 && windAverage < 30) {
+                    } else if (windMax >= 25 && windMax < 30) {
+                        color = 'MediumSlateBlue'
+                    } else if (windMax >= 30 && windMax < 35) {
                         color = 'BlueViolet'
-                    } else if (windAverage >= 30 && windAverage < 35) {
+                    } else if (windMax >= 35 && windMax < 40) {
                         color = 'OrangeRed'
-                    } else if (windAverage >= 35) {
+                    } else if (windMax >= 40) {
                         color = 'Crimson'
                     }
 

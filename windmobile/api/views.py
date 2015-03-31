@@ -160,8 +160,8 @@ def station_historic(request, station_id):
         if not station or not 'last' in station:
             return Response({'detail': "No station with id '%s'" % station_id}, status=status.HTTP_404_NOT_FOUND)
         last_time = station['last']['_id']
-        start_time = last_time - duration;
-        return Response(list(mongo_db[station_id].find({'_id': {'$gte': start_time}}).sort('_id', -1)))
+        start_time = last_time - duration
+        return Response(list(mongo_db[station_id].find({'_id': {'$gte': start_time}}, sort=(('_id', -1),))))
     else:
         return Response({'detail': "No historic data for id '%s'" % station_id}, status=status.HTTP_404_NOT_FOUND)
 

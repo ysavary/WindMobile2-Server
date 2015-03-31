@@ -65,7 +65,7 @@ var app = angular.module('windMobile', ['ngRoute', 'windMobile.list', 'windMobil
                         var lastY = width / 2;
 
                         var currentRadius = 0.0;
-                        for (var i = 0; i < scope.historic.length; i++) {
+                        for (var i = scope.historic.length - 1; i >= 0; i--) {
                             var direction = scope.historic[i]['w-dir'];
 
                             currentRadius += radius / scope.historic.length;

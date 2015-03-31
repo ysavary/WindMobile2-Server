@@ -41,12 +41,14 @@ angular.module('windMobile.map', ['ngRoute', 'ngMap'])
             for (var i = 0; i < stations.length; i++) {
                 var station = stations[i];
 
-                if (station.status == "green") {
+                if ((station.status == "green") && (station.last)) {
                     var position = new google.maps.LatLng(station.loc.coordinates[1], station.loc.coordinates[0]);
                     var windAverage = station.last['w-avg'];
 
                     var color;
-                    if (windAverage >= 0 && windAverage < 10) {
+                    if (windAverage === undefined) {
+                        color = 'DarkGray'
+                    } else if (windAverage >= 0 && windAverage < 10) {
                         color = 'MediumAquaMarine';
                     } else if (windAverage >= 10 && windAverage < 15) {
                         color = 'SeaGreen'

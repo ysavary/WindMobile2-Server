@@ -7,7 +7,7 @@ angular.module('windMobile.map', ['ngRoute', 'ngMap'])
         });
     }])
 
-    .controller('MapController', ['$scope', '$http', '$compile', function ($scope, $http, $compile) {
+    .controller('MapController', ['$scope', '$http', '$compile', '$templateCache', function ($scope, $http, $compile, $templateCache) {
         var markersArray = [];
         var infoBox = null;
 
@@ -24,19 +24,7 @@ angular.module('windMobile.map', ['ngRoute', 'ngMap'])
         function displayMarkers(stations) {
             clearOverlays();
 
-            //var element = $compile('<div class="station-card" ng-include src="\'/static/web/templates/_infobox.html\'" ng-controller="StationController"></div>')($scope);
-            var content = '<div class="station-card transparent-background">' +
-                '<div class="title">[[ station.name ]]</div>' +
-                '<div class="last-update">[[ station.last._id|fromNow ]]</div>' +
-                '<div class="altitude">[[ station.alt ]] meters</div>' +
-                '<div class="wind-section">' +
-                '<div class="wind-avg">[[ station.last[\'w-avg\'].toFixed(1) ]]</div>' +
-                '<div class="wind-max">[[ station.last[\'w-max\'].toFixed(1) ]]</div>' +
-                '<div class="unit">km/h</div>' +
-                //'<mini-chart id="mini-chart" data="[[ miniChartData ]]"></mini-chart>' +
-                '</div>' +
-                '<svg id="wind-direction" obj="" wind-direction></svg>' +
-                '</div>';
+            var element = $compile($templateCache.get('_infobox.html'))($scope);
 
             for (var i = 0; i < stations.length; i++) {
                 var station = stations[i];
@@ -97,8 +85,6 @@ angular.module('windMobile.map', ['ngRoute', 'ngMap'])
                             $scope.station = marker.station;
                             $scope.historic = [];
                             $scope.getHistoric();
-                            var element = $compile(content)($scope);
-                            $scope.$apply();
                             infoBox = new InfoBox({
                                 content: element[0]
                             });

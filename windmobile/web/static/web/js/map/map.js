@@ -83,7 +83,6 @@ angular.module('windMobile.map', ['ngRoute', 'ngMap'])
                                 infoBox.close();
                             }
                             $scope.station = marker.station;
-                            $scope.historic = [];
                             $scope.getHistoric();
                             infoBox = new InfoBox({
                                 content: element[0]
@@ -96,9 +95,8 @@ angular.module('windMobile.map', ['ngRoute', 'ngMap'])
         }
 
         $scope.getHistoric = function () {
-            $scope.historic = [];
-            $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=3600'}).
-                success(function (data) {
+            $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=3600'})
+                .success(function (data) {
                     $scope.historic = data;
 
                     var miniChartData = '';
@@ -110,6 +108,9 @@ angular.module('windMobile.map', ['ngRoute', 'ngMap'])
                         }
                     }
                     $scope.miniChartData = miniChartData;
+                })
+                .error(function () {
+                   $scope.historic = [];
                 })
         };
 

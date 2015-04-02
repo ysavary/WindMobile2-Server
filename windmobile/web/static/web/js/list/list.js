@@ -52,7 +52,6 @@ angular.module('windMobile.list', ['ngRoute'])
 
     .controller('StationController', ['$scope', '$http', function ($scope, $http) {
         $scope.getHistoric = function () {
-            $scope.historic = [];
             $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=3600'}).
                 success(function (data) {
                     $scope.historic = data;

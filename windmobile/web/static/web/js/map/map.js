@@ -37,25 +37,22 @@ angular.module('windMobile.map', [])
 
                     if ((station.status == "green") && (station.last)) {
                         var position = new google.maps.LatLng(station.loc.coordinates[1], station.loc.coordinates[0]);
-                        var windMax = station.last['w-max'];
 
                         var color;
-                        if (windMax === undefined) {
+                        if ((!station.last) || (moment.unix(station.last._id).isBefore(moment().subtract(1, 'hours')))) {
                             color = 'DarkGray'
-                        } else if (windMax >= 0 && windMax < 10) {
-                            color = 'MediumAquaMarine';
-                        } else if (windMax >= 10 && windMax < 20) {
-                            color = 'SeaGreen'
-                        } else if (windMax >= 20 && windMax < 25) {
-                            color = 'DarkCyan'
-                        } else if (windMax >= 25 && windMax < 30) {
-                            color = 'MediumSlateBlue'
-                        } else if (windMax >= 30 && windMax < 35) {
-                            color = 'BlueViolet'
-                        } else if (windMax >= 35 && windMax < 40) {
-                            color = 'OrangeRed'
-                        } else if (windMax >= 40) {
-                            color = 'Crimson'
+                        } else {
+                            var windRangeMax = 50;
+                            var hueStart = 90;
+
+                            var windMax = station.last['w-max'];
+                            var hue = hueStart + (windMax / windRangeMax) * (360 - hueStart);
+                            if (hue > 360) {
+                                hue = 360;
+                            }
+                            var saturation = 1;
+                            var value = 0.7;
+                            color = tinycolor.fromRatio({ h: hue, s: saturation, v: value }).toHexString();
                         }
 
                         var icon = {

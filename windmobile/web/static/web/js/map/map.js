@@ -5,6 +5,7 @@ angular.module('windMobile.map', [])
         function ($scope, $http, $compile, $templateCache, $location) {
             var markersArray = [];
             var infoBox = null;
+            var inboBoxContent = $compile($templateCache.get('_infobox.html'))($scope);
 
             var mapOptions = {
                 zoom: 8,
@@ -23,8 +24,6 @@ angular.module('windMobile.map', [])
             }
             function displayMarkers(stations) {
                 clearOverlays();
-
-                var element = $compile($templateCache.get('_infobox.html'))($scope);
 
                 for (var i = 0; i < stations.length; i++) {
                     var station = stations[i];
@@ -79,7 +78,7 @@ angular.module('windMobile.map', [])
                                 $scope.station = marker.station;
                                 $scope.getHistoric();
                                 infoBox = new InfoBox({
-                                    content: element[0],
+                                    content: inboBoxContent[0],
                                     disableAutoPan: true,
                                     closeBoxURL: ''
                                 });

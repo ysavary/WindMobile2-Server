@@ -8,7 +8,9 @@ angular.module('windMobile.map', [])
             var inboBoxContent = $compile($templateCache.get('_infobox.html'))($scope);
 
             var mapOptions = {
-                zoom: 8,
+                // France and Switzerland
+                center: new google.maps.LatLng(46.76, 4.08),
+                zoom: 6,
                 mapTypeId: google.maps.MapTypeId.TERRAIN
             };
             $scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);
@@ -117,6 +119,7 @@ angular.module('windMobile.map', [])
             $scope.geoSearch = function (position) {
                 var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 $scope.map.setCenter(currentPosition);
+                $scope.map.setZoom(8);
 
                 var params = {};
                 params.lat = position.coords.latitude;

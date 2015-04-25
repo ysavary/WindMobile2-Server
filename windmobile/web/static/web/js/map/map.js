@@ -11,6 +11,11 @@ angular.module('windMobile.map', [])
                 // France and Switzerland
                 center: new google.maps.LatLng(46.76, 4.08),
                 zoom: 6,
+                panControl: false,
+                mapTypeControlOptions: {
+                    mapTypeIds: [google.maps.MapTypeId.TERRAIN, google.maps.MapTypeId.ROADMAP,
+                    google.maps.MapTypeId.SATELLITE]
+                },
                 mapTypeId: google.maps.MapTypeId.TERRAIN
             };
             $scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);

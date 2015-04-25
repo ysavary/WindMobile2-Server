@@ -1,18 +1,11 @@
-angular.module('windMobile.detail', ['ngRoute'])
+angular.module('windMobile.detail', [])
 
-    .config(['$routeProvider', function ($routeProvider) {
-        $routeProvider.when('/station/:stationId', {
-            templateUrl: '/static/web/js/detail/detail.html',
-            controller: 'DetailController'
-        });
-    }])
-
-    .controller('DetailController', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
+    .controller('DetailController', ['$scope', '$http', '$stateParams', function ($scope, $http, $stateParams) {
         $scope.$back = function() {
             window.history.back();
         };
 
-        $scope.stationId = $routeParams.stationId;
+        $scope.stationId = $stateParams.stationId;
 
         $scope.getData = function () {
             $scope.station = null;

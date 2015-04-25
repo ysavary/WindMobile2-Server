@@ -1,10 +1,28 @@
-var app = angular.module('windMobile', ['ngRoute', 'windMobile.list', 'windMobile.map', 'windMobile.detail'],
+var app = angular.module('windMobile', ['ui.router', 'windMobile.list', 'windMobile.map', 'windMobile.detail'],
     function ($interpolateProvider) {
         $interpolateProvider.startSymbol('[[');
         $interpolateProvider.endSymbol(']]');
     })
-    .config(['$routeProvider', function ($routeProvider) {
-        $routeProvider.otherwise({redirectTo: '/list'});
+    .config(['$locationProvider', '$stateProvider', '$urlRouterProvider',
+            function ($locationProvider, $stateProvider, $urlRouterProvider) {
+        $locationProvider.html5Mode(true);
+        $stateProvider
+            .state('map', {
+                url: '/map',
+                templateUrl: '/static/web/templates/map.html',
+                controller: 'MapController'
+            })
+            .state('list', {
+                url: '/list',
+                templateUrl: '/static/web/templates/list.html',
+                controller: 'ListController'
+            })
+            .state('detail', {
+                url: '/station/:stationId',
+                templateUrl: '/static/web/templates/detail.html',
+                controller: 'DetailController'
+            });
+        $urlRouterProvider.otherwise("/map");
     }])
     .filter('fromNow', function () {
         return function (input) {

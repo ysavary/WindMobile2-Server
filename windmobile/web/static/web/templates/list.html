@@ -1,24 +1,10 @@
-<body ng-controller="MapController">
-
-<script type="text/ng-template" id="_infobox.html">
-    <div class="station-card transparent-background" ng-click="selectStation(station)">
-        <div class="title">[[ station.short ]]</div>
-        <div class="last-update">[[ station.last._id|fromNow ]]</div>
-        <div class="altitude">[[ station.alt ]] meters</div>
-        <div class="wind-section">
-            <div class="wind-avg">[[ station.last['w-avg'].toFixed(1) ]]</div>
-            <div class="wind-max">[[ station.last['w-max'].toFixed(1) ]]<span class="unit">  km/h</span></div>
-            <mini-chart id="mini-chart" data="[[ miniChartData ]]"></mini-chart>
-        </div>
-        <svg id="wind-direction" wind-direction></svg>
-    </div>
-</script>
+<body>
 
 <!-- Fixed navbar -->
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#"><img src="/static/web/images/windmobile.png"></a>
+            <a class="navbar-brand" href="#"><img src="/static/web/img/windmobile.png"></a>
             <p class="navbar-text hidden-xxs">WindMobile</p>
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
                 <span class="sr-only">Toggle navigation</span>
@@ -37,15 +23,24 @@
         </form>
         <div class="navbar-collapse collapse navbar-right" id="navbar-collapse">
             <ul class="nav navbar-nav">
-                <li><a href="#/list"><span class="fa fa-th-large nav-link-icon"></span>
+                <li><a ui-sref="map"><span class="fa fa-map-marker nav-link-icon"></span>
                     <span class="hidden-xxs">Map</span></a></li>
             </ul>
         </div>
     </div>
 </nav>
 
-<div class="container-fluid">
-    <map zoom="8" class="map"></map>
+<div style="text-align: center;">
+    <div class="station-card" ng-repeat="station in stations" ng-controller="StationController" ng-click="selectStation(station)">
+        <div class="title">[[ station.short ]]</div>
+        <div class="last-update">[[ station.last._id|fromNow ]]</div>
+        <div class="altitude">[[ station.alt ]] meters</div>
+        <div class="wind-section">
+            <div class="wind-avg">[[ station.last['w-avg'].toFixed(1) ]]</div>
+            <div class="wind-max">[[ station.last['w-max'].toFixed(1) ]]<span class="unit">  km/h</span></div>
+            <mini-chart id="mini-chart" data="[[ miniChartData ]]"></mini-chart>
+        </div>
+        <svg id="wind-direction" wind-direction></svg>
+    </div>
 </div>
-
 </body>

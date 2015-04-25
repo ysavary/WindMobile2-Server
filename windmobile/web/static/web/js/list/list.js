@@ -1,11 +1,4 @@
-angular.module('windMobile.list', ['ngRoute'])
-
-    .config(['$routeProvider', function ($routeProvider) {
-        $routeProvider.when('/list', {
-            templateUrl: '/static/web/js/list/list.html',
-            controller: 'ListController'
-        });
-    }])
+angular.module('windMobile.list', [])
 
     .controller('ListController', ['$scope', '$http', '$location', function ($scope, $http, $location) {
         $scope.snapOptions = {

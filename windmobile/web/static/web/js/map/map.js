@@ -1,17 +1,16 @@
-angular.module('windMobile.map', ['ngRoute', 'ngMap'])
-
-    .config(['$routeProvider', function ($routeProvider) {
-        $routeProvider.when('/map', {
-            templateUrl: '/static/web/js/map/map.html',
-            controller: 'MapController'
-        });
-    }])
+angular.module('windMobile.map', [])
 
     .controller('MapController',
         ['$scope', '$http', '$compile', '$templateCache', '$location',
         function ($scope, $http, $compile, $templateCache, $location) {
             var markersArray = [];
             var infoBox = null;
+
+            var mapOptions = {
+                zoom: 8,
+                mapTypeId: google.maps.MapTypeId.TERRAIN
+            };
+            $scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
             function clearOverlays() {
                 if (infoBox) {

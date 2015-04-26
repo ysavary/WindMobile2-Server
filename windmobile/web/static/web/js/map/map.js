@@ -40,7 +40,7 @@ angular.module('windMobile.map', [])
 
                         var color;
                         if ((!station.last) || (moment.unix(station.last._id).isBefore(moment().subtract(1, 'hours')))) {
-                            color = 'DarkGray'
+                            color = tinycolor.fromRatio({ h: 0, s: 0, v: 0.5 }).toHexString();
                         } else {
                             var windRangeMax = 50;
                             var hueStart = 90;
@@ -50,9 +50,7 @@ angular.module('windMobile.map', [])
                             if (hue > 360) {
                                 hue = 360;
                             }
-                            var saturation = 1;
-                            var value = 0.7;
-                            color = tinycolor.fromRatio({ h: hue, s: saturation, v: value }).toHexString();
+                            color = tinycolor.fromRatio({ h: hue, s: 1, v: 0.7 }).toHexString();
                         }
 
                         var icon = {

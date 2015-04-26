@@ -1,4 +1,4 @@
-angular.module('windMobile.list', [])
+angular.module('windmobile.list', ['windmobile.services'])
 
     .controller('ListController', ['$scope', '$http', '$location', function ($scope, $http, $location) {
         $scope.snapOptions = {
@@ -43,7 +43,10 @@ angular.module('windMobile.list', [])
         $scope.list();
     }])
 
-    .controller('StationController', ['$scope', '$http', function ($scope, $http) {
+    .controller('StationController', ['$scope', '$http', 'utils', function ($scope, $http, utils) {
+        $scope.setColorStatus = function (station) {
+            return utils.setColorStatus(station);
+        };
         $scope.getHistoric = function () {
             $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=3600'}).
                 success(function (data) {

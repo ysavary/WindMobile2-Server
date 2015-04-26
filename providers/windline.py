@@ -20,6 +20,7 @@ class NoMeasure(Exception):
 class Windline(Provider):
     provider_prefix = 'windline'
     provider_name = 'windline.ch'
+    provider_url = 'http://www.windline.ch'
 
     def __init__(self, mongo_url, windline_url):
         super(Windline, self).__init__(mongo_url)

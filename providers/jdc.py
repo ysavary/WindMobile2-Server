@@ -1,4 +1,5 @@
 import os
+import urlparse
 
 # Modules
 import requests
@@ -11,6 +12,7 @@ logger = get_logger('jdc')
 class Jdc(Provider):
     provider_prefix = 'jdc'
     provider_name = 'jdc.ch'
+    provider_url = 'http://meteo.jdc.ch'
 
     connect_timeout = 7
     read_timeout = 30
@@ -51,6 +53,7 @@ class Jdc(Provider):
                         jdc_station['latitude'],
                         jdc_station['longitude'],
                         self.get_status(jdc_station['status']),
+                        url=urlparse.urljoin(self.provider_url, "/station/" + str(jdc_station['serial'])),
                         timezone=jdc_station['timezone'])
 
                     try:

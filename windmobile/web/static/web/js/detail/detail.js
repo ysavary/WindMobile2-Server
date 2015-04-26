@@ -1,4 +1,4 @@
-angular.module('windMobile.detail', [])
+angular.module('windmobile.detail', [])
 
     .controller('DetailController', ['$scope', '$http', '$stateParams', function ($scope, $http, $stateParams) {
         $scope.$back = function() {

@@ -16,6 +16,7 @@ logger = get_logger('meteoswiss')
 class MeteoSwiss(Provider):
     provider_prefix = 'meteoswiss'
     provider_name = 'meteoswiss.ch'
+    provider_url = 'http://www.meteoswiss.ch'
 
     def __init__(self, mongo_url):
         super(MeteoSwiss, self).__init__(mongo_url)

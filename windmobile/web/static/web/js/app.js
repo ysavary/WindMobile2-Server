@@ -1,4 +1,4 @@
-var app = angular.module('windMobile', ['ui.router', 'windMobile.list', 'windMobile.map', 'windMobile.detail'],
+var app = angular.module('windmobile', ['ui.router', 'windmobile.list', 'windmobile.map', 'windmobile.detail'],
     function ($interpolateProvider) {
         $interpolateProvider.startSymbol('[[');
         $interpolateProvider.endSymbol(']]');
@@ -73,7 +73,7 @@ var app = angular.module('windMobile', ['ui.router', 'windMobile.list', 'windMob
                         var radius = Math.min(width, height) / 2;
                         var circle = paper.circle(width / 2, height / 2, radius - 1);
                         circle.attr({
-                            stroke: "#fff",
+                            stroke: "#8D8D8D",
                             strokeWidth: 1
                         });
                     }
@@ -95,8 +95,8 @@ var app = angular.module('windMobile', ['ui.router', 'windMobile.list', 'windMob
 
                             var line = paper.line(lastX, lastY, x, y);
                             line.attr({
-                                stroke: "#f00",
-                                strokeWidth: 2
+                                stroke: "#cccc00",
+                                strokeWidth: 1.5
                             });
 
                             lastX = x;

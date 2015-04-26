@@ -14,6 +14,7 @@ logger = get_logger('ffvl')
 class Ffvl(Provider):
     provider_prefix = 'ffvl'
     provider_name = 'ffvl.fr'
+    provider_url = 'http://www.balisemeteo.com'
 
     def __init__(self, mongo_url, api_key):
         super(Ffvl, self).__init__(mongo_url)

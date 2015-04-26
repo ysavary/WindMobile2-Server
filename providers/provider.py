@@ -104,6 +104,7 @@ class Provider(object):
                          description=None, url=None, timezone=None, uptime=None, language=None):
 
         station = {'prov': self.provider_name,
+                   'url': url or self.provider_url,
                    'short': short_name,
                    'name': name,
                    'cat': category,
@@ -123,8 +124,6 @@ class Provider(object):
         # Optional keys
         if description:
             station['desc'] = description
-        if url:
-            station['url'] = url
         if timezone:
             station['timezone'] = timezone
         if uptime:

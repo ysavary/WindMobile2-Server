@@ -1,8 +1,8 @@
-angular.module('windMobile.map', [])
+angular.module('windmobile.map', ['windmobile.services'])
 
     .controller('MapController',
-        ['$scope', '$http', '$compile', '$templateCache', '$location',
-        function ($scope, $http, $compile, $templateCache, $location) {
+        ['$scope', '$http', '$compile', '$templateCache', '$location', 'utils',
+        function ($scope, $http, $compile, $templateCache, $location, utils) {
             var markersArray = [];
             var infoBox = null;
             var inboBoxContent = $compile($templateCache.get('_infobox.html'))($scope);
@@ -39,18 +39,10 @@ angular.module('windMobile.map', [])
                         var position = new google.maps.LatLng(station.loc.coordinates[1], station.loc.coordinates[0]);
 
                         var color;
-                        if ((!station.last) || (moment.unix(station.last._id).isBefore(moment().subtract(1, 'hours')))) {
-                            color = tinycolor.fromRatio({ h: 0, s: 0, v: 0.5 }).toHexString();
+                        if ((!station.last) || (moment.unix(station.last._id).isBefore(moment().subtract(2, 'hours')))) {
+                            color = '#808080';
                         } else {
-                            var windRangeMax = 50;
-                            var hueStart = 90;
-
-                            var windMax = station.last['w-max'];
-                            var hue = hueStart + (windMax / windRangeMax) * (360 - hueStart);
-                            if (hue > 360) {
-                                hue = 360;
-                            }
-                            color = tinycolor.fromRatio({ h: hue, s: 1, v: 0.7 }).toHexString();
+                            color = utils.getColorInRange(station.last['w-max'], 50);
                         }
 
                         var icon = {
@@ -81,7 +73,6 @@ angular.module('windMobile.map', [])
                                 $scope.getHistoric();
                                 infoBox = new InfoBox({
                                     content: inboBoxContent[0],
-                                    disableAutoPan: true,
                                     closeBoxURL: ''
                                 });
                                 infoBox.open($scope.map, marker);
@@ -145,6 +136,9 @@ angular.module('windMobile.map', [])
             };
             $scope.selectStation = function (station) {
                 $location.path('/station/' + station._id);
+            };
+            $scope.setColorStatus = function (station) {
+                return utils.setColorStatus(station);
             };
             $scope.list = function () {
                 if ($scope.query) {

@@ -45,7 +45,8 @@ angular.module('windmobile.list', ['windmobile.services'])
 
     .controller('StationController', ['$scope', '$http', 'utils', function ($scope, $http, utils) {
         $scope.setColorStatus = function (station) {
-            return utils.setColorStatus(station);
+            var status = utils.getStationStatus(station);
+            return utils.getStatusColor(status);
         };
         $scope.getHistoric = function () {
             $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=3600'}).

@@ -41,10 +41,10 @@ def stations(request):
     word = request.QUERY_PARAMS.get('word')
     language = request.QUERY_PARAMS.get('language', 'fr')
 
+    query = {'status': {'$ne': 'hidden'}}
+
     if provider:
-        query = {'prov': provider}
-    else:
-        query = {}
+        query['prov'] = provider
 
     if not (search or latitude or longitude or distance or word):
         return Response(list(mongo_db.stations.find(query).limit(limit)))

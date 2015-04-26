@@ -1,15 +1,30 @@
 angular.module('windmobile.services', [])
     .factory('utils', function () {
         return {
-            setColorStatus: function (station) {
-                if (station && station.last) {
-                    var color;
-                    if (moment.unix(station.last._id).isBefore(moment().subtract(2, 'hours'))) {
-                        color = '#900';
-                    } else if (moment.unix(station.last._id).isBefore(moment().subtract(1, 'hours'))) {
-                        color = '#8a5f0f';
+            getStationStatus: function (station) {
+                var result = 'green';
+                if (station.status != 'green') {
+                    if (station.status == 'orange') {
+                        result = 'orange';
+                    } else {
+                        result = 'red';
                     }
-                    return {color: color};
+                } else if (station.last) {
+                    if (moment.unix(station.last._id).isBefore(moment().subtract(2, 'hours'))) {
+                        result = 'red';
+                    } else if (moment.unix(station.last._id).isBefore(moment().subtract(1, 'hours'))) {
+                        result = 'orange';
+                    }
+                } else {
+                    result = 'red';
+                }
+                return result;
+            },
+            getStatusColor: function (status) {
+                if (status == 'red') {
+                    return {color: '#900'};
+                } else if (status == 'orange') {
+                    return {color: '#8a5f0f'};
                 }
             },
             getColorInRange: function (value, max) {

@@ -2,29 +2,38 @@ angular.module('windmobile.services', [])
     .factory('utils', function () {
         return {
             getStationStatus: function (station) {
-                var result = 'green';
-                if (station.status != 'green') {
+                // status: 0=red, 1=orange, 2=green
+                var stationValue;
+                if (station.status == 'green') {
+                    stationValue = 2;
+                } else {
                     if (station.status == 'orange') {
-                        result = 'orange';
+                        stationValue = 1;
                     } else {
-                        result = 'red';
+                        stationValue = 0;
                     }
-                } else if (station.last) {
+                }
+
+                var lastValue;
+                if (station.last) {
                     if (moment.unix(station.last._id).isBefore(moment().subtract(2, 'hours'))) {
-                        result = 'red';
+                        lastValue = 0;
                     } else if (moment.unix(station.last._id).isBefore(moment().subtract(1, 'hours'))) {
-                        result = 'orange';
+                        lastValue = 1;
+                    } else {
+                        lastValue = 2;
                     }
                 } else {
-                    result = 'red';
+                    lastValue = 0;
                 }
-                return result;
+                return Math.min(stationValue, lastValue);
             },
             getStatusColor: function (status) {
-                if (status == 'red') {
-                    return {color: '#900'};
-                } else if (status == 'orange') {
-                    return {color: '#8a5f0f'};
+                // status: 0=red, 1=orange, 2=green
+                if (status == 0) {
+                    return {color: '#990000'};
+                } else if (status == 1) {
+                    return {color: '#aa7109'};
                 }
             },
             getColorInRange: function (value, max) {

@@ -37,7 +37,7 @@ angular.module('windmobile.map', ['windmobile.services'])
                     var status =  utils.getStationStatus(station);
 
                     var color;
-                    if (status == 'red') {
+                    if (status == 0) {
                         color = '#808080';
                     } else {
                         color = utils.getColorInRange(station.last['w-max'], 50);

@@ -115,14 +115,11 @@ body {
             color: $highlight-text-color;
         }
         > .wind-max {
-            float: left;
             font-size: $font-size;
             color: $highlight-text-color;
         }
         > #mini-chart {
             margin-top: 5px;
-            clear: both;
-            float: left;
         }
     }
     > #wind-direction {

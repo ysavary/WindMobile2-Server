@@ -8693,11 +8693,11 @@ body {
   color: #ddd;
 }
 /* line 121, ../../../scss/windmobile.scss */
-.station-card > .wind-section > #mini-chart {
+.station-card > .wind-section > .mini-chart {
   margin-top: 5px;
 }
 /* line 125, ../../../scss/windmobile.scss */
-.station-card > #wind-direction {
+.station-card > .wind-direction {
   float: right;
   width: 70px;
   height: 70px;

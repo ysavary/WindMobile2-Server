@@ -1,10 +1,8 @@
 angular.module('windmobile.map', ['windmobile.services'])
 
-    .controller('MapController',
-        ['$scope', '$http', '$compile', '$templateCache', '$location', 'utils',
+    .controller('MapController', ['$scope', '$http', '$compile', '$templateCache', '$location', 'utils',
         function ($scope, $http, $compile, $templateCache, $location, utils) {
             var markersArray = [];
-            var infoBox = null;
             var inboBoxContent = $compile($templateCache.get('_infobox.html'))($scope);
 
             var mapOptions = {
@@ -21,8 +19,8 @@ angular.module('windmobile.map', ['windmobile.services'])
             $scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
             function clearOverlays() {
-                if (infoBox) {
-                    infoBox.close();
+                if ($scope.infoBox) {
+                    $scope.infoBox.close();
                 }
                 for (var i = 0; i < markersArray.length; i++) {
                     markersArray[i].setMap(null);
@@ -64,22 +62,22 @@ angular.module('windmobile.map', ['windmobile.services'])
 
                     (function (marker) {
                         google.maps.event.addListener(marker, 'click', function () {
-                            if (infoBox) {
-                                infoBox.close();
+                            if ($scope.infoBox) {
+                                $scope.infoBox.close();
                             }
                             $scope.station = marker.station;
                             $scope.getHistoric();
-                            infoBox = new InfoBox({
+                            $scope.infoBox = new InfoBox({
                                 content: inboBoxContent[0],
                                 closeBoxURL: ''
                             });
-                            infoBox.open($scope.map, marker);
+                            $scope.infoBox.open($scope.map, marker);
                         })
                     })(marker);
 
                     google.maps.event.addListener($scope.map, 'click', function() {
-                        if (infoBox) {
-                            infoBox.close();
+                        if ($scope.infoBox) {
+                            $scope.infoBox.close();
                         }
                     });
                 }
@@ -89,16 +87,6 @@ angular.module('windmobile.map', ['windmobile.services'])
                 $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=3600'})
                     .success(function (data) {
                         $scope.historic = data;
-
-                        var miniChartData = '';
-                        var count = data.length;
-                        for (var i = count - 1; i >= 0; i--) {
-                            miniChartData += data[i]['_id'] + ':' + data[i]['w-avg'];
-                            if (i > 0) {
-                                miniChartData += ',';
-                            }
-                        }
-                        $scope.miniChartData = miniChartData;
                     })
                     .error(function () {
                        $scope.historic = [];
@@ -132,7 +120,10 @@ angular.module('windmobile.map', ['windmobile.services'])
                 }
             };
             $scope.selectStation = function (station) {
-                $location.path('/station/' + station._id);
+                if ($scope.infoBox) {
+                    $scope.infoBox.close();
+                }
+                $('#detailModal').modal();
             };
             $scope.setColorStatus = function (station) {
                 if (station) {

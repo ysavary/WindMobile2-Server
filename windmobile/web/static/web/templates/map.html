@@ -11,11 +11,35 @@
         <div class="wind-section">
             <div class="wind-avg">[[ station.last['w-avg'].toFixed(1) ]]</div>
             <div class="wind-max">[[ station.last['w-max'].toFixed(1) ]]<span class="unit">  km/h</span></div>
-            <mini-chart id="mini-chart" data="[[ miniChartData ]]"></mini-chart>
+            <span class="mini-chart"></span>
         </div>
-        <svg id="wind-direction" wind-direction></svg>
+        <svg class="wind-direction"></svg>
     </div>
 </script>
+
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="station-card station-card-map">
+                    <div class="title">[[ station.short ]]</div>
+                    <div class="detail-section">
+                        <div class="last-update" ng-style="setColorStatus(station)">[[ station.last._id|fromNow ]]</div>
+                        <a class="url" href="[[ station.url ]]" target="_blank" ng-click="$event.stopPropagation();">[[ station.prov ]]</a>
+                    </div>
+                    <div class="altitude">[[ station.alt ]] meters</div>
+                    <div class="wind-section">
+                        <div class="wind-avg">[[ station.last['w-avg'].toFixed(1) ]]</div>
+                        <div class="wind-max">[[ station.last['w-max'].toFixed(1) ]]<span class="unit">  km/h</span></div>
+                        <span class="mini-chart"></span>
+                    </div>
+                    <svg class="wind-direction"></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- Fixed navbar -->
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation">

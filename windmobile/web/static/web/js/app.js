@@ -35,34 +35,37 @@ var app = angular.module('windmobile', ['ui.router', 'windmobile.list', 'windmob
     })
     .directive('miniChart', function () {
         return {
-            restrict: "E",
-            scope: {
-                data: "@"
-            },
-            compile: function (tElement, tAttrs, transclude) {
-                return function (scope, element, attrs) {
-                    attrs.$observe('data', function (newValue) {
-                        element.html(newValue);
-                        element.sparkline('html', {
-                            width: '80px',
-                            height: '25px',
-                            type: 'line',
-                            chartRangeMin: 0,
-                            disableInteraction: true,
-                            spotColor: false,
-                            minSpotColor: false,
-                            maxSpotColor: false,
-                            lineColor: '#fff',
-                            fillColor: '#444'
-                        });
-                    });
-                };
+            restrict: "C",
+            link: function (scope, element, attrs) {
+                scope.$watch('historic', function (newValue, oldValue) {
+                    if (newValue) {
+                        var data = [];
+                        var count = newValue.length;
+                        for (var i = count - 1; i >= 0; i--) {
+                            data.push([newValue[i]['_id'], newValue[i]['w-avg']]);
+                        }
+                        if (data.length > 0) {
+                            element.sparkline(data, {
+                                width: '80px',
+                                height: '25px',
+                                type: 'line',
+                                chartRangeMin: 0,
+                                disableInteraction: true,
+                                spotColor: false,
+                                minSpotColor: false,
+                                maxSpotColor: false,
+                                lineColor: '#fff',
+                                fillColor: '#444'
+                            });
+                        }
+                    }
+                });
             }
         };
     })
     .directive('windDirection', function () {
         return {
-            restrict: "A",
+            restrict: "C",
             link: function (scope, element, attrs) {
                 scope.$watch('historic', function (newValue, oldValue) {
                     var width = parseFloat($(element[0]).width());

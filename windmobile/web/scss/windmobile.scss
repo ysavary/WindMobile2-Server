@@ -118,11 +118,11 @@ body {
             font-size: $font-size;
             color: $highlight-text-color;
         }
-        > #mini-chart {
+        > .mini-chart {
             margin-top: 5px;
         }
     }
-    > #wind-direction {
+    > .wind-direction {
         float: right;
         width: 70px;
         height: 70px;

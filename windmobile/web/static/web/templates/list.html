@@ -31,7 +31,7 @@
 </nav>
 
 <div style="text-align: center;">
-    <div class="station-card station-card-list" ng-repeat="station in stations" ng-controller="StationController" ng-click="selectStation(station)">
+    <div class="windmobile-card station-card list-card" ng-repeat="station in stations" ng-controller="StationController" ng-click="selectStation(station)">
         <div class="title">[[ station.short ]]</div>
         <div class="detail-section">
             <div class="last-update" ng-style="setColorStatus(station)">[[ station.last._id|fromNow ]]</div>
@@ -41,9 +41,9 @@
         <div class="wind-section">
             <div class="wind-avg">[[ station.last['w-avg'].toFixed(1) ]]</div>
             <div class="wind-max">[[ station.last['w-max'].toFixed(1) ]]<span class="unit">  km/h</span></div>
-            <mini-chart id="mini-chart" data="[[ miniChartData ]]"></mini-chart>
+            <span class="wind-mini-chart"></span>
         </div>
-        <svg id="wind-direction" wind-direction></svg>
+        <svg class="wind-direction"></svg>
     </div>
 </div>
 </body>

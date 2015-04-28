@@ -1,29 +1,24 @@
-var app = angular.module('windmobile', ['ui.router', 'windmobile.list', 'windmobile.map', 'windmobile.detail'],
+var app = angular.module('windmobile', ['ui.router', 'windmobile.list', 'windmobile.map'],
     function ($interpolateProvider) {
         $interpolateProvider.startSymbol('[[');
         $interpolateProvider.endSymbol(']]');
     })
     .config(['$locationProvider', '$stateProvider', '$urlRouterProvider',
-            function ($locationProvider, $stateProvider, $urlRouterProvider) {
-        $locationProvider.html5Mode(true);
-        $stateProvider
-            .state('map', {
-                url: '/map',
-                templateUrl: '/static/web/templates/map.html',
-                controller: 'MapController'
-            })
-            .state('list', {
-                url: '/list',
-                templateUrl: '/static/web/templates/list.html',
-                controller: 'ListController'
-            })
-            .state('detail', {
-                url: '/station/:stationId',
-                templateUrl: '/static/web/templates/detail.html',
-                controller: 'DetailController'
-            });
-        $urlRouterProvider.otherwise("/map");
-    }])
+        function ($locationProvider, $stateProvider, $urlRouterProvider) {
+            $locationProvider.html5Mode(true);
+            $stateProvider
+                .state('map', {
+                    url: '/map',
+                    templateUrl: '/static/web/templates/map.html',
+                    controller: 'MapController'
+                })
+                .state('list', {
+                    url: '/list',
+                    templateUrl: '/static/web/templates/list.html',
+                    controller: 'ListController'
+                });
+            $urlRouterProvider.otherwise("/map");
+        }])
     .filter('fromNow', function () {
         return function (input) {
             if (input) {
@@ -31,9 +26,9 @@ var app = angular.module('windmobile', ['ui.router', 'windmobile.list', 'windmob
             } else {
                 return "Unknown";
             }
-        }
+        };
     })
-    .directive('miniChart', function () {
+    .directive('windMiniChart', function () {
         return {
             restrict: "C",
             link: function (scope, element, attrs) {

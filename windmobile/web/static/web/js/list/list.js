@@ -11,7 +11,7 @@ angular.module('windmobile.list', ['windmobile.services'])
             $http({method: 'GET', url: '/api/2/stations/', params: params}).
                 success(function (data) {
                     $scope.stations = data;
-                })
+                });
         };
         $scope.search = function () {
             var params = {};
@@ -19,7 +19,7 @@ angular.module('windmobile.list', ['windmobile.services'])
             $http({method: 'GET', url: '/api/2/stations/', params: params}).
                 success(function (data) {
                     $scope.stations = data;
-                })
+                });
         };
         $scope.getGeoLocation = function () {
             if (navigator.geolocation) {
@@ -66,4 +66,3 @@ angular.module('windmobile.list', ['windmobile.services'])
         };
         $scope.getHistoric();
     }]);
-

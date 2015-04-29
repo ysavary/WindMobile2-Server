@@ -28,7 +28,7 @@ var app = angular.module('windmobile', ['ui.router', 'windmobile.list', 'windmob
             }
         };
     })
-    .directive('windMiniChart', function () {
+    .directive('wdmWindMiniChart', function () {
         return {
             restrict: "C",
             link: function (scope, element, attrs) {
@@ -58,7 +58,7 @@ var app = angular.module('windmobile', ['ui.router', 'windmobile.list', 'windmob
             }
         };
     })
-    .directive('windDirection', function () {
+    .directive('wdmWindDirection', function () {
         return {
             restrict: "C",
             link: function (scope, element, attrs) {

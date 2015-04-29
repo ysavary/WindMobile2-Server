@@ -1,50 +1,64 @@
 <body ng-controller="MapController">
 
 <script type="text/ng-template" id="_infobox.html">
-    <div class="windmobile-card station-card map-infobox-card" ng-click="selectStation(station)">
-        <div class="title">[[ station.short ]]</div>
-        <div class="detail-section">
-            <div class="last-update" ng-style="setColorStatus(station)">[[ station.last._id|fromNow ]]</div>
-            <a class="url" href="[[ station.url ]]" target="_blank" ng-click="$event.stopPropagation();">[[ station.prov ]]</a>
+    <div class="wdm-card-border wdm-card-layout wdm-card-map" ng-click="selectStation(station)">
+        <div class="wdm-name">[[ station.short ]]</div>
+        <div class="wdm-info">
+            <div class="wdm-last-update" ng-style="setColorStatus(station)">[[ station.last._id|fromNow ]]</div>
+            <a class="wdm-url" href="[[ station.url ]]" target="_blank" ng-click="$event.stopPropagation();">[[ station.prov ]]</a>
         </div>
-        <div class="altitude">[[ station.alt ]] meters</div>
-        <div class="wind-section">
-            <div class="wind-avg">[[ station.last['w-avg'].toFixed(1) ]]</div>
-            <div class="wind-max">[[ station.last['w-max'].toFixed(1) ]]<span class="unit">  km/h</span></div>
-            <span class="wind-mini-chart"></span>
+        <div class="wdm-altitude">[[ station.alt ]] meters</div>
+        <div class="wdm-wind-speed">
+            <div class="wdm-wind-avg">[[ station.last['w-avg'].toFixed(1) ]]</div>
+            <div class="wdm-wind-max">[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+            <span class="wdm-wind-mini-chart"></span>
         </div>
-        <svg class="wind-direction"></svg>
+        <svg class="wdm-wind-direction"></svg>
     </div>
 </script>
 
-<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="windmobile-card detail-modal">
+        <div class="wdm-card-border wdm-modal">
             <div class="modal-body">
-                <div class="station-card" style="width: 100%">
-                    <div class="title">[[ station.short ]]</div>
-                    <div class="detail-section">
-                        <div class="last-update" ng-style="setColorStatus(station)">[[ station.last._id|fromNow ]]</div>
-                        <a class="url" href="[[ station.url ]]" target="_blank" ng-click="$event.stopPropagation();">[[ station.prov ]]</a>
+                <div class="wdm-card-layout" style="width: 100%">
+                    <div class="wdm-name">[[ station.short ]]</div>
+                    <div class="wdm-info">
+                        <div class="wdm-last-update" ng-style="setColorStatus(station)">[[ station.last._id|fromNow ]]</div>
+                        <a class="wdm-url" href="[[ station.url ]]" target="_blank" ng-click="$event.stopPropagation();">[[ station.prov ]]</a>
                     </div>
-                    <div class="altitude">[[ station.alt ]] meters</div>
+                    <div class="wdm-altitude">[[ station.alt ]] meters</div>
                 </div>
-                <ul class="nav nav-tabs detail-nav-tabs">
+                <ul class="nav nav-tabs wdm-nav-tabs">
                     <li class="active"><a href="#tab1" data-toggle="tab">Summary</a></li>
                     <li><a href="#tab2" data-toggle="tab">Wind</a></li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="tab1">
-                        <div class="station-card" style="width: 100%">
-                            <div class="wind-section">
-                                <div class="wind-avg">[[ station.last['w-avg'].toFixed(1) ]]</div>
-                                <div class="wind-max">[[ station.last['w-max'].toFixed(1) ]]<span class="unit">  km/h</span></div>
+                        <div class="wdm-card-layout" style="margin-top: 15px; width: 200px">
+                            <div class="wdm-wind-speed">
+                                <div class="wdm-title">Wind</div>
+                                <div class="wdm-wind-avg">[[ station.last['w-avg'].toFixed(1) ]]</div>
+                                <div class="wdm-wind-max"><span class="wdm-label">Gust </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
                             </div>
-                            <svg class="wind-direction"></svg>
+                            <svg class="wdm-wind-direction"></svg>
+                            <div class="wdm-wind-hour">
+                                <div class="wdm-title">Wind - last hour</div>
+                                <div class="wind-max"><span class="wdm-label">Minimum </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                                <div class="wind-max"><span class="wdm-label">Mean </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                                <div class="wind-max"><span class="wdm-label">Maximum </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                            </div>
+                            <div class="wdm-air">
+                                <div class="wdm-title">Air</div>
+                                <div class="wind-max"><span class="wdm-label">Temperature </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                                <div class="wind-max"><span class="wdm-label">Humidity </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                                <div class="wind-max"><span class="wdm-label">Pressure </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                                <div class="wind-max"><span class="wdm-label">Rain </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                            </div>
                         </div>
                     </div>
                     <div class="tab-pane" id="tab2">
-                        <div class="wind-chart" style="width: 100%"></div>
+                        <div class="wdm-wind-chart" style="width: 100%"></div>
                     </div>
                 </div>
             </div>

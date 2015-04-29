@@ -54,14 +54,14 @@ body {
     margin-top: 50px;
 }
 
-.windmobile-card {
+.wdm-card-border {
     margin: 5px;
     padding: 5px;
     border: 1.5px solid $highlight-text-color;
     border-radius: 8px;
 }
 
-.station-card {
+.wdm-card-layout {
     display: inline-block;
     position: relative;
     vertical-align: top;
@@ -70,24 +70,33 @@ body {
     text-align: left;
     cursor: pointer;
 
-    .unit {
+    .wdm-title {
+        clear: both;
+        float: left;
+        color: $highlight-text-color;
+    }
+    .wdm-label {
+        font-size: $small-font-size;
+        color: $text-color;
+    }
+    .wdm-unit {
         font-size: $small-font-size;
         color: $text-color;
     }
 
-    > .title {
+    > .wdm-name {
         float: left;
         overflow: hidden;
         color: $highlight-text-color;
         font-size: 18px;
     }
-    > .detail-section {
+    > .wdm-info {
         float: right;
-        > .last-update {
+        > .wdm-last-update {
             float: right;
             font-size: $small-font-size;
         }
-        > .url {
+        > .wdm-url {
             clear: right;
             float: right;
             font-size: $small-font-size;
@@ -104,50 +113,59 @@ body {
             text-decoration: underline;
         }
     }
-    > .altitude {
+    > .wdm-altitude {
         clear: left;
         float: left;
         font-size: $small-font-size;
     }
-    > .wind-section {
+    > .wdm-wind-speed {
         clear: left;
         float: left;
         width: 50%;
-        > .wind-avg {
+        > .wdm-wind-avg {
             font-size: 23px;
             color: $highlight-text-color;
         }
-        > .wind-max {
+        > .wdm-wind-max {
             font-size: $font-size;
             color: $highlight-text-color;
         }
-        > .wind-mini-chart {
+        > .wdm-wind-mini-chart {
             margin-top: 5px;
         }
     }
-    > .wind-direction {
+    > .wdm-wind-direction {
         float: right;
         width: 70px;
         height: 70px;
     }
+    > .wdm-wind-hour {
+        clear: left;
+        float: left;
+    }
+    > .wdm-air {
+        clear: left;
+        float: left;
+    }
 }
 
-.map-infobox-card {
+.wdm-card-map {
     background-color: rgba(0, 0, 0, 0.8);
 }
 
-.list-card {
+.wdm-card-list {
     width: 30%;
     min-width: 160px;
     max-width: 250px;
     background-color: $light-background-color;
 }
 
-.detail-modal {
+.wdm-modal {
     background-color: rgba(0, 0, 0, 0.8);
 }
 
-.detail-nav-tabs {
+.wdm-nav-tabs {
+    margin-top: 15px;
     border-bottom: 1px solid $text-color;
 
     > li {
@@ -169,4 +187,3 @@ body {
         }
     }
 }
-

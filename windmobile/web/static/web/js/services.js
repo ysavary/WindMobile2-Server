@@ -4,10 +4,10 @@ angular.module('windmobile.services', [])
             getStationStatus: function (station) {
                 // status: 0=red, 1=orange, 2=green
                 var stationValue;
-                if (station.status == 'green') {
+                if (station.status === 'green') {
                     stationValue = 2;
                 } else {
-                    if (station.status == 'orange') {
+                    if (station.status === 'orange') {
                         stationValue = 1;
                     } else {
                         stationValue = 0;
@@ -30,9 +30,10 @@ angular.module('windmobile.services', [])
             },
             getStatusColor: function (status) {
                 // status: 0=red, 1=orange, 2=green
-                if (status == 0) {
+                if (status === 0) {
                     return {color: '#990000'};
-                } else if (status == 1) {
+                }
+                if (status === 1) {
                     return {color: '#aa7109'};
                 }
             },
@@ -45,5 +46,5 @@ angular.module('windmobile.services', [])
                 }
                 return tinycolor.fromRatio({ h: hue, s: 1, v: 0.7 }).toHexString();
             }
-        }
+        };
     });

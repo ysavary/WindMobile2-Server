@@ -63,16 +63,26 @@ body {
 
 .wdm-card-layout {
     display: inline-block;
-    position: relative;
     vertical-align: top;
     color: $text-color;
     font-size: $font-size;
     text-align: left;
     cursor: pointer;
 
+    a {
+        color: $text-color;
+        text-decoration: none;
+        &:hover, &:active {
+            color: $highlight-text-color;
+        }
+        &:focus {
+            outline: none;
+        }
+    }
+
     .wdm-title {
         clear: both;
-        float: left;
+        margin-bottom: 5px;
         color: $highlight-text-color;
     }
     .wdm-label {
@@ -100,17 +110,6 @@ body {
             clear: right;
             float: right;
             font-size: $small-font-size;
-            color: $text-color;
-            &:visited {
-                color: $text-color;
-            }
-            &:hover {
-                color: $text-color;
-            }
-            &:active {
-                color: $text-color;
-            }
-            text-decoration: underline;
         }
     }
     > .wdm-altitude {
@@ -127,7 +126,6 @@ body {
             color: $highlight-text-color;
         }
         > .wdm-wind-max {
-            font-size: $font-size;
             color: $highlight-text-color;
         }
         > .wdm-wind-mini-chart {
@@ -142,10 +140,18 @@ body {
     > .wdm-wind-hour {
         clear: left;
         float: left;
+        > .wdm-wind-hour-value {
+            font-size: $small-font-size;
+            color: $highlight-text-color;
+        }
     }
     > .wdm-air {
         clear: left;
         float: left;
+        > .wdm-air-value {
+            font-size: $small-font-size;
+            color: $highlight-text-color;
+        }
     }
 }
 
@@ -170,13 +176,12 @@ body {
 
     > li {
         > a {
-            background-color: transparent;
             color: $text-color;
-        }
-        > a:hover, a:focus {
-            background-color: transparent;
-            color: $highlight-text-color;
-            border-color: transparent;
+            &:hover, &:focus {
+                background-color: transparent;
+                border-color: transparent;
+                color: $highlight-text-color;
+            }
         }
     }
     > li.active {

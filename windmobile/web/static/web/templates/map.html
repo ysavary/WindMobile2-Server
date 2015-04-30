@@ -30,35 +30,39 @@
                     <div class="wdm-altitude">[[ station.alt ]] meters</div>
                 </div>
                 <ul class="nav nav-tabs wdm-nav-tabs">
-                    <li class="active"><a href="#tab1" data-toggle="tab">Summary</a></li>
-                    <li><a href="#tab2" data-toggle="tab">Wind</a></li>
+                    <li class="active"><a data-target="#tab1" data-toggle="tab" style="cursor: pointer;">Summary</a></li>
+                    <li><a data-target="#tab2" data-toggle="tab" style="cursor: pointer;">Wind</a></li>
+                    <li><a data-target="#tab3" data-toggle="tab" style="cursor: pointer;">Temperature</a></li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="tab1">
                         <div class="wdm-card-layout" style="margin-top: 15px; width: 200px">
+                            <div class="wdm-title">Wind</div>
                             <div class="wdm-wind-speed">
-                                <div class="wdm-title">Wind</div>
                                 <div class="wdm-wind-avg">[[ station.last['w-avg'].toFixed(1) ]]</div>
                                 <div class="wdm-wind-max"><span class="wdm-label">Gust </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
                             </div>
                             <svg class="wdm-wind-direction"></svg>
+                            <div class="wdm-title">Wind - last hour</div>
                             <div class="wdm-wind-hour">
-                                <div class="wdm-title">Wind - last hour</div>
-                                <div class="wind-max"><span class="wdm-label">Minimum </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
-                                <div class="wind-max"><span class="wdm-label">Mean </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
-                                <div class="wind-max"><span class="wdm-label">Maximum </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                                <div class="wdm-wind-hour-value"><span class="wdm-label">Minimum </span>[[ historic['w-avg'].min.toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                                <div class="wdm-wind-hour-value"><span class="wdm-label">Mean </span>[[ historic['w-avg'].mean.toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                                <div class="wdm-wind-hour-value"><span class="wdm-label">Maximum </span>[[ historic['w-avg'].max.toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
                             </div>
+                            <div class="wdm-title">Air</div>
                             <div class="wdm-air">
-                                <div class="wdm-title">Air</div>
-                                <div class="wind-max"><span class="wdm-label">Temperature </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
-                                <div class="wind-max"><span class="wdm-label">Humidity </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
-                                <div class="wind-max"><span class="wdm-label">Pressure </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
-                                <div class="wind-max"><span class="wdm-label">Rain </span>[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                                <div class="wdm-air-value"><span class="wdm-label">Temperature </span>[[ station.last.temp.toFixed(1) ]]<span class="wdm-unit">  °C</span></div>
+                                <div class="wdm-air-value"><span class="wdm-label">Humidity </span>[[ station.last.hum.toFixed(1) ]]<span class="wdm-unit">  % rel</span></div>
+                                <div class="wdm-air-value"><span class="wdm-label">Pressure </span>[[ station.last.pres.toFixed(1) ]]<span class="wdm-unit">  hPa</span></div>
+                                <div class="wdm-air-value"><span class="wdm-label">Rain </span>[[ station.last.rain.toFixed(1) ]]<span class="wdm-unit">  l/m²</span></div>
                             </div>
                         </div>
                     </div>
                     <div class="tab-pane" id="tab2">
-                        <div class="wdm-wind-chart" style="width: 100%"></div>
+                        <div class="wdm-wind-chart"></div>
+                    </div>
+                    <div class="tab-pane" id="tab3">
+                        <div class="wdm-temp-chart"></div>
                     </div>
                 </div>
             </div>

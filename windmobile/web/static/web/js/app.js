@@ -33,11 +33,13 @@ var app = angular.module('windmobile', ['ui.router', 'windmobile.list', 'windmob
             restrict: "C",
             link: function (scope, element, attrs) {
                 scope.$watch('historic', function (newValue, oldValue) {
-                    if (newValue) {
+                    if (newValue && newValue.data) {
+                        var values = newValue.data;
+
                         var data = [];
-                        var count = newValue.length;
+                        var count = values.length;
                         for (var i = count - 1; i >= 0; i--) {
-                            data.push([newValue[i]['_id'], newValue[i]['w-avg']]);
+                            data.push([values[i]['_id'], values[i]['w-avg']]);
                         }
                         if (data.length > 0) {
                             element.sparkline(data, {
@@ -76,16 +78,18 @@ var app = angular.module('windmobile', ['ui.router', 'windmobile.list', 'windmob
                         });
                     }
 
-                    if (newValue) {
+                    if (newValue && newValue.data) {
+                        var values = newValue.data;
+
                         // The center
                         var lastX = width / 2;
                         var lastY = width / 2;
 
                         var currentRadius = 0.0;
-                        for (var i = newValue.length - 1; i >= 0; i--) {
-                            var direction = newValue[i]['w-dir'];
+                        for (var i = values.length - 1; i >= 0; i--) {
+                            var direction = values[i]['w-dir'];
 
-                            currentRadius += radius / newValue.length;
+                            currentRadius += radius / values.length;
                             var directionRadian = (direction + 90) * (Math.PI / 180);
 
                             var x = radius - Math.cos(directionRadian) * currentRadius;

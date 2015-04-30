@@ -87,10 +87,18 @@ angular.module('windmobile.map', ['windmobile.services'])
             $scope.getHistoric = function () {
                 $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=3600'})
                     .success(function (data) {
-                        $scope.historic = data;
-                    })
-                    .error(function () {
-                        $scope.historic = [];
+                        var historic = {};
+                        historic.data = data;
+                        var windAvg = function(value) {
+                            return value['w-avg'];
+                        };
+                        historic['w-avg'] = {};
+                        historic['w-avg'].min = Math.min.apply(null, data.map(windAvg));
+                        historic['w-avg'].mean = data.map(windAvg).reduce(function (previousValue, currentValue) {
+                                return previousValue + currentValue;
+                            }, 0) / data.length;
+                        historic['w-avg'].max = Math.max.apply(null, data.map(windAvg));
+                        $scope.historic = historic;
                     })
             };
             $scope.geoSearch = function (position) {
@@ -125,7 +133,12 @@ angular.module('windmobile.map', ['windmobile.services'])
                     $scope.infoBox.close();
                 }
                 $('#detailModal').modal();
-                $scope.windChart();
+                $('a[data-target="#tab2"]').on('shown.bs.tab', function (event) {
+                    $scope.windChart();
+                });
+                $('a[data-target="#tab3"]').on('shown.bs.tab', function (event) {
+                    $scope.airChart();
+                });
             };
             $scope.setColorStatus = function (station) {
                 if (station) {
@@ -141,18 +154,13 @@ angular.module('windmobile.map', ['windmobile.services'])
                 }
             };
             $scope.windChart = function () {
-                $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=172800'}).
-                    success(function (data) {
+                $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=172800'})
+                    .success(function (data) {
+                        // Wind
                         var windAvgSerie = {
                             name: 'windAvg',
                             type: 'areaspline',
-                            color: {
-                                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                                stops: [
-                                    [0, '#a7a9cb'],
-                                    [1, '#252ccb']
-                                ]
-                            },
+                            color: '#444444',
                             lineWidth: 1,
                             lineColor: '#ffffff',
                             marker: {
@@ -170,13 +178,19 @@ angular.module('windmobile.map', ['windmobile.services'])
                             },
                             data: []
                         };
+                        var windMaxMax = 0;
                         var count = data.length;
                         for (var i = count - 1; i >= 0; i--) {
                             var date = data[i]['_id'] * 1000;
-                            windMaxSerie.data.push([date, data[i]['w-max']]);
-                            windAvgSerie.data.push([date, data[i]['w-avg']]);
+                            var windMax = data[i]['w-max'];
+                            var windAvg = data[i]['w-avg'];
+
+                            windMaxMax = Math.max(windMaxMax, windMax);
+
+                            windMaxSerie.data.push([date, windMax]);
+                            windAvgSerie.data.push([date, windAvg]);
                         }
-                        $('.wind-chart').highcharts('StockChart', {
+                        $('.wdm-wind-chart').highcharts('StockChart', {
                             legend: {
                                 enabled: false
                             },
@@ -194,7 +208,8 @@ angular.module('windmobile.map', ['windmobile.services'])
                                 }
                             },
                             tooltip: {
-                                enabled: false
+                                enabled: false,
+                                crosshairs: false
                             },
                             xAxis: {
                                 type: 'datetime'
@@ -203,7 +218,8 @@ angular.module('windmobile.map', ['windmobile.services'])
                                 gridLineWidth: 0.5,
                                 title: {
                                     text: 'km/h'
-                                }
+                                },
+                                max: windMaxMax
                             },
                             series: [windAvgSerie, windMaxSerie],
                             navigator: {
@@ -231,7 +247,146 @@ angular.module('windmobile.map', ['windmobile.services'])
                                     count: 6,
                                     text: '6 hours'
                                 }],
-                                selected:3,
+                                selected: 3,
+                                buttonTheme: {
+                                    width: 50,
+                                    fill: 'none',
+                                    stroke: 'none',
+                                    'stroke-width': 0,
+                                    r: 8,
+                                    style: {
+                                        color: '#8d8d8d'
+                                    },
+                                    states: {
+                                        hover: {
+                                            fill: 'none',
+                                            style: {
+                                                color: '#ddd'
+                                            }
+                                        },
+                                        select: {
+                                            fill: 'none',
+                                            style: {
+                                                color: '#ddd'
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+            };
+            $scope.airChart = function () {
+                $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=172800'})
+                    .success(function (data) {
+                        // Air
+                        var temperatureSerie = {
+                            name: 'temperature',
+                            type: 'spline',
+                            color: '#a7a9cb',
+                            lineWidth: 1,
+                            marker: {
+                                enabled: false
+                            },
+                            data: []
+                        };
+                        var humiditySerie = {
+                            name: 'humidity',
+                            type: 'spline',
+                            color: '#a7a9cb',
+                            lineWidth: 1,
+                            marker: {
+                                enabled: false
+                            },
+                            yAxis: 1,
+                            data: []
+                        };
+                        var rainSerie = {
+                            name: 'rain',
+                            type: 'column',
+                            color: '#a7a9cb',
+                            lineWidth: 1,
+                            marker: {
+                                enabled: false
+                            },
+                            yAxis: 2,
+                            data: []
+                        };
+                        var count = data.length;
+                        for (var i = count - 1; i >= 0; i--) {
+                            var date = data[i]['_id'] * 1000;
+                            temperatureSerie.data.push([date, data[i]['temp']]);
+                            humiditySerie.data.push([date, data[i]['hum']]);
+                            rainSerie.data.push([date, data[i]['rain']]);
+                        }
+                        $('.wdm-temp-chart').highcharts('StockChart', {
+                            legend: {
+                                enabled: false
+                            },
+                            chart: {
+                                backgroundColor: null
+                            },
+                            plotOptions: {
+                                series: {
+                                    animation: false,
+                                    states: {
+                                        hover: {
+                                            enabled: false
+                                        }
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                enabled: false,
+                                crosshairs: false
+                            },
+                            xAxis: {
+                                type: 'datetime'
+                            },
+                            yAxis: [{
+                                gridLineWidth: 0.5,
+                                title: {
+                                    text: '°C'
+                                }
+                            }, {
+                                gridLineWidth: 0.5,
+                                title: {
+                                    text: 'humidity'
+                                },
+                                opposite: false
+                            }, {
+                                gridLineWidth: 0.5,
+                                    title: {
+                                    text: 'rain'
+                                }
+                            }],
+                            series: [temperatureSerie, humiditySerie, rainSerie],
+                            navigator: {
+                                enabled: false
+                            },
+                            scrollbar: {
+                                enabled: false
+                            },
+                            rangeSelector: {
+                                inputEnabled: false,
+                                buttons: [{
+                                    type: 'day',
+                                    count: 2,
+                                    text: '2 days'
+                                }, {
+                                    type: 'day',
+                                    count: 1,
+                                    text: '1 day'
+                                }, {
+                                    type: 'hour',
+                                    count: 12,
+                                    text: '12 hours'
+                                }, {
+                                    type: 'hour',
+                                    count: 6,
+                                    text: '6 hours'
+                                }],
+                                selected: 3,
                                 buttonTheme: {
                                     width: 50,
                                     fill: 'none',

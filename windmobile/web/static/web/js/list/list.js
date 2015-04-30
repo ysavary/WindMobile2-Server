@@ -51,17 +51,9 @@ angular.module('windmobile.list', ['windmobile.services'])
         $scope.getHistoric = function () {
             $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=3600'}).
                 success(function (data) {
-                    $scope.historic = data;
-
-                    var miniChartData = '';
-                    var count = data.length;
-                    for (var i = count - 1; i >= 0; i--) {
-                        miniChartData += data[i]['_id'] + ':' + data[i]['w-avg'];
-                        if (i > 0) {
-                            miniChartData += ',';
-                        }
-                    }
-                    $scope.miniChartData = miniChartData;
+                    var historic = {};
+                    historic.data = data;
+                    $scope.historic = historic;
                 })
         };
         $scope.getHistoric();

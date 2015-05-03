@@ -19,6 +19,12 @@ var app = angular.module('windmobile', ['ui.router', 'windmobile.list', 'windmob
                 });
             $urlRouterProvider.otherwise("/map");
         }])
+    .run(function ($rootScope) {
+        $rootScope.$on('$stateChangeSuccess',
+            function (event, toState, toParams, fromState, fromParams) {
+                $rootScope.controller = toState.name;
+            });
+    })
     .filter('fromNow', function () {
         return function (input) {
             if (input) {

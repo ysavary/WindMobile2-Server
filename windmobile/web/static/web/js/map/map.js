@@ -16,7 +16,7 @@ angular.module('windmobile.map', ['windmobile.services'])
                 },
                 mapTypeId: google.maps.MapTypeId.TERRAIN
             };
-            $scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);
+            $scope.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
             function clearOverlays() {
                 if ($scope.infoBox) {

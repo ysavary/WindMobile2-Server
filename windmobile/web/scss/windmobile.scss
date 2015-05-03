@@ -14,17 +14,23 @@ $highlight-text-color: #ddd;
 $small-font-size: 12px;
 $font-size: 15px;
 
-body {
+$header-height: 50px;
+
+body.wdm-list {
     background-color: $background-color;
     padding-top: 70px;
 }
 
 .navbar-brand {
     padding: 3px;
-
     img {
-        height: 70px;
+        height: 45px;
     }
+}
+
+.navbar-text > span {
+    color: #d75556;
+    font-weight: 500;
 }
 
 .navbar-form {
@@ -45,13 +51,25 @@ body {
     font-size: 1.2em;
 }
 
+#map-header {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    height: $header-height;
+}
+
 #map {
     height: 100%;
     width: 100%;
+}
+
+#map-canvas {
     position: absolute;
-    top: 0;
-    left: 0;
-    margin-top: 50px;
+    top: $header-height;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
 }
 
 .wdm-card-border {

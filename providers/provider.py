@@ -152,6 +152,12 @@ class Provider(object):
                    'temp': to_float(temperature, 1),
                    'hum': to_float(humidity, 1)
                    }
+        if all((not measure['w-dir'],
+                not measure['w-avg'],
+                not measure['w-max'],
+                not measure['temp'],
+                not measure['hum'])):
+            raise ProviderException(u"All mandatory values are null!")
 
         # Optional keys
         if wind_direction_instant is not None:

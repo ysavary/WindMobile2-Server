@@ -44,7 +44,7 @@ angular.module('windmobile.services', [])
                 if (hue > 360) {
                     hue = 360;
                 }
-                return tinycolor.fromRatio({ h: hue, s: 1, v: 0.7 }).toHexString();
+                return tinycolor.fromRatio({h: hue, s: 1, v: 0.7}).toHexString();
             }
         };
     });

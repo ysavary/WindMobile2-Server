@@ -1,7 +1,8 @@
 angular.module('windmobile.map', ['windmobile.services'])
 
-    .controller('MapController', ['$scope', '$http', '$compile', '$templateCache', '$location', 'utils',
-        function ($scope, $http, $compile, $templateCache, $location, utils) {
+    .controller('MapController', ['$scope', '$http', '$compile', '$templateCache', 'utils',
+        function ($scope, $http, $compile, $templateCache, utils) {
+            var self = this;
             var markersArray = [];
             var inboBoxContent = $compile($templateCache.get('_infobox.html'))($scope);
 
@@ -16,18 +17,17 @@ angular.module('windmobile.map', ['windmobile.services'])
                 },
                 mapTypeId: google.maps.MapTypeId.TERRAIN
             };
-            $scope.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+            this.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
             function clearOverlays() {
-                if ($scope.infoBox) {
-                    $scope.infoBox.close();
+                if (self.infoBox) {
+                    self.infoBox.close();
                 }
                 for (var i = 0; i < markersArray.length; i++) {
                     markersArray[i].setMap(null);
                 }
                 markersArray.length = 0;
             }
-
             function displayMarkers(stations) {
                 clearOverlays();
 
@@ -56,36 +56,67 @@ angular.module('windmobile.map', ['windmobile.services'])
                         title: station["short"],
                         position: new google.maps.LatLng(station.loc.coordinates[1], station.loc.coordinates[0]),
                         icon: icon,
-                        map: $scope.map
+                        map: self.map
                     });
                     marker.station = station;
                     markersArray.push(marker);
 
                     (function (marker) {
                         google.maps.event.addListener(marker, 'click', function () {
-                            if ($scope.infoBox) {
-                                $scope.infoBox.close();
+                            if (self.infoBox) {
+                                self.infoBox.close();
                             }
-                            $scope.station = marker.station;
-                            $scope.getHistoric();
-                            $scope.infoBox = new InfoBox({
+                            self.selectedStation = marker.station;
+                            self.getHistoric();
+                            self.infoBox = new InfoBox({
                                 content: inboBoxContent[0],
                                 closeBoxURL: ''
                             });
-                            $scope.infoBox.open($scope.map, marker);
+                            self.infoBox.open(self.map, marker);
                         })
                     })(marker);
 
-                    google.maps.event.addListener($scope.map, 'click', function () {
-                        if ($scope.infoBox) {
-                            $scope.infoBox.close();
+                    google.maps.event.addListener(self.map, 'click', function () {
+                        if (self.infoBox) {
+                            self.infoBox.close();
                         }
                     });
                 }
             }
+            function geoSearch(position) {
+                var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                self.map.setCenter(currentPosition);
+                self.map.setZoom(8);
 
-            $scope.getHistoric = function () {
-                $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=3600'})
+                var params = {};
+                params.lat = position.coords.latitude;
+                params.lon = position.coords.longitude;
+                params.limit = 1000;
+
+                $http({method: 'GET', url: '/api/2/stations/', params: params}).success(displayMarkers);
+            }
+            function search() {
+                var params = {};
+                params.search = self.query;
+                params.limit = 1000;
+                $http({method: 'GET', url: '/api/2/stations/', params: params}).success(displayMarkers);
+            }
+            function getGeoLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(geoSearch, search, {
+                        enableHighAccuracy: true,
+                        timeout: 3000,
+                        maximumAge: 300000
+                    });
+                }
+            }
+
+            this.setColorStatus = function (station) {
+                var status = utils.getStationStatus(this.selectedStation);
+                return utils.getStatusColor(status);
+            };
+            this.getHistoric = function () {
+                $http({method: 'GET', url: '/api/2/stations/' + this.selectedStation._id + '/historic?duration=3600'})
                     .success(function (data) {
                         var historic = {};
                         historic.data = data;
@@ -98,322 +129,37 @@ angular.module('windmobile.map', ['windmobile.services'])
                                 return previousValue + currentValue;
                             }, 0) / data.length;
                         historic['w-avg'].max = Math.max.apply(null, data.map(windAvg));
-                        $scope.historic = historic;
+                        self.selectedStation.historic = historic;
                     })
             };
-            $scope.geoSearch = function (position) {
-                var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                $scope.map.setCenter(currentPosition);
-                $scope.map.setZoom(8);
-
-                var params = {};
-                params.lat = position.coords.latitude;
-                params.lon = position.coords.longitude;
-                params.limit = 1000;
-
-                $http({method: 'GET', url: '/api/2/stations/', params: params}).success(displayMarkers);
-            };
-            $scope.search = function () {
-                var params = {};
-                params.search = $scope.query;
-                params.limit = 1000;
-                $http({method: 'GET', url: '/api/2/stations/', params: params}).success(displayMarkers);
-            };
-            $scope.getGeoLocation = function () {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition($scope.geoSearch, $scope.search, {
-                        enableHighAccuracy: true,
-                        timeout: 3000,
-                        maximumAge: 300000
-                    });
-                }
-            };
-            $scope.selectStation = function (station) {
-                if ($scope.infoBox) {
-                    $scope.infoBox.close();
+            this.selectStation = function () {
+                if (this.infoBox) {
+                    this.infoBox.close();
                 }
                 $('#detailModal').modal();
                 $('a[data-target="#tab2"]').on('shown.bs.tab', function (event) {
-                    $scope.windChart();
+                    $http({
+                        method: 'GET',
+                        url: '/api/2/stations/' + self.selectedStation._id + '/historic?duration=172800'
+                    }).success(function (data) {
+                        self.selectedStation.windChart = data;
+                    });
                 });
                 $('a[data-target="#tab3"]').on('shown.bs.tab', function (event) {
-                    $scope.airChart();
+                    $http({
+                        method: 'GET',
+                        url: '/api/2/stations/' + self.selectedStation._id + '/historic?duration=172800'
+                    }).success(function (data) {
+                        self.selectedStation.airChart = data;
+                    });
                 });
             };
-            $scope.setColorStatus = function (station) {
-                if (station) {
-                    var status = utils.getStationStatus(station);
-                    return utils.getStatusColor(status);
-                }
-            };
-            $scope.list = function () {
-                if ($scope.query) {
-                    $scope.search();
+            this.list = function () {
+                if (this.query) {
+                    search();
                 } else {
-                    $scope.getGeoLocation();
+                    getGeoLocation();
                 }
             };
-            $scope.windChart = function () {
-                $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=172800'})
-                    .success(function (data) {
-                        // Wind
-                        var windAvgSerie = {
-                            name: 'windAvg',
-                            type: 'areaspline',
-                            color: '#444444',
-                            lineWidth: 1,
-                            lineColor: '#ffffff',
-                            marker: {
-                                enabled: false
-                            },
-                            data: []
-                        };
-                        var windMaxSerie = {
-                            name: 'windMax',
-                            type: 'spline',
-                            color: '#e32d2d',
-                            lineWidth: 1,
-                            marker: {
-                                enabled: false
-                            },
-                            data: []
-                        };
-                        var windMaxMax = 0;
-                        var count = data.length;
-                        for (var i = count - 1; i >= 0; i--) {
-                            var date = data[i]['_id'] * 1000;
-                            var windMax = data[i]['w-max'];
-                            var windAvg = data[i]['w-avg'];
-
-                            windMaxMax = Math.max(windMaxMax, windMax);
-
-                            windMaxSerie.data.push([date, windMax]);
-                            windAvgSerie.data.push([date, windAvg]);
-                        }
-                        $('.wdm-wind-chart').highcharts('StockChart', {
-                            legend: {
-                                enabled: false
-                            },
-                            chart: {
-                                backgroundColor: null
-                            },
-                            plotOptions: {
-                                series: {
-                                    animation: false,
-                                    states: {
-                                        hover: {
-                                            enabled: false
-                                        }
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                enabled: false,
-                                crosshairs: false
-                            },
-                            xAxis: {
-                                type: 'datetime'
-                            },
-                            yAxis: {
-                                gridLineWidth: 0.5,
-                                title: {
-                                    text: 'km/h'
-                                },
-                                max: windMaxMax
-                            },
-                            series: [windAvgSerie, windMaxSerie],
-                            navigator: {
-                                enabled: false
-                            },
-                            scrollbar: {
-                                enabled: false
-                            },
-                            rangeSelector: {
-                                inputEnabled: false,
-                                buttons: [{
-                                    type: 'day',
-                                    count: 2,
-                                    text: '2 days'
-                                }, {
-                                    type: 'day',
-                                    count: 1,
-                                    text: '1 day'
-                                }, {
-                                    type: 'hour',
-                                    count: 12,
-                                    text: '12 hours'
-                                }, {
-                                    type: 'hour',
-                                    count: 6,
-                                    text: '6 hours'
-                                }],
-                                selected: 3,
-                                buttonTheme: {
-                                    width: 50,
-                                    fill: 'none',
-                                    stroke: 'none',
-                                    'stroke-width': 0,
-                                    r: 8,
-                                    style: {
-                                        color: '#8d8d8d'
-                                    },
-                                    states: {
-                                        hover: {
-                                            fill: 'none',
-                                            style: {
-                                                color: '#ddd'
-                                            }
-                                        },
-                                        select: {
-                                            fill: 'none',
-                                            style: {
-                                                color: '#ddd'
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    });
-            };
-            $scope.airChart = function () {
-                $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=172800'})
-                    .success(function (data) {
-                        // Air
-                        var temperatureSerie = {
-                            name: 'temperature',
-                            type: 'spline',
-                            color: '#a7a9cb',
-                            lineWidth: 1,
-                            marker: {
-                                enabled: false
-                            },
-                            data: []
-                        };
-                        var humiditySerie = {
-                            name: 'humidity',
-                            type: 'spline',
-                            color: '#a7a9cb',
-                            lineWidth: 1,
-                            marker: {
-                                enabled: false
-                            },
-                            yAxis: 1,
-                            data: []
-                        };
-                        var rainSerie = {
-                            name: 'rain',
-                            type: 'column',
-                            color: '#a7a9cb',
-                            lineWidth: 1,
-                            marker: {
-                                enabled: false
-                            },
-                            yAxis: 2,
-                            data: []
-                        };
-                        var count = data.length;
-                        for (var i = count - 1; i >= 0; i--) {
-                            var date = data[i]['_id'] * 1000;
-                            temperatureSerie.data.push([date, data[i]['temp']]);
-                            humiditySerie.data.push([date, data[i]['hum']]);
-                            rainSerie.data.push([date, data[i]['rain']]);
-                        }
-                        $('.wdm-temp-chart').highcharts('StockChart', {
-                            legend: {
-                                enabled: false
-                            },
-                            chart: {
-                                backgroundColor: null
-                            },
-                            plotOptions: {
-                                series: {
-                                    animation: false,
-                                    states: {
-                                        hover: {
-                                            enabled: false
-                                        }
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                enabled: false,
-                                crosshairs: false
-                            },
-                            xAxis: {
-                                type: 'datetime'
-                            },
-                            yAxis: [{
-                                gridLineWidth: 0.5,
-                                title: {
-                                    text: '°C'
-                                }
-                            }, {
-                                gridLineWidth: 0.5,
-                                title: {
-                                    text: 'humidity'
-                                },
-                                opposite: false
-                            }, {
-                                gridLineWidth: 0.5,
-                                    title: {
-                                    text: 'rain'
-                                }
-                            }],
-                            series: [temperatureSerie, humiditySerie, rainSerie],
-                            navigator: {
-                                enabled: false
-                            },
-                            scrollbar: {
-                                enabled: false
-                            },
-                            rangeSelector: {
-                                inputEnabled: false,
-                                buttons: [{
-                                    type: 'day',
-                                    count: 2,
-                                    text: '2 days'
-                                }, {
-                                    type: 'day',
-                                    count: 1,
-                                    text: '1 day'
-                                }, {
-                                    type: 'hour',
-                                    count: 12,
-                                    text: '12 hours'
-                                }, {
-                                    type: 'hour',
-                                    count: 6,
-                                    text: '6 hours'
-                                }],
-                                selected: 3,
-                                buttonTheme: {
-                                    width: 50,
-                                    fill: 'none',
-                                    stroke: 'none',
-                                    'stroke-width': 0,
-                                    r: 8,
-                                    style: {
-                                        color: '#8d8d8d'
-                                    },
-                                    states: {
-                                        hover: {
-                                            fill: 'none',
-                                            style: {
-                                                color: '#ddd'
-                                            }
-                                        },
-                                        select: {
-                                            fill: 'none',
-                                            style: {
-                                                color: '#ddd'
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    });
-            };
-            $scope.list();
+            this.list();
         }]);

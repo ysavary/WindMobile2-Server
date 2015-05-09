@@ -1,60 +1,80 @@
 angular.module('windmobile.list', ['windmobile.services'])
 
-    .controller('ListController', ['$scope', '$http', '$location', function ($scope, $http, $location) {
-        $scope.snapOptions = {
-            disable: 'right'
-        };
-        $scope.geoSearch = function (position) {
+    .controller('ListController', ['$http', function ($http) {
+        var self = this;
+
+        function geoSearch(position) {
             var params = {};
             params.lat = position.coords.latitude;
             params.lon = position.coords.longitude;
             $http({method: 'GET', url: '/api/2/stations/', params: params}).
                 success(function (data) {
-                    $scope.stations = data;
+                    self.stations = data;
                 });
-        };
-        $scope.search = function () {
+        }
+        function search() {
             var params = {};
-            params.search = $scope.query;
+            params.search = self.query;
             $http({method: 'GET', url: '/api/2/stations/', params: params}).
                 success(function (data) {
-                    $scope.stations = data;
+                    self.stations = data;
                 });
-        };
-        $scope.getGeoLocation = function () {
+        }
+        function getGeoLocation() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition($scope.geoSearch, $scope.search, {
+                navigator.geolocation.getCurrentPosition(geoSearch, search, {
                     enableHighAccuracy: true,
                     timeout: 3000,
                     maximumAge: 300000
                 });
             }
+        }
+
+        this.selectStation = function (station, historic) {
+            this.selectedStation = station;
+            this.selectedStation.historic = historic;
+            $('#detailModal').modal();
+            $('a[data-target="#tab2"]').on('shown.bs.tab', function (event) {
+                $http({
+                    method: 'GET',
+                    url: '/api/2/stations/' + self.selectedStation._id + '/historic?duration=172800'
+                }).success(function (data) {
+                    self.selectedStation.windChart = data;
+                });
+            });
+            $('a[data-target="#tab3"]').on('shown.bs.tab', function (event) {
+                $http({
+                    method: 'GET',
+                    url: '/api/2/stations/' + self.selectedStation._id + '/historic?duration=172800'
+                }).success(function (data) {
+                    self.selectedStation.airChart = data;
+                });
+            });
         };
-        $scope.list = function () {
-            if ($scope.query) {
-                $scope.search();
+        this.list = function () {
+            if (this.query) {
+                search();
             } else {
-                $scope.getGeoLocation();
+                getGeoLocation();
             }
         };
-        $scope.selectStation = function (station) {
-            $location.path('/station/' + station._id);
-        };
-        $scope.list();
+        this.list();
     }])
 
     .controller('StationController', ['$scope', '$http', 'utils', function ($scope, $http, utils) {
-        $scope.setColorStatus = function (station) {
+        var self = this;
+
+        this.setColorStatus = function (station) {
             var status = utils.getStationStatus(station);
             return utils.getStatusColor(status);
         };
-        $scope.getHistoric = function () {
-            $http({method: 'GET', url: '/api/2/stations/' + $scope.station._id + '/historic?duration=3600'}).
+        this.getHistoric = function () {
+            $http({method: 'GET', url: '/api/2/stations/' + $scope.item._id + '/historic?duration=3600'}).
                 success(function (data) {
                     var historic = {};
                     historic.data = data;
-                    $scope.historic = historic;
+                    self.historic = historic;
                 })
         };
-        $scope.getHistoric();
+        this.getHistoric();
     }]);

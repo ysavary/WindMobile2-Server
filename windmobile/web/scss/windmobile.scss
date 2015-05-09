@@ -21,6 +21,14 @@ body.wdm-list {
     padding-top: 70px;
 }
 
+body.modal-open .wdm-list-content {
+    -webkit-filter: blur(2px);
+    -moz-filter: blur(2px);
+    -o-filter: blur(2px);
+    -ms-filter: blur(2px);
+    filter: blur(2px);
+}
+
 .navbar-brand {
     padding: 3px;
     img {

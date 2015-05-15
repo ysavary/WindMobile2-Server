@@ -16,6 +16,9 @@ class Ffvl(Provider):
     provider_name = 'ffvl.fr'
     provider_url = 'http://www.balisemeteo.com'
 
+    connect_timeout = 7
+    read_timeout = 30
+
     def __init__(self, mongo_url, api_key):
         super(Ffvl, self).__init__(mongo_url)
         self.api_key = api_key
@@ -59,7 +62,8 @@ class Ffvl(Provider):
         try:
             logger.info(u"Processing FFVL data...")
 
-            result = requests.get("http://data.ffvl.fr/xml/" + self.api_key + "/meteo/balise_list.xml")
+            result = requests.get("http://data.ffvl.fr/xml/" + self.api_key + "/meteo/balise_list.xml",
+                                  timeout=(self.connect_timeout, self.read_timeout))
             ffvl_stations = ET.fromstring(result.text)
 
             for ffvl_station in ffvl_stations:
@@ -86,7 +90,8 @@ class Ffvl(Provider):
             logger.error(u"Error while processing stations: {0}".format(e))
 
         try:
-            result = requests.get("http://data.ffvl.fr/xml/" + self.api_key + "/meteo/relevemeteo.xml")
+            result = requests.get("http://data.ffvl.fr/xml/" + self.api_key + "/meteo/relevemeteo.xml",
+                                  timeout=(self.connect_timeout, self.read_timeout))
             ffvl_measures = ET.fromstring(result.text)
 
             for ffvl_measure in ffvl_measures:

@@ -1,4 +1,4 @@
-var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.list', 'windmobile.map'],
+var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.controllers'],
     function ($interpolateProvider) {
         $interpolateProvider.startSymbol('[[');
         $interpolateProvider.endSymbol(']]');

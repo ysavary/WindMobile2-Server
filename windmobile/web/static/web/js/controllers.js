@@ -1,4 +1,82 @@
-angular.module('windmobile.map', ['windmobile.services'])
+angular.module('windmobile.controllers', ['windmobile.services'])
+
+    .controller('ListController', ['$http', 'utils', function ($http, utils) {
+        var self = this;
+
+        function geoSearch(position) {
+            var params = {};
+            params.lat = position.coords.latitude;
+            params.lon = position.coords.longitude;
+            $http({method: 'GET', url: '/api/2/stations/', params: params}).
+                success(function (data) {
+                    self.stations = data;
+                    for (var i = 0; i < self.stations.length; i++) {
+                        self.getHistoric(self.stations[i]);
+                    }
+                });
+        }
+        function search() {
+            var params = {};
+            params.search = self.query;
+            $http({method: 'GET', url: '/api/2/stations/', params: params}).
+                success(function (data) {
+                    self.stations = data;
+                    for (var i = 0; i < self.stations.length; i++) {
+                        self.getHistoric(self.stations[i]);
+                    }
+                });
+        }
+        function getGeoLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(geoSearch, search, {
+                    enableHighAccuracy: true,
+                    timeout: 3000,
+                    maximumAge: 300000
+                });
+            }
+        }
+
+        this.getStatusColor = function (station) {
+            var status = utils.getStationStatus(station);
+            return utils.getStatusColor(status);
+        };
+        this.getHistoric = function (station) {
+            $http({method: 'GET', url: '/api/2/stations/' + station._id + '/historic?duration=3600'}).
+                success(function (data) {
+                    var historic = {};
+                    historic.data = data;
+                    station.historic = historic;
+                });
+        };
+        this.selectStation = function (station) {
+            this.selectedStation = station;
+            $('#detailModal').modal();
+            $('a[data-target="#tab2"]').on('shown.bs.tab', function (event) {
+                $http({
+                    method: 'GET',
+                    url: '/api/2/stations/' + self.selectedStation._id + '/historic?duration=172800'
+                }).success(function (data) {
+                    self.selectedStation.windChart = data;
+                });
+            });
+            $('a[data-target="#tab3"]').on('shown.bs.tab', function (event) {
+                $http({
+                    method: 'GET',
+                    url: '/api/2/stations/' + self.selectedStation._id + '/historic?duration=172800'
+                }).success(function (data) {
+                    self.selectedStation.airChart = data;
+                });
+            });
+        };
+        this.list = function () {
+            if (this.query) {
+                search();
+            } else {
+                getGeoLocation();
+            }
+        };
+        this.list();
+    }])
 
     .controller('MapController', ['$scope', '$http', '$compile', '$templateCache', 'utils',
         function ($scope, $http, $compile, $templateCache, utils) {
@@ -28,6 +106,7 @@ angular.module('windmobile.map', ['windmobile.services'])
                 }
                 markersArray.length = 0;
             }
+
             function displayMarkers(stations) {
                 clearOverlays();
 
@@ -83,6 +162,7 @@ angular.module('windmobile.map', ['windmobile.services'])
                     });
                 }
             }
+
             function geoSearch(position) {
                 var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 self.map.setCenter(currentPosition);
@@ -95,12 +175,14 @@ angular.module('windmobile.map', ['windmobile.services'])
 
                 $http({method: 'GET', url: '/api/2/stations/', params: params}).success(displayMarkers);
             }
+
             function search() {
                 var params = {};
                 params.search = self.query;
                 params.limit = 1000;
                 $http({method: 'GET', url: '/api/2/stations/', params: params}).success(displayMarkers);
             }
+
             function getGeoLocation() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(geoSearch, search, {
@@ -120,7 +202,7 @@ angular.module('windmobile.map', ['windmobile.services'])
                     .success(function (data) {
                         var historic = {};
                         historic.data = data;
-                        var windAvg = function(value) {
+                        var windAvg = function (value) {
                             return value['w-avg'];
                         };
                         historic['w-avg'] = {};

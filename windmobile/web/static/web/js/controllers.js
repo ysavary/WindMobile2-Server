@@ -36,15 +36,16 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             }
         }
 
-        this.getStatusColor = function (station) {
+        this.getStatusClass = function (station) {
             var status = utils.getStationStatus(station);
-            return utils.getStatusColor(status);
+            return utils.getStatusClass(status);
         };
         this.getHistoric = function (station) {
             $http({method: 'GET', url: '/api/2/stations/' + station._id + '/historic?duration=3600'}).
                 success(function (data) {
-                    var historic = {};
-                    historic.data = data;
+                    var historic = {
+                        data: data
+                    };
                     station.historic = historic;
                 });
         };
@@ -193,9 +194,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
             }
 
-            this.setColorStatus = function (station) {
-                var status = utils.getStationStatus(this.selectedStation);
-                return utils.getStatusColor(status);
+            this.getStatusClass = function (station) {
+                var status = utils.getStationStatus(station);
+                return utils.getStatusClass(status);
             };
             this.getHistoric = function () {
                 $http({method: 'GET', url: '/api/2/stations/' + this.selectedStation._id + '/historic?duration=3600'})

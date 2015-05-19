@@ -28,13 +28,13 @@ angular.module('windmobile.services', [])
                 }
                 return Math.min(stationValue, lastValue);
             },
-            getStatusColor: function (status) {
+            getStatusClass: function (status) {
                 // status: 0=red, 1=orange, 2=green
                 if (status === 0) {
-                    return {color: '#990000'};
+                    return 'wdm-status-red';
                 }
                 if (status === 1) {
-                    return {color: '#aa7109'};
+                    return 'wdm-status-orange';
                 }
             },
             getColorInRange: function (value, max) {

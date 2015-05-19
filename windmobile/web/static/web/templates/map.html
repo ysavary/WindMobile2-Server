@@ -2,7 +2,7 @@
     <div class="wdm-card-border wdm-card-layout wdm-card-map" ng-click="main.selectStation()">
         <div class="wdm-name">[[ main.selectedStation.short ]]</div>
         <div class="wdm-info">
-            <div class="wdm-last-update" ng-style="main.setColorStatus(station)">[[ main.selectedStation.last._id|fromNow ]]</div>
+            <div class="wdm-last-update" ng-class="main.getStatusClass(main.selectedStation)">[[ main.selectedStation.last._id|fromNow ]]</div>
             <a class="wdm-url" href="[[ main.selectedStation.url ]]" target="_blank" ng-click="$event.stopPropagation();">[[ main.selectedStation.prov ]]</a>
         </div>
         <div class="wdm-altitude">[[ main.selectedStation.alt ]] meters</div>
@@ -22,7 +22,7 @@
                 <div class="wdm-card-layout" style="width: 100%">
                     <div class="wdm-name">[[ main.selectedStation.short ]]</div>
                     <div class="wdm-info">
-                        <div class="wdm-last-update" ng-style="main.setColorStatus(station)">[[ main.selectedStation.last._id|fromNow ]]</div>
+                        <div class="wdm-last-update" ng-class="main.getStatusClass(main.selectedStation)">[[ main.selectedStation.last._id|fromNow ]]</div>
                         <a class="wdm-url" href="[[ main.selectedStation.url ]]" target="_blank" ng-click="$event.stopPropagation();">[[ main.selectedStation.prov ]]</a>
                     </div>
                     <div class="wdm-altitude">[[ main.selectedStation.alt ]] meters</div>

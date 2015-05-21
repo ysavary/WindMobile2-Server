@@ -232,8 +232,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
         function ($state, $stateParams, $http) {
             var self = this;
 
-            $('#detailModal').modal();
-            $('#detailModal').on('hidden.bs.modal', function (e) {
+            $('#detailModal').modal().on('hidden.bs.modal', function (e) {
                 $state.go('^');
             });
 

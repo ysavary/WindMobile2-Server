@@ -4,7 +4,7 @@
             <div class="wdm-card-layout" style="width: 100%">
                 <div class="wdm-name">[[ detail.station.short ]]</div>
                 <div class="wdm-info">
-                    <div class="wdm-last-update" ng-class="main.getStatusClass(main.selectedStation)">[[ main.selectedStation.last._id|fromNow ]]</div>
+                    <div class="wdm-last-update" ng-class="main.getStatusClass(detail.station)">[[ detail.station.last._id|fromNow ]]</div>
                     <a class="wdm-url" href="[[ detail.station.url ]]" target="_blank" ng-click="$event.stopPropagation();">[[ detail.station.prov ]]</a>
                 </div>
                 <div class="wdm-altitude">[[ detail.station.alt ]] meters</div>

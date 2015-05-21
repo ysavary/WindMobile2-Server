@@ -73,24 +73,12 @@ angular.module('windmobile.controllers', ['windmobile.services'])
         function ($rootScope, $scope, $state, $http, $compile, $templateCache, utils) {
             var self = this;
             var markersArray = [];
+            var infoBox;
             var inboBoxContent = $compile($templateCache.get('_infobox.html'))($scope);
 
-            var mapOptions = {
-                // France and Switzerland
-                center: new google.maps.LatLng(46.76, 4.08),
-                zoom: 6,
-                panControl: false,
-                mapTypeControlOptions: {
-                    mapTypeIds: [google.maps.MapTypeId.TERRAIN, google.maps.MapTypeId.ROADMAP,
-                        google.maps.MapTypeId.SATELLITE]
-                },
-                mapTypeId: google.maps.MapTypeId.TERRAIN
-            };
-            this.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-
             function clearOverlays() {
-                if (self.infoBox) {
-                    self.infoBox.close();
+                if (infoBox) {
+                    infoBox.close();
                 }
                 for (var i = 0; i < markersArray.length; i++) {
                     markersArray[i].setMap(null);
@@ -114,7 +102,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
                     var icon = {
                         path: 'M21,149.2v86.3L-19,213l50,77l50-77l-40,22.5v-86.3c28.4-4.8,50-29.4,50-59.2S69.4,35.6,41,30.8V-83H21V30.8C-7.4,35.6-29,60.3-29,90S-7.4,144.4,21,149.2z M31,50c22.1,0,40,17.9,40,40s-17.9,40-40,40S-9,112.1-9,90S8.9,50,31,50z',
-                        scale: 0.15,
+                        anchor: new google.maps.Point(31, 90),
+                        scale: 0.12,
                         fillOpacity: 1,
                         fillColor: color,
                         strokeColor: color,
@@ -133,24 +122,18 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
                     (function (marker) {
                         google.maps.event.addListener(marker, 'click', function () {
-                            if (self.infoBox) {
-                                self.infoBox.close();
+                            if (infoBox) {
+                                infoBox.close();
                             }
                             self.selectedStation = marker.station;
                             self.getHistoric();
-                            self.infoBox = new InfoBox({
+                            infoBox = new InfoBox({
                                 content: inboBoxContent[0],
                                 closeBoxURL: ''
                             });
-                            self.infoBox.open(self.map, marker);
+                            infoBox.open(self.map, marker);
                         })
                     })(marker);
-
-                    google.maps.event.addListener(self.map, 'click', function () {
-                        if (self.infoBox) {
-                            self.infoBox.close();
-                        }
-                    });
                 }
             }
 
@@ -208,8 +191,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     })
             };
             this.selectStation = function () {
-                if (this.infoBox) {
-                    this.infoBox.close();
+                if (infoBox) {
+                    infoBox.close();
                 }
                 $state.go('map.detail', {stationId: this.selectedStation._id});
             };
@@ -220,6 +203,25 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     getGeoLocation();
                 }
             };
+
+            // Initialize Google Maps
+            var mapOptions = {
+                // France and Switzerland
+                center: new google.maps.LatLng(46.76, 4.08),
+                zoom: 6,
+                panControl: false,
+                mapTypeControlOptions: {
+                    mapTypeIds: [google.maps.MapTypeId.TERRAIN, google.maps.MapTypeId.ROADMAP,
+                        google.maps.MapTypeId.SATELLITE]
+                },
+                mapTypeId: google.maps.MapTypeId.TERRAIN
+            };
+            this.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+            google.maps.event.addListener(self.map, 'click', function () {
+                if (infoBox) {
+                    infoBox.close();
+                }
+            });
 
             // Force modal to close on browser back
             $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {

@@ -1,6 +1,6 @@
 angular.module('windmobile.controllers', ['windmobile.services'])
 
-    .controller('ListController', ['$http', 'utils', function ($http, utils) {
+    .controller('ListController', ['$state', '$http', 'utils', function ($state, $http, utils) {
         var self = this;
 
         function geoSearch(position) {
@@ -37,8 +37,10 @@ angular.module('windmobile.controllers', ['windmobile.services'])
         }
 
         this.getStatusClass = function (station) {
-            var status = utils.getStationStatus(station);
-            return utils.getStatusClass(status);
+            if (station) {
+                var status = utils.getStationStatus(station);
+                return utils.getStatusClass(status);
+            }
         };
         this.getHistoric = function (station) {
             $http({method: 'GET', url: '/api/2/stations/' + station._id + '/historic?duration=3600'}).
@@ -50,24 +52,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 });
         };
         this.selectStation = function (station) {
-            this.selectedStation = station;
-            $('#detailModal').modal();
-            $('a[data-target="#tab2"]').on('shown.bs.tab', function (event) {
-                $http({
-                    method: 'GET',
-                    url: '/api/2/stations/' + self.selectedStation._id + '/historic?duration=172800'
-                }).success(function (data) {
-                    self.selectedStation.windChart = data;
-                });
-            });
-            $('a[data-target="#tab3"]').on('shown.bs.tab', function (event) {
-                $http({
-                    method: 'GET',
-                    url: '/api/2/stations/' + self.selectedStation._id + '/historic?duration=172800'
-                }).success(function (data) {
-                    self.selectedStation.airChart = data;
-                });
-            });
+            $state.go('list.detail', {stationId: station._id});
         };
         this.list = function () {
             if (this.query) {
@@ -79,8 +64,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
         this.list();
     }])
 
-    .controller('MapController', ['$scope', '$http', '$compile', '$templateCache', 'utils',
-        function ($scope, $http, $compile, $templateCache, utils) {
+    .controller('MapController', ['$scope', '$state', '$http', '$compile', '$templateCache', 'utils',
+        function ($scope, $state, $http, $compile, $templateCache, utils) {
             var self = this;
             var markersArray = [];
             var inboBoxContent = $compile($templateCache.get('_infobox.html'))($scope);
@@ -195,8 +180,10 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             }
 
             this.getStatusClass = function (station) {
-                var status = utils.getStationStatus(station);
-                return utils.getStatusClass(status);
+                if (station) {
+                    var status = utils.getStationStatus(station);
+                    return utils.getStatusClass(status);
+                }
             };
             this.getHistoric = function () {
                 $http({method: 'GET', url: '/api/2/stations/' + this.selectedStation._id + '/historic?duration=3600'})
@@ -219,23 +206,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 if (this.infoBox) {
                     this.infoBox.close();
                 }
-                $('#detailModal').modal();
-                $('a[data-target="#tab2"]').on('shown.bs.tab', function (event) {
-                    $http({
-                        method: 'GET',
-                        url: '/api/2/stations/' + self.selectedStation._id + '/historic?duration=172800'
-                    }).success(function (data) {
-                        self.selectedStation.windChart = data;
-                    });
-                });
-                $('a[data-target="#tab3"]').on('shown.bs.tab', function (event) {
-                    $http({
-                        method: 'GET',
-                        url: '/api/2/stations/' + self.selectedStation._id + '/historic?duration=172800'
-                    }).success(function (data) {
-                        self.selectedStation.airChart = data;
-                    });
-                });
+                $state.go('map.detail', {stationId: this.selectedStation._id});
             };
             this.list = function () {
                 if (this.query) {
@@ -245,4 +216,58 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
             };
             this.list();
+        }])
+
+    .controller('DetailController', ['$state', '$stateParams', '$http',
+        function ($state, $stateParams, $http) {
+            var self = this;
+
+            $('#detailModal').modal();
+            $('#detailModal').on('hidden.bs.modal', function (e) {
+                $state.go('^');
+            });
+
+            $('a[data-target="#tab2"]').on('shown.bs.tab', function (event) {
+                $http({
+                    method: 'GET',
+                    url: '/api/2/stations/' + $stateParams.stationId + '/historic?duration=172800'
+                }).success(function (data) {
+                    self.stationWindChart = data;
+                });
+            });
+            $('a[data-target="#tab3"]').on('shown.bs.tab', function (event) {
+                $http({
+                    method: 'GET',
+                    url: '/api/2/stations/' + $stateParams.stationId + '/historic?duration=172800'
+                }).success(function (data) {
+                    self.stationAirChart = data;
+                });
+            });
+
+            this.getStation = function () {
+                $http({method: 'GET', url: '/api/2/stations/' + $stateParams.stationId}).
+                    success(function (data) {
+                        self.station = data;
+                    });
+            };
+            this.getStationHistoric = function () {
+                $http({method: 'GET', url: '/api/2/stations/' + $stateParams.stationId + '/historic?duration=3600'})
+                    .success(function (data) {
+                        var historic = {
+                            data: data
+                        };
+                        var windAvg = function (value) {
+                            return value['w-avg'];
+                        };
+                        historic['w-avg'] = {};
+                        historic['w-avg'].min = Math.min.apply(null, data.map(windAvg));
+                        historic['w-avg'].mean = data.map(windAvg).reduce(function (previousValue, currentValue) {
+                                return previousValue + currentValue;
+                            }, 0) / data.length;
+                        historic['w-avg'].max = Math.max.apply(null, data.map(windAvg));
+                        self.stationHistoric = historic;
+                    })
+            };
+            this.getStation();
+            this.getStationHistoric();
         }]);

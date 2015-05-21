@@ -1,0 +1,50 @@
+<div class="modal-dialog">
+    <div class="wdm-card-border wdm-modal">
+        <div class="modal-body">
+            <div class="wdm-card-layout" style="width: 100%">
+                <div class="wdm-name">[[ detail.station.short ]]</div>
+                <div class="wdm-info">
+                    <div class="wdm-last-update" ng-class="main.getStatusClass(main.selectedStation)">[[ main.selectedStation.last._id|fromNow ]]</div>
+                    <a class="wdm-url" href="[[ detail.station.url ]]" target="_blank" ng-click="$event.stopPropagation();">[[ detail.station.prov ]]</a>
+                </div>
+                <div class="wdm-altitude">[[ detail.station.alt ]] meters</div>
+            </div>
+            <ul class="nav nav-tabs wdm-nav-tabs">
+                <li class="active"><a data-target="#tab1" data-toggle="tab" style="cursor: pointer;">Summary</a></li>
+                <li><a data-target="#tab2" data-toggle="tab" style="cursor: pointer;">Wind</a></li>
+                <li><a data-target="#tab3" data-toggle="tab" style="cursor: pointer;">Temperature</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab1">
+                    <div class="wdm-card-layout" style="margin-top: 15px; width: 200px">
+                        <div class="wdm-title">Wind</div>
+                        <div class="wdm-wind-speed">
+                            <div class="wdm-wind-avg">[[ detail.station.last['w-avg'].toFixed(1) ]]</div>
+                            <div class="wdm-wind-max"><span class="wdm-label">Gust </span>[[ detail.station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                        </div>
+                        <svg class="wdm-wind-direction" data-scope-watch="detail.stationHistoric"></svg>
+                        <div class="wdm-title">Wind - last hour</div>
+                        <div class="wdm-wind-hour">
+                            <div class="wdm-wind-hour-value"><span class="wdm-label">Minimum </span>[[ detail.stationHistoric['w-avg'].min.toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                            <div class="wdm-wind-hour-value"><span class="wdm-label">Mean </span>[[ detail.stationHistoric['w-avg'].mean.toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                            <div class="wdm-wind-hour-value"><span class="wdm-label">Maximum </span>[[ detail.stationHistoric['w-avg'].max.toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+                        </div>
+                        <div class="wdm-title">Air</div>
+                        <div class="wdm-air">
+                            <div class="wdm-air-value"><span class="wdm-label">Temperature </span>[[ detail.station.last.temp.toFixed(1) ]]<span class="wdm-unit">  °C</span></div>
+                            <div class="wdm-air-value"><span class="wdm-label">Humidity </span>[[ detail.station.last.hum.toFixed(1) ]]<span class="wdm-unit">  % rel</span></div>
+                            <div class="wdm-air-value"><span class="wdm-label">Pressure </span>[[ detail.station.last.pres.toFixed(1) ]]<span class="wdm-unit">  hPa</span></div>
+                            <div class="wdm-air-value"><span class="wdm-label">Rain </span>[[ detail.station.last.rain.toFixed(1) ]]<span class="wdm-unit">  l/m²</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="tab2">
+                    <div class="wdm-wind-chart" data-scope-watch="detail.stationWindChart"></div>
+                </div>
+                <div class="tab-pane" id="tab3">
+                    <div class="wdm-air-chart" data-scope-watch="detail.stationAirChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

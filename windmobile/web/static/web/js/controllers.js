@@ -1,6 +1,6 @@
 angular.module('windmobile.controllers', ['windmobile.services'])
 
-    .controller('ListController', ['$state', '$http', 'utils', function ($state, $http, utils) {
+    .controller('ListController', ['$rootScope', '$state', '$http', 'utils', function ($rootScope, $state, $http, utils) {
         var self = this;
 
         function geoSearch(position) {
@@ -61,11 +61,16 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 getGeoLocation();
             }
         };
+
+        // Force modal to close on browser back
+        $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+            $('#detailModal').modal('hide');
+        });
         this.list();
     }])
 
-    .controller('MapController', ['$scope', '$state', '$http', '$compile', '$templateCache', 'utils',
-        function ($scope, $state, $http, $compile, $templateCache, utils) {
+    .controller('MapController', ['$rootScope', '$scope', '$state', '$http', '$compile', '$templateCache', 'utils',
+        function ($rootScope, $scope, $state, $http, $compile, $templateCache, utils) {
             var self = this;
             var markersArray = [];
             var inboBoxContent = $compile($templateCache.get('_infobox.html'))($scope);
@@ -215,6 +220,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     getGeoLocation();
                 }
             };
+
+            // Force modal to close on browser back
+            $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+                $('#detailModal').modal('hide');
+            });
             this.list();
         }])
 

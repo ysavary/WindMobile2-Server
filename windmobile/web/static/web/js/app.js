@@ -88,44 +88,44 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
             restrict: "C",
             link: function (scope, element, attrs) {
                 scope.$watch(element.attr('data-scope-watch'), function (newValue, oldValue) {
-                    var width = parseFloat($(element[0]).width());
-                    var height = parseFloat($(element[0]).height());
-
-                    if (width && height) {
-                        var paper = Snap(element[0]);
-                        var radius = Math.min(width, height) / 2;
-                        var circle = paper.circle(width / 2, height / 2, radius - 1);
-                        circle.attr({
-                            stroke: "#8D8D8D",
-                            strokeWidth: 1
-                        });
-                    }
-
                     if (newValue && newValue.data) {
                         var values = newValue.data;
 
-                        // The center
-                        var lastX = width / 2;
-                        var lastY = width / 2;
+                        var width = parseFloat($(element[0]).width());
+                        var height = parseFloat($(element[0]).height());
 
-                        var currentRadius = 0.0;
-                        for (var i = values.length - 1; i >= 0; i--) {
-                            var direction = values[i]['w-dir'];
-
-                            currentRadius += radius / values.length;
-                            var directionRadian = (direction + 90) * (Math.PI / 180);
-
-                            var x = radius - Math.cos(directionRadian) * currentRadius;
-                            var y = radius - Math.sin(directionRadian) * currentRadius;
-
-                            var line = paper.line(lastX, lastY, x, y);
-                            line.attr({
-                                stroke: "#8b8724",
-                                strokeWidth: 1.5
+                        if (width && height) {
+                            var paper = Snap(element[0]);
+                            var radius = Math.min(width, height) / 2;
+                            var circle = paper.circle(width / 2, height / 2, radius - 1);
+                            circle.attr({
+                                stroke: "#8D8D8D",
+                                strokeWidth: 1
                             });
 
-                            lastX = x;
-                            lastY = y;
+                            // The center
+                            var lastX = width / 2;
+                            var lastY = width / 2;
+
+                            var currentRadius = 0.0;
+                            for (var i = values.length - 1; i >= 0; i--) {
+                                var direction = values[i]['w-dir'];
+
+                                currentRadius += radius / values.length;
+                                var directionRadian = (direction + 90) * (Math.PI / 180);
+
+                                var x = radius - Math.cos(directionRadian) * currentRadius;
+                                var y = radius - Math.sin(directionRadian) * currentRadius;
+
+                                var line = paper.line(lastX, lastY, x, y);
+                                line.attr({
+                                    stroke: "#8b8724",
+                                    strokeWidth: 1.5
+                                });
+
+                                lastX = x;
+                                lastY = y;
+                            }
                         }
                     }
                 });

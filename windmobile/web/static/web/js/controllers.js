@@ -3,37 +3,20 @@ angular.module('windmobile.controllers', ['windmobile.services'])
     .controller('ListController', ['$rootScope', '$state', '$http', 'utils', function ($rootScope, $state, $http, utils) {
         var self = this;
 
-        function geoSearch(position) {
+        function search(position) {
             var params = {};
-            params.lat = position.coords.latitude;
-            params.lon = position.coords.longitude;
-            $http({method: 'GET', url: '/api/2/stations/', params: params}).
-                success(function (data) {
-                    self.stations = data;
-                    for (var i = 0; i < self.stations.length; i++) {
-                        self.getHistoric(self.stations[i]);
-                    }
-                });
-        }
-        function search() {
-            var params = {};
-            params.search = self.query;
-            $http({method: 'GET', url: '/api/2/stations/', params: params}).
-                success(function (data) {
-                    self.stations = data;
-                    for (var i = 0; i < self.stations.length; i++) {
-                        self.getHistoric(self.stations[i]);
-                    }
-                });
-        }
-        function getGeoLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(geoSearch, search, {
-                    enableHighAccuracy: true,
-                    timeout: 3000,
-                    maximumAge: 300000
-                });
+            if (position) {
+                params.lat = position.coords.latitude;
+                params.lon = position.coords.longitude;
             }
+            params.search = self.search;
+            $http({method: 'GET', url: '/api/2/stations/', params: params}).
+                success(function (data) {
+                    self.stations = data;
+                    for (var i = 0; i < self.stations.length; i++) {
+                        self.getHistoric(self.stations[i]);
+                    }
+                });
         }
 
         this.getStatusClass = function (station) {
@@ -54,27 +37,43 @@ angular.module('windmobile.controllers', ['windmobile.services'])
         this.selectStation = function (station) {
             $state.go('list.detail', {stationId: station._id});
         };
-        this.list = function () {
-            if (this.query) {
-                search();
+        this.doSearch = function () {
+            if (navigator.geolocation) {
+                var locationTimeout = setTimeout(search, 1000);
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    clearTimeout(locationTimeout);
+                    search(position);
+                }, function(error) {
+                    clearTimeout(locationTimeout);
+                    search();
+                }, {
+                    enableHighAccuracy: true,
+                    maximumAge: 300000
+                });
             } else {
-                getGeoLocation();
+                search();
             }
+        };
+        this.clearSearch = function () {
+            this.search = null;
+            this.doSearch();
         };
 
         // Force modal to close on browser back
         $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
             $('#detailModal').modal('hide');
         });
-        this.list();
+
+        this.doSearch();
     }])
 
     .controller('MapController', ['$rootScope', '$scope', '$state', '$http', '$compile', '$templateCache', 'utils',
         function ($rootScope, $scope, $state, $http, $compile, $templateCache, utils) {
-            var self = this;
             var markersArray = [];
             var infoBox;
             var inboBoxContent = $compile($templateCache.get('_infobox.html'))($scope);
+
+            var self = this;
 
             function clearOverlays() {
                 if (infoBox) {
@@ -85,7 +84,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
                 markersArray.length = 0;
             }
-
             function displayMarkers(stations) {
                 clearOverlays();
 
@@ -136,35 +134,16 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     })(marker);
                 }
             }
-
-            function geoSearch(position) {
-                var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                self.map.setCenter(currentPosition);
-                self.map.setZoom(8);
-
+            function search(position) {
                 var params = {};
-                params.lat = position.coords.latitude;
-                params.lon = position.coords.longitude;
-                params.limit = 1000;
-
-                $http({method: 'GET', url: '/api/2/stations/', params: params}).success(displayMarkers);
-            }
-
-            function search() {
-                var params = {};
-                params.search = self.query;
-                params.limit = 1000;
-                $http({method: 'GET', url: '/api/2/stations/', params: params}).success(displayMarkers);
-            }
-
-            function getGeoLocation() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(geoSearch, search, {
-                        enableHighAccuracy: true,
-                        timeout: 3000,
-                        maximumAge: 300000
-                    });
+                if (position) {
+                    params.lat = position.lat();
+                    params.lon = position.lng();
                 }
+                params.search = self.search;
+                params.limit = 500;
+
+                $http({method: 'GET', url: '/api/2/stations/', params: params}).success(displayMarkers);
             }
 
             this.getStatusClass = function (station) {
@@ -196,11 +175,24 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
                 $state.go('map.detail', {stationId: this.selectedStation._id});
             };
-            this.list = function () {
-                if (this.query) {
-                    search();
-                } else {
-                    getGeoLocation();
+            this.doSearch = function () {
+                search(this.map.getCenter());
+            };
+            this.clearSearch = function () {
+                this.search = null;
+                this.doSearch();
+            };
+            this.centerMap = function () {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                        self.map.panTo(currentPosition);
+                        self.map.setZoom(8);
+                        //search(currentPosition);
+                    }, null, {
+                        enableHighAccuracy: true,
+                        maximumAge: 300000
+                    });
                 }
             };
 
@@ -227,7 +219,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
                 $('#detailModal').modal('hide');
             });
-            this.list();
+
+            this.doSearch();
+            this.centerMap();
         }])
 
     .controller('DetailController', ['$state', '$stateParams', '$http',

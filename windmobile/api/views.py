@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from pymongo import MongoClient, uri_parser
+from pymongo.errors import OperationFailure
 
 from windmobile.api import diacritics
 
@@ -24,7 +25,7 @@ def stations(request):
 
     Query parameters:
     limit     -- Nb stations to return (default=10)
-    provider  -- Return only station of the given provider
+    provider  -- Return only stations of the given provider
     search    -- String to search (ignoring accent)
     lat       -- Geo search: latitude ie 46.78
     lon       -- Geo search: longitude ie 6.63
@@ -46,17 +47,13 @@ def stations(request):
     if provider:
         query['prov'] = provider
 
-    if not (search or latitude or longitude or distance or word):
-        return Response(list(mongo_db.stations.find(query).limit(limit)))
-
-    elif search and not (latitude or longitude or distance or word):
+    if search:
         regexp_query = diacritics.create_regexp(diacritics.normalize(search))
         query['$or'] = [{'name': {'$regex': regexp_query, '$options': 'i'}},
                         {'short': {'$regex': regexp_query, '$options': 'i'}},
                         {'tags': search}]
-        return Response(list(mongo_db.stations.find(query).limit(limit)))
 
-    elif latitude and longitude and not (search or word):
+    if latitude and longitude:
         if distance:
             query['loc'] = {
                 '$near': {
@@ -76,14 +73,14 @@ def stations(request):
                     }
                 }
             }
-        return Response(list(mongo_db.stations.find(query).limit(limit)))
 
-    elif word and not (search or latitude or longitude or distance):
+    if word:
         query['$text'] = {'$search': word, '$language': language}
-        return Response(list(mongo_db.stations.find(query).limit(limit)))
 
-    else:
-        raise ParseError(u"Invalid query parameters")
+    try:
+        return Response(list(mongo_db.stations.find(query).limit(limit)))
+    except OperationFailure as e:
+        raise ParseError(e.details)
 
 @api_view(['GET'])
 def station_json_doc(request):

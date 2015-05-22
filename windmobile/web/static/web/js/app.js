@@ -120,7 +120,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
 
                             var line = paper.line(lastX, lastY, x, y);
                             line.attr({
-                                stroke: "#cccc00",
+                                stroke: "#8b8724",
                                 strokeWidth: 1.5
                             });
 
@@ -152,21 +152,18 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
                         var windMaxSerie = {
                             name: 'windMax',
                             type: 'spline',
-                            color: '#e32d2d',
+                            color: '#8b8724',
                             lineWidth: 1,
                             marker: {
                                 enabled: false
                             },
                             data: []
                         };
-                        var windMaxMax = 0;
                         var count = value.length;
                         for (var i = count - 1; i >= 0; i--) {
                             var date = value[i]['_id'] * 1000;
                             var windMax = value[i]['w-max'];
                             var windAvg = value[i]['w-avg'];
-
-                            windMaxMax = Math.max(windMaxMax, windMax);
 
                             windMaxSerie.data.push([date, windMax]);
                             windAvgSerie.data.push([date, windAvg]);
@@ -197,10 +194,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
                             },
                             yAxis: {
                                 gridLineWidth: 0.5,
-                                title: {
-                                    text: 'km/h'
-                                },
-                                max: windMaxMax
+                                gridLineColor: '#555'
                             },
                             series: [windAvgSerie, windMaxSerie],
                             navigator: {
@@ -269,7 +263,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
                         var temperatureSerie = {
                             name: 'temperature',
                             type: 'spline',
-                            color: '#a7a9cb',
+                            color: '#e32d2d',
                             lineWidth: 1,
                             marker: {
                                 enabled: false
@@ -279,7 +273,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
                         var humiditySerie = {
                             name: 'humidity',
                             type: 'spline',
-                            color: '#a7a9cb',
+                            color: '#3B71A0',
                             lineWidth: 1,
                             marker: {
                                 enabled: false
@@ -290,8 +284,9 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
                         var rainSerie = {
                             name: 'rain',
                             type: 'column',
-                            color: '#a7a9cb',
-                            lineWidth: 1,
+                            borderColor: '#444',
+                            borderWidth: 0.5,
+                            color: 'rgba(30, 30, 30, 0.4)',
                             marker: {
                                 enabled: false
                             },
@@ -331,22 +326,20 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
                             },
                             yAxis: [{
                                 gridLineWidth: 0.5,
-                                title: {
-                                    text: '°C'
+                                gridLineColor: "#555"
+                            }, {
+                                opposite: false,
+                                gridLineWidth: 0,
+                                labels: {
+                                    enabled: false
                                 }
                             }, {
-                                gridLineWidth: 0.5,
-                                title: {
-                                    text: 'humidity'
-                                },
-                                opposite: false
-                            }, {
-                                gridLineWidth: 0.5,
-                                title: {
-                                    text: 'rain'
+                                gridLineWidth: 0,
+                                labels: {
+                                    enabled: false
                                 }
                             }],
-                            series: [temperatureSerie, humiditySerie, rainSerie],
+                            series: [rainSerie, temperatureSerie, humiditySerie],
                             navigator: {
                                 enabled: false
                             },

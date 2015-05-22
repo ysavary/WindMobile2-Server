@@ -8682,111 +8682,120 @@ a.navbar-text {
   outline: none;
 }
 /* line 116, ../../../scss/windmobile.scss */
-.wdm-card-layout .wdm-title {
-  clear: both;
-  margin-bottom: 5px;
-  color: #ddd;
-}
-/* line 121, ../../../scss/windmobile.scss */
-.wdm-card-layout .wdm-label {
-  font-size: 12px;
-  color: #8d8d8d;
-}
-/* line 125, ../../../scss/windmobile.scss */
-.wdm-card-layout .wdm-unit {
-  font-size: 12px;
-  color: #8d8d8d;
-}
-/* line 130, ../../../scss/windmobile.scss */
 .wdm-card-layout > .wdm-name {
   float: left;
   overflow: hidden;
   color: #ddd;
   font-size: 18px;
 }
-/* line 136, ../../../scss/windmobile.scss */
+/* line 122, ../../../scss/windmobile.scss */
 .wdm-card-layout > .wdm-info {
   float: right;
 }
-/* line 138, ../../../scss/windmobile.scss */
+/* line 124, ../../../scss/windmobile.scss */
 .wdm-card-layout > .wdm-info > .wdm-last-update {
   float: right;
   font-size: 12px;
 }
-/* line 142, ../../../scss/windmobile.scss */
+/* line 128, ../../../scss/windmobile.scss */
 .wdm-card-layout > .wdm-info > .wdm-url {
   clear: right;
   float: right;
   font-size: 12px;
 }
-/* line 148, ../../../scss/windmobile.scss */
+/* line 134, ../../../scss/windmobile.scss */
 .wdm-card-layout > .wdm-altitude {
   clear: left;
   float: left;
   font-size: 12px;
 }
-/* line 153, ../../../scss/windmobile.scss */
+/* line 139, ../../../scss/windmobile.scss */
 .wdm-card-layout > .wdm-wind-speed {
   clear: left;
   float: left;
   width: 50%;
 }
-/* line 157, ../../../scss/windmobile.scss */
+/* line 143, ../../../scss/windmobile.scss */
 .wdm-card-layout > .wdm-wind-speed > .wdm-wind-avg {
   font-size: 23px;
   color: #ddd;
 }
-/* line 161, ../../../scss/windmobile.scss */
+/* line 147, ../../../scss/windmobile.scss */
 .wdm-card-layout > .wdm-wind-speed > .wdm-wind-max {
   color: #ddd;
 }
-/* line 164, ../../../scss/windmobile.scss */
+/* line 150, ../../../scss/windmobile.scss */
 .wdm-card-layout > .wdm-wind-speed > .wdm-wind-mini-chart {
   margin-top: 5px;
 }
-/* line 168, ../../../scss/windmobile.scss */
+/* line 154, ../../../scss/windmobile.scss */
 .wdm-card-layout > .wdm-wind-direction {
   float: right;
   width: 70px;
   height: 70px;
 }
-/* line 173, ../../../scss/windmobile.scss */
+/* line 159, ../../../scss/windmobile.scss */
 .wdm-card-layout > .wdm-wind-hour {
   clear: left;
-  float: left;
 }
-/* line 176, ../../../scss/windmobile.scss */
+/* line 161, ../../../scss/windmobile.scss */
 .wdm-card-layout > .wdm-wind-hour > .wdm-wind-hour-value {
-  font-size: 12px;
   color: #ddd;
 }
-/* line 181, ../../../scss/windmobile.scss */
+/* line 165, ../../../scss/windmobile.scss */
 .wdm-card-layout > .wdm-air {
   clear: left;
-  float: left;
 }
-/* line 184, ../../../scss/windmobile.scss */
+/* line 167, ../../../scss/windmobile.scss */
 .wdm-card-layout > .wdm-air > .wdm-air-value {
-  font-size: 12px;
   color: #ddd;
 }
 
-/* line 191, ../../../scss/windmobile.scss */
+/* line 173, ../../../scss/windmobile.scss */
 .wdm-status-red {
   color: #990000;
 }
 
-/* line 195, ../../../scss/windmobile.scss */
+/* line 176, ../../../scss/windmobile.scss */
 .wdm-status-orange {
   color: #aa7109;
 }
 
-/* line 199, ../../../scss/windmobile.scss */
+/* line 180, ../../../scss/windmobile.scss */
+.wdm-title {
+  clear: both;
+  margin-top: 10px;
+  color: #8d8d8d;
+}
+
+/* line 185, ../../../scss/windmobile.scss */
+.wdm-label {
+  font-size: 12px;
+  color: #8d8d8d;
+}
+
+/* line 189, ../../../scss/windmobile.scss */
+.wdm-unit {
+  font-size: 12px;
+  color: #8d8d8d;
+}
+
+/* line 194, ../../../scss/windmobile.scss */
+.wdm-wind-color {
+  color: #8b8724;
+}
+
+/* line 197, ../../../scss/windmobile.scss */
+.wdm-air-color {
+  color: #386490;
+}
+
+/* line 201, ../../../scss/windmobile.scss */
 .wdm-card-map {
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* line 203, ../../../scss/windmobile.scss */
+/* line 205, ../../../scss/windmobile.scss */
 .wdm-card-list {
   width: 30%;
   min-width: 160px;
@@ -8794,29 +8803,31 @@ a.navbar-text {
   background-color: #222;
 }
 
-/* line 210, ../../../scss/windmobile.scss */
+/* line 212, ../../../scss/windmobile.scss */
 .wdm-modal {
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* line 214, ../../../scss/windmobile.scss */
+/* line 216, ../../../scss/windmobile.scss */
 .wdm-nav-tabs {
   margin-top: 15px;
+  padding-left: 10px;
+  padding-right: 10px;
   border-bottom: 1px solid #8d8d8d;
 }
-/* line 219, ../../../scss/windmobile.scss */
+/* line 223, ../../../scss/windmobile.scss */
 .wdm-nav-tabs > li > a {
   color: #8d8d8d;
 }
-/* line 221, ../../../scss/windmobile.scss */
+/* line 225, ../../../scss/windmobile.scss */
 .wdm-nav-tabs > li > a:hover, .wdm-nav-tabs > li > a:focus {
   background-color: transparent;
   border-color: transparent;
   color: #ddd;
 }
-/* line 229, ../../../scss/windmobile.scss */
+/* line 233, ../../../scss/windmobile.scss */
 .wdm-nav-tabs > li.active > a, .wdm-nav-tabs > li.active a:hover, .wdm-nav-tabs > li.active a:focus {
   background-color: transparent;
-  color: #ddd;
+  color: #8d8d8d;
   border: 1px solid #8d8d8d;
 }

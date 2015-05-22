@@ -264,12 +264,15 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         var windAvg = function (value) {
                             return value['w-avg'];
                         };
-                        historic['w-avg'] = {};
-                        historic['w-avg'].min = Math.min.apply(null, data.map(windAvg));
-                        historic['w-avg'].mean = data.map(windAvg).reduce(function (previousValue, currentValue) {
+                        var windMax = function (value) {
+                            return value['w-max'];
+                        };
+                        historic['lastHour'] = {};
+                        historic['lastHour'].min = Math.min.apply(null, data.map(windAvg));
+                        historic['lastHour'].mean = data.map(windAvg).reduce(function (previousValue, currentValue) {
                                 return previousValue + currentValue;
                             }, 0) / data.length;
-                        historic['w-avg'].max = Math.max.apply(null, data.map(windAvg));
+                        historic['lastHour'].max = Math.max.apply(null, data.map(windMax));
                         self.stationHistoric = historic;
                     })
             };

@@ -113,20 +113,6 @@ a.navbar-text {
         }
     }
 
-    .wdm-title {
-        clear: both;
-        margin-bottom: 5px;
-        color: $highlight-text-color;
-    }
-    .wdm-label {
-        font-size: $small-font-size;
-        color: $text-color;
-    }
-    .wdm-unit {
-        font-size: $small-font-size;
-        color: $text-color;
-    }
-
     > .wdm-name {
         float: left;
         overflow: hidden;
@@ -172,17 +158,13 @@ a.navbar-text {
     }
     > .wdm-wind-hour {
         clear: left;
-        float: left;
         > .wdm-wind-hour-value {
-            font-size: $small-font-size;
             color: $highlight-text-color;
         }
     }
     > .wdm-air {
         clear: left;
-        float: left;
         > .wdm-air-value {
-            font-size: $small-font-size;
             color: $highlight-text-color;
         }
     }
@@ -191,9 +173,29 @@ a.navbar-text {
 .wdm-status-red {
     color: #990000;
 }
-
 .wdm-status-orange {
     color: #aa7109;
+}
+
+.wdm-title {
+    clear: both;
+    margin-top: 10px;
+    color: $text-color;
+}
+.wdm-label {
+    font-size: $small-font-size;
+    color: $text-color;
+}
+.wdm-unit {
+    font-size: $small-font-size;
+    color: $text-color;
+}
+
+.wdm-wind-color {
+    color: #8b8724;
+}
+.wdm-air-color {
+    color: #386490;
 }
 
 .wdm-card-map {
@@ -213,6 +215,8 @@ a.navbar-text {
 
 .wdm-nav-tabs {
     margin-top: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
     border-bottom: 1px solid $text-color;
 
     > li {
@@ -228,7 +232,7 @@ a.navbar-text {
     > li.active {
         > a, a:hover, a:focus {
             background-color: transparent;
-            color: $highlight-text-color;
+            color: $text-color;
             border: 1px solid $text-color;
         }
     }

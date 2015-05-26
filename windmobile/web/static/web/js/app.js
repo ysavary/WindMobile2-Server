@@ -74,8 +74,8 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
                                 spotColor: false,
                                 minSpotColor: false,
                                 maxSpotColor: false,
-                                lineColor: '#fff',
-                                fillColor: '#444'
+                                fillColor: '#444',
+                                lineColor: '#ddd'
                             });
                         }
                     }
@@ -142,8 +142,8 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
 
                             var line = paper.line(lastX, lastY, x, y);
                             line.attr({
-                                class: "wdm-direction-line",
-                                stroke: "#8b8724",
+                                class: 'wdm-direction-line',
+                                stroke: '#bfbb3d',
                                 strokeWidth: 1.5
                             });
 
@@ -164,9 +164,9 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
                         var windAvgSerie = {
                             name: 'windAvg',
                             type: 'areaspline',
-                            color: '#444444',
+                            color: '#444',
                             lineWidth: 1,
-                            lineColor: '#ffffff',
+                            lineColor: '#ddd',
                             marker: {
                                 enabled: false
                             },
@@ -175,7 +175,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
                         var windMaxSerie = {
                             name: 'windMax',
                             type: 'spline',
-                            color: '#8b8724',
+                            color: '#b6b23d',
                             lineWidth: 1,
                             marker: {
                                 enabled: false
@@ -286,7 +286,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
                         var temperatureSerie = {
                             name: 'temperature',
                             type: 'spline',
-                            color: '#e32d2d',
+                            color: '#c72d46',
                             lineWidth: 1,
                             marker: {
                                 enabled: false
@@ -296,7 +296,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
                         var humiditySerie = {
                             name: 'humidity',
                             type: 'spline',
-                            color: '#3B71A0',
+                            color: '#3b71a0',
                             lineWidth: 1,
                             marker: {
                                 enabled: false

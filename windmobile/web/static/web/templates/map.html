@@ -3,18 +3,18 @@
 
 <script type="text/ng-template" id="_infobox.html">
     <div class="wdm-card-border wdm-card-layout wdm-card-map" ng-click="main.selectStation()">
-        <div class="wdm-name">[[ main.selectedStation.short ]]</div>
-        <div class="wdm-info">
-            <div class="wdm-last-update" ng-class="main.getStatusClass(main.selectedStation)">[[ main.selectedStation.last._id|fromNow ]]</div>
-            <a class="wdm-url" href="[[ main.selectedStation.url ]]" target="_blank" ng-click="$event.stopPropagation();">[[ main.selectedStation.prov ]]</a>
+        <div class="wdm-name" style="float:left;">[[ main.selectedStation.short ]]</div>
+        <div class="wdm-info" style="float:right;">
+            <div class="wdm-last-update" style="float:right;" ng-class="main.getStatusClass(main.selectedStation)">[[ main.selectedStation.last._id|fromNow ]]</div>
+            <a class="wdm-url" style="clear:right;float:right;" href="[[ main.selectedStation.url ]]" target="_blank" ng-click="$event.stopPropagation();">[[ main.selectedStation.prov ]]</a>
         </div>
-        <div class="wdm-altitude">[[ main.selectedStation.alt ]] meters</div>
-        <div class="wdm-wind-speed">
+        <div class="wdm-altitude" style="clear:left;float:left;">[[ main.selectedStation.alt ]] meters</div>
+        <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">
             <div class="wdm-wind-avg">[[ main.selectedStation.last['w-avg'].toFixed(1) ]]</div>
-            <div class="wdm-wind-max">[[ main.selectedStation.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
+            <div class="wdm-wind-max">[[ main.selectedStation.last['w-max'].toFixed(1) ]]<span class="wdm-unit">km/h</span></div>
             <span class="wdm-wind-mini-chart" data-scope-watch="main.selectedStation.historic"></span>
         </div>
-        <svg class="wdm-wind-direction" viewBox="0 0 100 100" data-scope-watch="main.selectedStation.historic"></svg>
+        <svg class="wdm-wind-direction" style="float:right;width:70px;height:70px;" viewBox="0 0 100 100" data-scope-watch="main.selectedStation.historic"></svg>
     </div>
 </script>
 

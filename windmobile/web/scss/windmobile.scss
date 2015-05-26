@@ -5,19 +5,10 @@ $grid-float-breakpoint: 0px;
     @include responsive-invisibility('.hidden-xxs');
 }
 
-$background-color: #191919;
-$light-background-color: #222;
-
-$text-color: #8d8d8d;
-$highlight-text-color: #ddd;
-
-$small-font-size: 12px;
-$font-size: 15px;
-
 $header-height: 50px;
 
 body.wdm-list {
-    background-color: $background-color;
+    background-color: #191919;
     padding-top: 70px;
 }
 
@@ -87,6 +78,11 @@ a.navbar-text {
     bottom: 0px;
 }
 
+$text-color: #8d8d8d;
+$highlight-text-color: #ddd;
+$small-font-size: 12px;
+$font-size: 15px;
+
 .wdm-card-border {
     margin: 5px;
     padding: 5px;
@@ -112,73 +108,63 @@ a.navbar-text {
             outline: none;
         }
     }
-
-    > .wdm-name {
-        float: left;
+    .wdm-name {
         overflow: hidden;
         color: $highlight-text-color;
         font-size: 18px;
     }
-    > .wdm-info {
-        float: right;
-        > .wdm-last-update {
-            float: right;
-            font-size: $small-font-size;
-        }
-        > .wdm-url {
-            clear: right;
-            float: right;
-            font-size: $small-font-size;
-        }
-    }
-    > .wdm-altitude {
-        clear: left;
-        float: left;
+    .wdm-last-update {
         font-size: $small-font-size;
     }
-    > .wdm-wind-speed {
-        clear: left;
-        float: left;
-        width: 50%;
-        > .wdm-wind-avg {
-            font-size: 23px;
-            color: $highlight-text-color;
-        }
-        > .wdm-wind-max {
-            color: $highlight-text-color;
-        }
-        > .wdm-wind-mini-chart {
-            margin-top: 5px;
-        }
+    .wdm-url {
+        font-size: $small-font-size;
     }
-    > .wdm-wind-direction {
-        float: right;
-        width: 70px;
-        height: 70px;
-        text-anchor: middle;
-        alignment-baseline: central;
+    .wdm-altitude {
+        font-size: $small-font-size;
     }
-    > .wdm-wind-hour {
-        clear: left;
-        > .wdm-wind-hour-value {
-            color: $highlight-text-color;
-        }
+    .wdm-wind-avg {
+        font-size: 23px;
+        color: $highlight-text-color;
     }
-    > .wdm-air {
-        clear: left;
-        > .wdm-air-value {
-            color: $highlight-text-color;
-        }
+    .wdm-wind-max {
+        color: $highlight-text-color;
+    }
+    .wdm-wind-mini-chart {
+        margin-top: 5px;
+    }
+    .wdm-wind-hour-value {
+        color: $highlight-text-color;
+    }
+    .wdm-air-value {
+        color: $highlight-text-color;
     }
 }
 
-.wdm-status-red {
-    color: #990000;
-}
-.wdm-status-orange {
-    color: #aa7109;
+.wdm-detail-layout {
+    @extend .wdm-card-layout;
+
+    .wdm-wind-avg {
+        font-size: 27px;
+        color: $highlight-text-color;
+    }
+    .wdm-wind-max {
+        font-size: 19px;
+        color: $highlight-text-color;
+    }
+    .wdm-wind-hour-value {
+        font-size: 17px;
+        color: $highlight-text-color;
+    }
+    .wdm-air-value {
+        font-size: 17px;
+        color: $highlight-text-color;
+    }
 }
 
+.wdm-wind-direction {
+    text-anchor: middle;
+    alignment-baseline: central;
+}
 .wdm-title {
     clear: both;
     margin-top: 10px;
@@ -189,15 +175,25 @@ a.navbar-text {
     color: $text-color;
 }
 .wdm-unit {
+    margin-left: 5px;
     font-size: $small-font-size;
     color: $text-color;
 }
 
-.wdm-wind-color {
-    color: #8b8724;
+.wdm-status-red {
+    color: #990000;
 }
-.wdm-air-color {
-    color: #386490;
+.wdm-status-orange {
+    color: #aa7109;
+}
+
+$wind-color: #b6b23d;
+.wdm-wind-text-color {
+    color: darken($wind-color, 20%)
+}
+$air-color: #3b71a0;
+.wdm-air-text-color {
+    color: darken($air-color, 20%)
 }
 
 .wdm-card-map {
@@ -208,7 +204,7 @@ a.navbar-text {
     width: 30%;
     min-width: 160px;
     max-width: 250px;
-    background-color: $light-background-color;
+    background-color: #222;
 }
 
 .wdm-modal {

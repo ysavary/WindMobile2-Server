@@ -87,45 +87,68 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
         return {
             restrict: "C",
             link: function (scope, element, attrs) {
+                var width = 100;
+                var height = 100;
+                var radius = Math.min(width, height) / 2;
+                var fontSize = 9;
+
+
+                var paper = Snap(element[0]);
+                var circleRadius = radius - 1;
+                var circle = paper.circle(width / 2, height / 2, circleRadius);
+                circle.attr({
+                    stroke: "#8D8D8D",
+                    strokeWidth: 1
+                });
+
+                var labels = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+                var labelRadius = radius - fontSize / 2 - 6;
+                var angle = 0;
+                for (var i = 0; i < labels.length; i++) {
+                    var angleRadian = (angle + 90) * (Math.PI / 180);
+                    var x = width / 2 - Math.cos(angleRadian) * labelRadius;
+                    var y = height / 2 - Math.sin(angleRadian) * labelRadius;
+
+                    var text = paper.text(x, y, labels[i]);
+                    text = text.attr({
+                        fill: "#8D8D8D",
+                        'font-size': fontSize,
+                        'alignment-baseline': 'inherit'
+
+                    });
+                    angle += 45;
+                }
+
+
                 scope.$watch(element.attr('data-scope-watch'), function (newValue, oldValue) {
                     if (newValue && newValue.data) {
+                        element.find(".wdm-direction-line").remove();
+
                         var values = newValue.data;
 
-                        var width = parseFloat($(element[0]).width());
-                        var height = parseFloat($(element[0]).height());
+                        // The center
+                        var lastX = width / 2;
+                        var lastY = width / 2;
 
-                        if (width && height) {
-                            var paper = Snap(element[0]);
-                            var radius = Math.min(width, height) / 2;
-                            var circle = paper.circle(width / 2, height / 2, radius - 1);
-                            circle.attr({
-                                stroke: "#8D8D8D",
-                                strokeWidth: 1
+                        var currentRadius = 0.0;
+                        for (var i = values.length - 1; i >= 0; i--) {
+                            var direction = values[i]['w-dir'];
+
+                            currentRadius += circleRadius / values.length;
+                            var directionRadian = (direction + 90) * (Math.PI / 180);
+
+                            var x = width / 2 - Math.cos(directionRadian) * currentRadius;
+                            var y = height / 2 - Math.sin(directionRadian) * currentRadius;
+
+                            var line = paper.line(lastX, lastY, x, y);
+                            line.attr({
+                                class: "wdm-direction-line",
+                                stroke: "#8b8724",
+                                strokeWidth: 1.5
                             });
 
-                            // The center
-                            var lastX = width / 2;
-                            var lastY = width / 2;
-
-                            var currentRadius = 0.0;
-                            for (var i = values.length - 1; i >= 0; i--) {
-                                var direction = values[i]['w-dir'];
-
-                                currentRadius += radius / values.length;
-                                var directionRadian = (direction + 90) * (Math.PI / 180);
-
-                                var x = radius - Math.cos(directionRadian) * currentRadius;
-                                var y = radius - Math.sin(directionRadian) * currentRadius;
-
-                                var line = paper.line(lastX, lastY, x, y);
-                                line.attr({
-                                    stroke: "#8b8724",
-                                    strokeWidth: 1.5
-                                });
-
-                                lastX = x;
-                                lastY = y;
-                            }
+                            lastX = x;
+                            lastY = y;
                         }
                     }
                 });

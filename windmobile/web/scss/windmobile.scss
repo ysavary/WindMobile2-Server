@@ -155,6 +155,8 @@ a.navbar-text {
         float: right;
         width: 70px;
         height: 70px;
+        text-anchor: middle;
+        alignment-baseline: central;
     }
     > .wdm-wind-hour {
         clear: left;

@@ -22,7 +22,7 @@
                             <div class="wdm-wind-avg">[[ detail.station.last['w-avg'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
                             <div class="wdm-wind-max"><span class="wdm-label">Gust </span>[[ detail.station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>
                         </div>
-                        <svg class="wdm-wind-direction" data-scope-watch="detail.stationHistoric"></svg>
+                        <svg class="wdm-wind-direction" viewBox="0 0 100 100" data-scope-watch="detail.stationHistoric"></svg>
                         <div class="wdm-title wdm-wind-color">Wind - last hour</div>
                         <div class="wdm-wind-hour">
                             <div class="wdm-wind-hour-value"><span class="wdm-label">Minimum </span>[[ detail.stationHistoric.lastHour.min.toFixed(1) ]]<span class="wdm-unit">  km/h</span></div>

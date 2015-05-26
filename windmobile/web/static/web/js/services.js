@@ -45,6 +45,25 @@ angular.module('windmobile.services', [])
                     hue = 360;
                 }
                 return tinycolor.fromRatio({h: hue, s: 1, v: 0.7}).toHexString();
+            },
+            getWindDirectionLabel: function (labels, direction) {
+                var sectors = 360 / labels.length;
+                var angle = 0;
+                for (var i = 0; i < labels.length; i++) {
+                    var min = angle - sectors / 2;
+                    var max = angle + sectors / 2;
+
+                    if (i == 0) {
+                        // Looking for the north "half sector" from 337.5 to 360
+                        if ((direction >= 360 + min) && (direction <= 360)) {
+                            return labels[0];
+                        }
+                    }
+                    if ((direction >= min) && (direction < max)) {
+                        return labels[i];
+                    }
+                    angle += sectors;
+                }
             }
         };
     });

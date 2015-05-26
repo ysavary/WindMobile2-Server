@@ -1,4 +1,4 @@
-var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.controllers'],
+var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.services', 'windmobile.controllers'],
     function ($interpolateProvider) {
         $interpolateProvider.startSymbol('[[');
         $interpolateProvider.endSymbol(']]');
@@ -155,7 +155,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
             }
         }
     })
-    .directive('wdmWindChart', function () {
+    .directive('wdmWindChart', ['utils', function (utils) {
         return {
             restrict: "C",
             link: function (scope, element, attrs) {
@@ -172,24 +172,38 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
                             },
                             data: []
                         };
+                        var windDir = {
+                        };
                         var windMaxSerie = {
                             name: 'windMax',
                             type: 'spline',
-                            color: '#b6b23d',
+                            color: '#ddd',
                             lineWidth: 1,
                             marker: {
                                 enabled: false
+                            },
+                            dataLabels: {
+                                enabled: true,
+                                formatter: function() {
+                                    return utils.getWindDirectionLabel(
+                                        ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
+                                        windDir[this.key]
+                                    );
+                                },
+                                color: '#7d7a2a',
+                                style: {
+                                    textShadow: false
+                                }
                             },
                             data: []
                         };
                         var count = value.length;
                         for (var i = count - 1; i >= 0; i--) {
                             var date = value[i]['_id'] * 1000;
-                            var windMax = value[i]['w-max'];
-                            var windAvg = value[i]['w-avg'];
 
-                            windMaxSerie.data.push([date, windMax]);
-                            windAvgSerie.data.push([date, windAvg]);
+                            windMaxSerie.data.push([date, value[i]['w-max']]);
+                            windAvgSerie.data.push([date, value[i]['w-avg']]);
+                            windDir[date] = value[i]['w-dir'];
                         }
                         $(element).highcharts('StockChart', {
                             legend: {
@@ -276,7 +290,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.contr
                 });
             }
         }
-    })
+    }])
     .directive('wdmAirChart', function () {
         return {
             restrict: "C",

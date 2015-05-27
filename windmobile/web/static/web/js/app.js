@@ -65,26 +65,34 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
 
                         var values = newValue.data;
 
-                        var windKeys = [];
-                        var windValues = [];
+                        var windKeys = [],
+                            windValues = [];
                         for (var i = values.length - 1; i >= 0; i--) {
                             windKeys.push(values[i]['_id']);
                             windValues.push(values[i]['w-avg']);
                         }
-                        var minX = Math.min.apply(null, windKeys);
-                        var maxX = Math.max.apply(null, windKeys);
-                        var minY = Math.min.apply(null, windValues);
-                        var maxY = Math.max.apply(null, windValues);
+                        var minX = Math.min.apply(null, windKeys),
+                            maxX = Math.max.apply(null, windKeys),
+                            minY = Math.min.apply(null, windValues),
+                            maxY = Math.max.apply(null, windValues);
+                        if (!minX || !maxX || (minY <= 0 && maxY <= 0)) {
+                            return;
+                        }
                         var scaleX = width / (maxX - minX);
-                        var scaleY = height / (maxY - minY);
-
+                        var offsetY;
+                        if (minY === 0) {
+                            offsetY = 0;
+                        } else {
+                            offsetY = 5;
+                        }
+                        var scaleY = (height - offsetY) / (maxY - minY);
 
                         var points = [0, height];
                         for (var i = 0; i < windKeys.length - 1; i++) {
                             var x1 = (windKeys[i] - minX) * scaleX,
-                                y1 = height - (windValues[i] - minY) * scaleY,
+                                y1 = height - offsetY - (windValues[i] - minY) * scaleY,
                                 x2 = (windKeys[i + 1] - minX) * scaleX,
-                                y2 = height - (windValues[i + 1] - minY) * scaleY;
+                                y2 = height - offsetY - (windValues[i + 1] - minY) * scaleY;
 
                             points.push(x1, y1, x2, y2);
                         }
@@ -98,7 +106,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
 
                         // Remove first and last point
                         points.splice(0, 2);
-                        points.splice(-1, 2);
+                        points.splice(-2, 2);
 
                         var polyline = paper.polyline(points);
                         polyline.attr({

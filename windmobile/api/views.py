@@ -24,7 +24,7 @@ def stations(request):
     - Text search: <a href=/api/2/stations/?word=sommet>/api/2/stations/?word=sommet</a>
 
     Query parameters:
-    limit     -- Nb stations to return (default=10)
+    limit     -- Nb stations to return (default=20)
     provider  -- Return only stations of the given provider
     search    -- String to search (ignoring accent)
     lat       -- Geo search: latitude ie 46.78
@@ -33,7 +33,7 @@ def stations(request):
     word      -- Full text search
     language  -- Language of the query (default 'fr')
     """
-    limit = int(request.QUERY_PARAMS.get('limit', 10))
+    limit = int(request.QUERY_PARAMS.get('limit', 20))
     provider = request.QUERY_PARAMS.get('provider')
     search = request.QUERY_PARAMS.get('search')
     latitude = request.QUERY_PARAMS.get('lat')

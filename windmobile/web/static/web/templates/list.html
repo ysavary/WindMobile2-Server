@@ -37,8 +37,8 @@
         <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">
             <div class="wdm-wind-avg">[[ station.last['w-avg'].toFixed(1) ]]</div>
             <div class="wdm-wind-max">[[ station.last['w-max'].toFixed(1) ]]<span class="wdm-unit">km/h</span></div>
-            <span class="wdm-wind-mini-chart" data-scope-watch="station.historic"></span>
+            <svg class="wdm-wind-mini-chart" style="width:100%;max-width:85px;" viewBox="0 0 100 40" data-scope-watch="station.historic"></svg>
         </div>
-        <svg class="wdm-wind-direction" style="float:right;width:70px;height:70px;" viewBox="0 0 100 100" data-scope-watch="station.historic"></svg>
+        <svg class="wdm-wind-direction" style="float:right;width: 50%;max-width:85px;" viewBox="0 0 100 100" data-scope-watch="station.historic"></svg>
     </div>
 </div>

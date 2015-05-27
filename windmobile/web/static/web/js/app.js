@@ -55,29 +55,57 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
         return {
             restrict: "C",
             link: function (scope, element, attrs) {
+                var width = 100;
+                var height = 40;
+                var paper = Snap(element[0]);
+
                 scope.$watch(element.attr('data-scope-watch'), function (newValue, oldValue) {
                     if (newValue && newValue.data) {
+                        element.find(".wdm-minichart-line").remove();
+
                         var values = newValue.data;
 
-                        var data = [];
-                        var count = values.length;
-                        for (var i = count - 1; i >= 0; i--) {
-                            data.push([values[i]['_id'], values[i]['w-avg']]);
+                        var windKeys = [];
+                        var windValues = [];
+                        for (var i = values.length - 1; i >= 0; i--) {
+                            windKeys.push(values[i]['_id']);
+                            windValues.push(values[i]['w-avg']);
                         }
-                        if (data.length > 0) {
-                            element.sparkline(data, {
-                                width: '80px',
-                                height: '25px',
-                                type: 'line',
-                                chartRangeMin: 0,
-                                disableInteraction: true,
-                                spotColor: false,
-                                minSpotColor: false,
-                                maxSpotColor: false,
-                                fillColor: '#444',
-                                lineColor: '#ddd'
-                            });
+                        var minX = Math.min.apply(null, windKeys);
+                        var maxX = Math.max.apply(null, windKeys);
+                        var minY = Math.min.apply(null, windValues);
+                        var maxY = Math.max.apply(null, windValues);
+                        var scaleX = width / (maxX - minX);
+                        var scaleY = height / (maxY - minY);
+
+
+                        var points = [0, height];
+                        for (var i = 0; i < windKeys.length - 1; i++) {
+                            var x1 = (windKeys[i] - minX) * scaleX,
+                                y1 = height - (windValues[i] - minY) * scaleY,
+                                x2 = (windKeys[i + 1] - minX) * scaleX,
+                                y2 = height - (windValues[i + 1] - minY) * scaleY;
+
+                            points.push(x1, y1, x2, y2);
                         }
+                        points.push(width, height);
+
+                        var polygon = paper.polygon(points);
+                        polygon.attr({
+                            class: 'wdm-minichart-line',
+                            fill: '#444'
+                        });
+
+                        // Remove first and last point
+                        points.splice(0, 2);
+                        points.splice(-1, 2);
+
+                        var polyline = paper.polyline(points);
+                        polyline.attr({
+                            class: 'wdm-minichart-line',
+                            stroke: '#ddd',
+                            fill: 'none'
+                        });
                     }
                 });
             }
@@ -190,7 +218,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                                         windDir[this.key]
                                     );
                                 },
-                                color: '#7d7a2a',
+                                color: '#808100',
                                 style: {
                                     textShadow: false
                                 }
@@ -227,7 +255,8 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                                 crosshairs: false
                             },
                             xAxis: {
-                                type: 'datetime'
+                                type: 'datetime',
+                                lineColor: '#8d8d8d'
                             },
                             yAxis: {
                                 gridLineWidth: 0.5,
@@ -359,7 +388,8 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                                 crosshairs: false
                             },
                             xAxis: {
-                                type: 'datetime'
+                                type: 'datetime',
+                                lineColor: '#8d8d8d'
                             },
                             yAxis: [{
                                 gridLineWidth: 0.5,

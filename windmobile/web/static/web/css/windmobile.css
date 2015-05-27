@@ -8780,7 +8780,7 @@ a.navbar-text {
 
 /* line 191, ../../../scss/windmobile.scss */
 .wdm-wind-text-color {
-  color: #7d7a2a;
+  color: #808100;
 }
 
 /* line 195, ../../../scss/windmobile.scss */
@@ -8796,7 +8796,7 @@ a.navbar-text {
 /* line 203, ../../../scss/windmobile.scss */
 .wdm-card-list {
   width: 30%;
-  min-width: 160px;
+  min-width: 145px;
   max-width: 250px;
   background-color: #222;
 }

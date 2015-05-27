@@ -10,6 +10,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 params.lon = position.coords.longitude;
             }
             params.search = self.search;
+            params.limit = 12;
+
             $http({method: 'GET', url: '/api/2/stations/', params: params}).
                 success(function (data) {
                     self.stations = data;

@@ -101,7 +101,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                         var polygon = paper.polygon(points);
                         polygon.attr({
                             class: 'wdm-minichart-line',
-                            fill: '#444'
+                            fill: '#333'
                         });
 
                         // Remove first and last point
@@ -111,7 +111,8 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                         var polyline = paper.polyline(points);
                         polyline.attr({
                             class: 'wdm-minichart-line',
-                            stroke: '#ddd',
+                            strokeWidth: 2,
+                            stroke: '#7d7d00',
                             fill: 'none'
                         });
                     }
@@ -200,9 +201,9 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                         var windAvgSerie = {
                             name: 'windAvg',
                             type: 'areaspline',
-                            color: '#444',
                             lineWidth: 1,
-                            lineColor: '#ddd',
+                            lineColor: '#7d7d00',
+                            color: '#333',
                             marker: {
                                 enabled: false
                             },
@@ -213,7 +214,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                         var windMaxSerie = {
                             name: 'windMax',
                             type: 'spline',
-                            color: '#ddd',
+                            color: '#7d7d00',
                             lineWidth: 1,
                             marker: {
                                 enabled: false
@@ -226,7 +227,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                                         windDir[this.key]
                                     );
                                 },
-                                color: '#808100',
+                                color: '#666',
                                 style: {
                                     textShadow: false
                                 }
@@ -268,7 +269,12 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                             },
                             yAxis: {
                                 gridLineWidth: 0.5,
-                                gridLineColor: '#555'
+                                gridLineColor: '#555',
+                                labels: {
+                                    style: {
+                                        color: "#7d7d00"
+                                    }
+                                }
                             },
                             series: [windAvgSerie, windMaxSerie],
                             navigator: {
@@ -401,12 +407,19 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                             },
                             yAxis: [{
                                 gridLineWidth: 0.5,
-                                gridLineColor: "#555"
+                                gridLineColor: "#555",
+                                labels: {
+                                    style: {
+                                        color: "#c72d46"
+                                    }
+                                }
                             }, {
                                 opposite: false,
                                 gridLineWidth: 0,
                                 labels: {
-                                    enabled: false
+                                    style: {
+                                        color: "#3b71a0"
+                                    }
                                 }
                             }, {
                                 gridLineWidth: 0,

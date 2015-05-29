@@ -60,9 +60,8 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                 var paper = Snap(element[0]);
 
                 scope.$watch(element.attr('data-scope-watch'), function (newValue, oldValue) {
+                    element.find(".wdm-minichart-line").remove();
                     if (newValue && newValue.data) {
-                        element.find(".wdm-minichart-line").remove();
-
                         var values = newValue.data;
 
                         var windKeys = [],
@@ -158,9 +157,8 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
 
 
                 scope.$watch(element.attr('data-scope-watch'), function (newValue, oldValue) {
+                    element.find(".wdm-direction-line").remove();
                     if (newValue && newValue.data) {
-                        element.find(".wdm-direction-line").remove();
-
                         var values = newValue.data;
 
                         // The center

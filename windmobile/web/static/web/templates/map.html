@@ -6,7 +6,7 @@
         <div class="wdm-name" style="float:left;">[[ main.selectedStation.short ]]</div>
         <div class="wdm-info" style="float:right;">
             <div class="wdm-last-update" style="float:right;" ng-class="main.getStatusClass(main.selectedStation)">[[ main.selectedStation.last._id|fromNow ]]</div>
-            <a class="wdm-url" style="clear:right;float:right;" href="[[ main.selectedStation.url ]]" target="_blank" ng-click="$event.stopPropagation();">[[ main.selectedStation.prov ]]</a>
+            <div class="wdm-provider" style="clear:right;float:right;">[[ main.selectedStation.prov ]]</div>
         </div>
         <div class="wdm-altitude" style="clear:left;float:left;">[[ main.selectedStation.alt ]] meters</div>
         <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">

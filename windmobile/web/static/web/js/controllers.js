@@ -77,17 +77,19 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
             var self = this;
 
-            function clearOverlays() {
-                if (infoBox) {
-                    infoBox.close();
-                }
+            function clearMarkers() {
                 for (var i = 0; i < markersArray.length; i++) {
                     markersArray[i].setMap(null);
                 }
                 markersArray.length = 0;
             }
             function displayMarkers(stations) {
-                clearOverlays();
+                if (infoBox) {
+                    infoBox.close();
+                }
+                google.maps.event.clearListeners(this.map, 'click');
+                google.maps.event.clearListeners(this.map, 'dblclick');
+                clearMarkers();
 
                 for (var i = 0; i < stations.length; i++) {
                     var station = stations[i];
@@ -120,20 +122,30 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     marker.station = station;
                     markersArray.push(marker);
 
-                    (function (marker) {
-                        google.maps.event.addListener(marker, 'click', function () {
-                            if (infoBox) {
-                                infoBox.close();
-                            }
-                            self.selectedStation = marker.station;
-                            self.getHistoric();
-                            infoBox = new InfoBox({
-                                content: inboBoxContent[0],
-                                closeBoxURL: ''
-                            });
-                            infoBox.open(self.map, marker);
-                        })
-                    })(marker);
+                    google.maps.event.addListener(marker, 'click', function () {
+                        // 'click' is also called twice on 'dbckick' event
+                        if (!this.timeout) {
+                            marker = this;
+                            this.timeout = setTimeout(function () {
+                                marker.timeout = null;
+                                if (infoBox) {
+                                    infoBox.close();
+                                }
+                                self.selectedStation = marker.station;
+                                self.getHistoric();
+                                infoBox = new InfoBox({
+                                    content: inboBoxContent[0],
+                                    closeBoxURL: ''
+                                });
+                                infoBox.open(self.map, marker);
+                            }, 200);
+                        }
+                    });
+                    google.maps.event.addListener(marker, 'dblclick', function () {
+                        clearTimeout(this.timeout);
+                        this.timeout = null;
+                        self.map.setZoom(self.map.getZoom() + 1);
+                    });
                 }
             }
             function search(position) {

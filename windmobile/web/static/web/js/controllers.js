@@ -138,13 +138,13 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                                     closeBoxURL: ''
                                 });
                                 infoBox.open(self.map, marker);
-                            }, 200);
+                            }, 300);
                         }
                     });
-                    google.maps.event.addListener(marker, 'dblclick', function () {
+                    google.maps.event.addListener(marker, 'dblclick', function (event) {
                         clearTimeout(this.timeout);
                         this.timeout = null;
-                        self.map.setZoom(self.map.getZoom() + 1);
+                        self.map.trigger(self.map, 'dblclick', event);
                     });
                 }
             }

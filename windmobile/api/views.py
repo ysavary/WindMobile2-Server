@@ -141,7 +141,7 @@ def station(request, station_id):
 @api_view(['GET'])
 def station_historic(request, station_id):
     """
-    Get data history of a station
+    Get data history of a station since at least duration
 
     Example:
     - Historic Mauborget (1 hour): <a href=/api/2/stations/jdc-1001/historic/?duration=3600>/api/2/stations/jdc-1001/historic/?duration=3600</a>
@@ -158,7 +158,8 @@ def station_historic(request, station_id):
             return Response({'detail': "No station with id '%s'" % station_id}, status=status.HTTP_404_NOT_FOUND)
         last_time = station['last']['_id']
         start_time = last_time - duration
-        return Response(list(mongo_db[station_id].find({'_id': {'$gte': start_time}}, sort=(('_id', -1),))))
+        nb_data = mongo_db[station_id].find({'_id': {'$gte': start_time}}).count() + 1
+        return Response(list(mongo_db[station_id].find({}, sort=(('_id', -1),)).limit(nb_data)))
     else:
         return Response({'detail': "No historic data for id '%s'" % station_id}, status=status.HTTP_404_NOT_FOUND)
 

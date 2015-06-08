@@ -249,7 +249,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             $('a[data-target="#tab2"]').on('shown.bs.tab', function (event) {
                 $http({
                     method: 'GET',
-                    url: '/api/2/stations/' + $stateParams.stationId + '/historic?duration=172800'
+                    url: '/api/2/stations/' + $stateParams.stationId + '/historic?duration=432000'
                 }).success(function (data) {
                     self.stationWindChart = data;
                 });
@@ -257,7 +257,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             $('a[data-target="#tab3"]').on('shown.bs.tab', function (event) {
                 $http({
                     method: 'GET',
-                    url: '/api/2/stations/' + $stateParams.stationId + '/historic?duration=172800'
+                    url: '/api/2/stations/' + $stateParams.stationId + '/historic?duration=432000'
                 }).success(function (data) {
                     self.stationAirChart = data;
                 });

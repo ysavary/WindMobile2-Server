@@ -285,6 +285,10 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                                 inputEnabled: false,
                                 buttons: [{
                                     type: 'day',
+                                    count: 5,
+                                    text: '5 days'
+                                }, {
+                                    type: 'day',
                                     count: 2,
                                     text: '2 days'
                                 }, {
@@ -321,6 +325,11 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                                             fill: 'none',
                                             style: {
                                                 color: '#ddd'
+                                            }
+                                        },
+                                        disabled: {
+                                            style: {
+                                                color: '#666'
                                             }
                                         }
                                     }
@@ -436,6 +445,10 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                                 inputEnabled: false,
                                 buttons: [{
                                     type: 'day',
+                                    count: 5,
+                                    text: '5 days'
+                                }, {
+                                    type: 'day',
                                     count: 2,
                                     text: '2 days'
                                 }, {
@@ -472,6 +485,11 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                                             fill: 'none',
                                             style: {
                                                 color: '#ddd'
+                                            }
+                                        },
+                                        disabled: {
+                                            style: {
+                                                color: '#666'
                                             }
                                         }
                                     }

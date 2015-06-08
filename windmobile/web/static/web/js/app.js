@@ -304,7 +304,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                                     count: 6,
                                     text: '6 hours'
                                 }],
-                                selected: 3,
+                                selected: 4,
                                 buttonTheme: {
                                     width: 50,
                                     fill: 'none',
@@ -464,7 +464,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                                     count: 6,
                                     text: '6 hours'
                                 }],
-                                selected: 3,
+                                selected: 4,
                                 buttonTheme: {
                                     width: 50,
                                     fill: 'none',

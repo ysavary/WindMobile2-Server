@@ -144,7 +144,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     google.maps.event.addListener(marker, 'dblclick', function (event) {
                         clearTimeout(this.timeout);
                         this.timeout = null;
-                        self.map.trigger(self.map, 'dblclick', event);
+                        throw "propagates dblclick event";
                     });
                 }
             }

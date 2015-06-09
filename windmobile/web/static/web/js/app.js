@@ -38,6 +38,11 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
             $urlRouterProvider.otherwise("/map");
         }])
     .run(function ($rootScope) {
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
         $rootScope.$on('$stateChangeSuccess',
             function (event, toState, toParams, fromState, fromParams) {
                 $rootScope.controller = toState.name.split('.')[0];

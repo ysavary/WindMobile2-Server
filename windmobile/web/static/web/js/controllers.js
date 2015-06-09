@@ -150,9 +150,17 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             }
             function search(position) {
                 var params = {};
+                /*
+                if (bounds) {
+                    params['within-pt1-lat'] = bounds.getNorthEast().lat();
+                    params['within-pt1-lon'] = bounds.getNorthEast().lng();
+                    params['within-pt2-lat'] = bounds.getSouthWest().lat();
+                    params['within-pt2-lon'] = bounds.getSouthWest().lng();
+                }
+                */
                 if (position) {
-                    params.lat = position.lat();
-                    params.lon = position.lng();
+                    params['near-lat'] = position.lat();
+                    params['near-lon'] = position.lng();
                 }
                 params.search = self.search;
                 params.limit = 500;

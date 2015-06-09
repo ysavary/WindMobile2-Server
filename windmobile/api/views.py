@@ -24,21 +24,29 @@ def stations(request):
     - Text search: <a href=/api/2/stations/?word=sommet>/api/2/stations/?word=sommet</a>
 
     Query parameters:
-    limit     -- Nb stations to return (default=20)
-    provider  -- Return only stations of the given provider
-    search    -- String to search (ignoring accent)
-    lat       -- Geo search: latitude ie 46.78
-    lon       -- Geo search: longitude ie 6.63
-    distance  -- Geo search: distance from lat, lon
-    word      -- Full text search
-    language  -- Language of the query (default 'fr')
+    limit          -- Nb stations to return (default=20)
+    provider       -- Return only stations of the given provider
+    search         -- String to search (ignoring accent)
+    near-lat       -- Geo search near: latitude ie 46.78
+    near-lon       -- Geo search near: longitude ie 6.63
+    near-distance  -- Geo search near: distance from lat, lon
+    within-pt1-lat -- Geo search within rectangle: pt1 latitude
+    within-pt1-lon -- Geo search within rectangle: pt1 longitude
+    within-pt2-lat -- Geo search within rectangle: pt2 latitude
+    within-pt2-lon -- Geo search within rectangle: pt2 longitude
+    word           -- Full text search
+    language       -- Language of the query (default 'fr')
     """
     limit = int(request.QUERY_PARAMS.get('limit', 20))
     provider = request.QUERY_PARAMS.get('provider')
     search = request.QUERY_PARAMS.get('search')
-    latitude = request.QUERY_PARAMS.get('lat')
-    longitude = request.QUERY_PARAMS.get('lon')
-    distance = request.QUERY_PARAMS.get('distance')
+    near_latitude = request.QUERY_PARAMS.get('near-lat')
+    near_longitude = request.QUERY_PARAMS.get('near-lon')
+    near_distance = request.QUERY_PARAMS.get('near-distance')
+    within_pt1_latitude = request.QUERY_PARAMS.get('within-pt1-lat')
+    within_pt1_longitude = request.QUERY_PARAMS.get('within-pt1-lon')
+    within_pt2_latitude = request.QUERY_PARAMS.get('within-pt2-lat')
+    within_pt2_longitude = request.QUERY_PARAMS.get('within-pt2-lon')
     word = request.QUERY_PARAMS.get('word')
     language = request.QUERY_PARAMS.get('language', 'fr')
 
@@ -53,15 +61,15 @@ def stations(request):
                         {'short': {'$regex': regexp_query, '$options': 'i'}},
                         {'tags': search}]
 
-    if latitude and longitude:
-        if distance:
+    if near_latitude and near_longitude:
+        if near_distance:
             query['loc'] = {
                 '$near': {
                     '$geometry': {
                         'type': 'Point',
-                        'coordinates': [float(longitude), float(latitude)]
+                        'coordinates': [float(near_longitude), float(near_latitude)]
                     },
-                    '$maxDistance': int(distance)
+                    '$maxDistance': int(near_distance)
                 }
             }
         else:
@@ -69,10 +77,25 @@ def stations(request):
                 '$near': {
                     '$geometry': {
                         'type': 'Point',
-                        'coordinates': [float(longitude), float(latitude)]
+                        'coordinates': [float(near_longitude), float(near_latitude)]
                     }
                 }
             }
+
+    if within_pt1_latitude and within_pt1_longitude and within_pt2_latitude and within_pt2_longitude:
+        x1 = float(within_pt1_longitude)
+        y1 = float(within_pt1_latitude)
+        x2 = float(within_pt2_longitude)
+        y2 = float(within_pt2_latitude)
+
+        query['loc'] = {
+            '$geoWithin': {
+                '$geometry': {
+                    'type': 'Polygon',
+                    'coordinates': [[(x1, y1), (x2, y1), (x2, y2), (x1, y2), (x1, y1)]]
+                }
+            }
+        }
 
     if word:
         query['$text'] = {'$search': word, '$language': language}

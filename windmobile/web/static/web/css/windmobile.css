@@ -8804,26 +8804,27 @@ a.navbar-text {
 /* line 210, ../../../scss/windmobile.scss */
 .wdm-modal {
   background-color: rgba(0, 0, 0, 0.8);
+  margin: -5px;
 }
 
-/* line 214, ../../../scss/windmobile.scss */
+/* line 215, ../../../scss/windmobile.scss */
 .wdm-nav-tabs {
   margin-top: 15px;
   padding-left: 10px;
   padding-right: 10px;
   border-bottom: 1px solid #8d8d8d;
 }
-/* line 221, ../../../scss/windmobile.scss */
+/* line 222, ../../../scss/windmobile.scss */
 .wdm-nav-tabs > li > a {
   color: #8d8d8d;
 }
-/* line 223, ../../../scss/windmobile.scss */
+/* line 224, ../../../scss/windmobile.scss */
 .wdm-nav-tabs > li > a:hover, .wdm-nav-tabs > li > a:focus {
   background-color: transparent;
   border-color: transparent;
   color: #ddd;
 }
-/* line 231, ../../../scss/windmobile.scss */
+/* line 232, ../../../scss/windmobile.scss */
 .wdm-nav-tabs > li.active > a, .wdm-nav-tabs > li.active a:hover, .wdm-nav-tabs > li.active a:focus {
   background-color: transparent;
   color: #8d8d8d;

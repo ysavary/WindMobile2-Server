@@ -8671,7 +8671,7 @@ a.navbar-text {
 /* line 101, ../../../scss/windmobile.scss */
 .wdm-card-layout a, .wdm-detail-layout a {
   color: #8d8d8d;
-  text-decoration: none;
+  text-decoration: underline;
 }
 /* line 104, ../../../scss/windmobile.scss */
 .wdm-card-layout a:hover, .wdm-detail-layout a:hover, .wdm-card-layout a:active, .wdm-detail-layout a:active {

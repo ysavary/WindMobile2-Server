@@ -100,7 +100,7 @@ $font-size: 15px;
 
     a {
         color: $text-color;
-        text-decoration: none;
+        text-decoration: underline;
         &:hover, &:active {
             color: $highlight-text-color;
         }

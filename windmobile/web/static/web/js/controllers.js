@@ -6,8 +6,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
         function search(position) {
             var params = {};
             if (position) {
-                params.lat = position.coords.latitude;
-                params.lon = position.coords.longitude;
+                params['near-lat'] = position.coords.latitude;
+                params['near-lon'] = position.coords.longitude;
             }
             params.search = self.search;
             params.limit = 12;

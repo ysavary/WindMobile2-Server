@@ -38,6 +38,90 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
             $urlRouterProvider.otherwise("/map");
         }])
     .run(function ($rootScope) {
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            },
+            chart: {
+                backgroundColor: null,
+                resetZoomButton: {
+                    theme: {
+                        fill: 'none',
+                        stroke: '#ddd',
+                        style: {
+                            color: '#8d8d8d'
+                        }
+                    }
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                series: {
+                    animation: false,
+                    states: {
+                        hover: {
+                            enabled: false
+                        }
+                    }
+                }
+            },
+            rangeSelector: {
+                inputEnabled: false,
+                buttons: [{
+                    type: 'day',
+                    count: 5,
+                    text: '5d'
+                }, {
+                    type: 'day',
+                    count: 2,
+                    text: '2d'
+                }, {
+                    type: 'day',
+                    count: 1,
+                    text: '1d'
+                }, {
+                    type: 'hour',
+                    count: 12,
+                    text: '12h'
+                }, {
+                    type: 'hour',
+                    count: 6,
+                    text: '6h'
+                }],
+                selected: 4,
+                buttonTheme: {
+                    width: 35,
+                    fill: 'none',
+                    stroke: 'none',
+                    'stroke-width': 0,
+                    r: 8,
+                    style: {
+                        color: '#8d8d8d'
+                    },
+                    states: {
+                        hover: {
+                            fill: 'none',
+                            style: {
+                                color: '#ddd'
+                            }
+                        },
+                        select: {
+                            fill: 'none',
+                            style: {
+                                color: '#ddd'
+                            }
+                        },
+                        disabled: {
+                            style: {
+                                color: '#666'
+                            }
+                        }
+                    }
+                }
+            }
+        });
         $rootScope.$on('$stateChangeSuccess',
             function (event, toState, toParams, fromState, fromParams) {
                 $rootScope.controller = toState.name.split('.')[0];
@@ -241,25 +325,15 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                             windDir[date] = value[i]['w-dir'];
                         }
                         $(element).highcharts('StockChart', {
-                            legend: {
-                                enabled: false
-                            },
-                            chart: {
-                                backgroundColor: null
-                            },
-                            plotOptions: {
-                                series: {
-                                    animation: false,
-                                    states: {
-                                        hover: {
-                                            enabled: false
-                                        }
-                                    }
-                                }
-                            },
                             tooltip: {
                                 enabled: false,
                                 crosshairs: false
+                            },
+                            navigator: {
+                                enabled: false
+                            },
+                            scrollbar: {
+                                enabled: false
                             },
                             xAxis: {
                                 type: 'datetime',
@@ -274,58 +348,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                                     }
                                 }
                             },
-                            series: [windAvgSerie, windMaxSerie],
-                            navigator: {
-                                enabled: false
-                            },
-                            scrollbar: {
-                                enabled: false
-                            },
-                            rangeSelector: {
-                                inputEnabled: false,
-                                buttons: [{
-                                    type: 'day',
-                                    count: 2,
-                                    text: '2 days'
-                                }, {
-                                    type: 'day',
-                                    count: 1,
-                                    text: '1 day'
-                                }, {
-                                    type: 'hour',
-                                    count: 12,
-                                    text: '12 hours'
-                                }, {
-                                    type: 'hour',
-                                    count: 6,
-                                    text: '6 hours'
-                                }],
-                                selected: 3,
-                                buttonTheme: {
-                                    width: 50,
-                                    fill: 'none',
-                                    stroke: 'none',
-                                    'stroke-width': 0,
-                                    r: 8,
-                                    style: {
-                                        color: '#8d8d8d'
-                                    },
-                                    states: {
-                                        hover: {
-                                            fill: 'none',
-                                            style: {
-                                                color: '#ddd'
-                                            }
-                                        },
-                                        select: {
-                                            fill: 'none',
-                                            style: {
-                                                color: '#ddd'
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            series: [windAvgSerie, windMaxSerie]
                         });
                     }
                 });
@@ -379,25 +402,15 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                             rainSerie.data.push([date, value[i]['rain']]);
                         }
                         $(element).highcharts('StockChart', {
-                            legend: {
-                                enabled: false
-                            },
-                            chart: {
-                                backgroundColor: null
-                            },
-                            plotOptions: {
-                                series: {
-                                    animation: false,
-                                    states: {
-                                        hover: {
-                                            enabled: false
-                                        }
-                                    }
-                                }
-                            },
                             tooltip: {
                                 enabled: false,
                                 crosshairs: false
+                            },
+                            navigator: {
+                                enabled: false
+                            },
+                            scrollbar: {
+                                enabled: false
                             },
                             xAxis: {
                                 type: 'datetime',
@@ -425,58 +438,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                                     enabled: false
                                 }
                             }],
-                            series: [rainSerie, temperatureSerie, humiditySerie],
-                            navigator: {
-                                enabled: false
-                            },
-                            scrollbar: {
-                                enabled: false
-                            },
-                            rangeSelector: {
-                                inputEnabled: false,
-                                buttons: [{
-                                    type: 'day',
-                                    count: 2,
-                                    text: '2 days'
-                                }, {
-                                    type: 'day',
-                                    count: 1,
-                                    text: '1 day'
-                                }, {
-                                    type: 'hour',
-                                    count: 12,
-                                    text: '12 hours'
-                                }, {
-                                    type: 'hour',
-                                    count: 6,
-                                    text: '6 hours'
-                                }],
-                                selected: 3,
-                                buttonTheme: {
-                                    width: 50,
-                                    fill: 'none',
-                                    stroke: 'none',
-                                    'stroke-width': 0,
-                                    r: 8,
-                                    style: {
-                                        color: '#8d8d8d'
-                                    },
-                                    states: {
-                                        hover: {
-                                            fill: 'none',
-                                            style: {
-                                                color: '#ddd'
-                                            }
-                                        },
-                                        select: {
-                                            fill: 'none',
-                                            style: {
-                                                color: '#ddd'
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            series: [rainSerie, temperatureSerie, humiditySerie]
                         });
                     }
                 });

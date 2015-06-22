@@ -100,7 +100,7 @@ $font-size: 15px;
 
     a {
         color: $text-color;
-        text-decoration: none;
+        text-decoration: underline;
         &:hover, &:active {
             color: $highlight-text-color;
         }
@@ -208,7 +208,8 @@ $air-color: #3b71a0;
 }
 
 .wdm-modal {
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 1);
+    margin: -5px;
 }
 
 .wdm-nav-tabs {

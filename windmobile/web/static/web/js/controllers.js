@@ -6,8 +6,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
         function search(position) {
             var params = {};
             if (position) {
-                params.lat = position.coords.latitude;
-                params.lon = position.coords.longitude;
+                params['near-lat'] = position.coords.latitude;
+                params['near-lon'] = position.coords.longitude;
             }
             params.search = self.search;
             params.limit = 12;
@@ -138,21 +138,29 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                                     closeBoxURL: ''
                                 });
                                 infoBox.open(self.map, marker);
-                            }, 200);
+                            }, 300);
                         }
                     });
-                    google.maps.event.addListener(marker, 'dblclick', function () {
+                    google.maps.event.addListener(marker, 'dblclick', function (event) {
                         clearTimeout(this.timeout);
                         this.timeout = null;
-                        self.map.setZoom(self.map.getZoom() + 1);
+                        throw "propagates dblclick event";
                     });
                 }
             }
             function search(position) {
                 var params = {};
+                /*
+                if (bounds) {
+                    params['within-pt1-lat'] = bounds.getNorthEast().lat();
+                    params['within-pt1-lon'] = bounds.getNorthEast().lng();
+                    params['within-pt2-lat'] = bounds.getSouthWest().lat();
+                    params['within-pt2-lon'] = bounds.getSouthWest().lng();
+                }
+                */
                 if (position) {
-                    params.lat = position.lat();
-                    params.lon = position.lng();
+                    params['near-lat'] = position.lat();
+                    params['near-lon'] = position.lng();
                 }
                 params.search = self.search;
                 params.limit = 500;
@@ -249,7 +257,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             $('a[data-target="#tab2"]').on('shown.bs.tab', function (event) {
                 $http({
                     method: 'GET',
-                    url: '/api/2/stations/' + $stateParams.stationId + '/historic?duration=172800'
+                    url: '/api/2/stations/' + $stateParams.stationId + '/historic?duration=432000'
                 }).success(function (data) {
                     self.stationWindChart = data;
                 });
@@ -257,7 +265,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             $('a[data-target="#tab3"]').on('shown.bs.tab', function (event) {
                 $http({
                     method: 'GET',
-                    url: '/api/2/stations/' + $stateParams.stationId + '/historic?duration=172800'
+                    url: '/api/2/stations/' + $stateParams.stationId + '/historic?duration=432000'
                 }).success(function (data) {
                     self.stationAirChart = data;
                 });

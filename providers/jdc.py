@@ -74,16 +74,20 @@ class Jdc(Provider):
                             for jdc_measure in measures:
                                 key = jdc_measure['unix-time']
                                 if not measures_collection.find_one(key):
-                                    measure = self.create_measure(
-                                        key,
-                                        jdc_measure.get('wind-direction'),
-                                        jdc_measure.get('wind-average'),
-                                        jdc_measure.get('wind-maximum'),
-                                        jdc_measure.get('temperature'),
-                                        jdc_measure.get('humidity'),
-                                        pressure=jdc_measure.get('pressure', None),
-                                        rain=jdc_measure.get('rain', None))
-                                    new_measures.append(measure)
+                                    try:
+                                        measure = self.create_measure(
+                                            key,
+                                            jdc_measure.get('wind-direction'),
+                                            jdc_measure.get('wind-average'),
+                                            jdc_measure.get('wind-maximum'),
+                                            jdc_measure.get('temperature'),
+                                            jdc_measure.get('humidity'),
+                                            pressure=jdc_measure.get('pressure', None),
+                                            rain=jdc_measure.get('rain', None))
+                                        new_measures.append(measure)
+                                    except Exception as e:
+                                        logger.error(u"Error while processing measure '{0}' for station '{1}': {2}"
+                                                     .format(key, station_id, e))
 
                             self.insert_new_measures(measures_collection, station, new_measures, logger)
                         else:

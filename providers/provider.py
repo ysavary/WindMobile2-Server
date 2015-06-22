@@ -69,7 +69,7 @@ def to_int(value):
         return None
 
 
-def to_float(value, ndigits=None):
+def to_float(value, ndigits=1):
     try:
         return round(float(value), ndigits)
     except (TypeError, ValueError):

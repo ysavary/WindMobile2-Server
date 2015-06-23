@@ -1,6 +1,6 @@
 import os
-import time
-from datetime import datetime
+from datetime import datetime, timedelta
+import pytz
 import json
 import re
 import urlparse
@@ -9,7 +9,7 @@ import urlparse
 import requests
 import xmltodict
 
-from provider import get_logger, Provider, Status, to_float
+from provider import get_logger, Provider, Status, to_float, timestamp
 
 logger = get_logger('holfuy')
 
@@ -18,9 +18,6 @@ class Holfuy(Provider):
     provider_prefix = 'holfuy'
     provider_name = 'holfuy.hu'
     provider_url = 'http://holfuy.hu'
-
-    connect_timeout = 7
-    read_timeout = 30
 
     def __init__(self, mongo_url):
         super(Holfuy, self).__init__(mongo_url)
@@ -31,8 +28,6 @@ class Holfuy(Provider):
             result = requests.get("http://holfuy.hu/en/mkrs.php",
                                   timeout=(self.connect_timeout, self.read_timeout))
             result.encoding = 'utf-8'
-
-            now = datetime.now()
 
             xml_files = re.split('<\?xml version=\"1.0\" encoding=\"UTF-8\"\?>', result.text)
             for markers_xml in xml_files[1::]:
@@ -57,9 +52,18 @@ class Holfuy(Provider):
                         measures_collection = self.measures_collection(station_id)
                         new_measures = []
 
-                        date = datetime.strptime(holfuy_station['@time'], '%H:%M')
-                        date = date.replace(year=now.year, month=now.month, day=now.day)
-                        key = int(time.mktime(date.timetuple()))
+                        now = datetime.now(pytz.utc)
+                        local_time = datetime.strptime(holfuy_station['@time'], '%H:%M')
+                        try_day = now + timedelta(days=1)
+                        while True:
+                            date = local_time.replace(year=try_day.year, month=try_day.month, day=try_day.day)
+                            date = pytz.timezone(station['tz']).localize(date)
+                            if date > now:
+                                # The measure is in the future... the measure time seems to be 1 day before (timezone)
+                                try_day = try_day - timedelta(days=1)
+                            else:
+                                break
+                        key = timestamp(date)
                         if not measures_collection.find_one(key):
                             measure = self.create_measure(
                                 key,

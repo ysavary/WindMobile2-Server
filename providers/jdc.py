@@ -14,9 +14,6 @@ class Jdc(Provider):
     provider_name = 'jdc.ch'
     provider_url = 'http://meteo.jdc.ch'
 
-    connect_timeout = 7
-    read_timeout = 30
-
     def __init__(self, mongo_url):
         super(Jdc, self).__init__(mongo_url)
 
@@ -53,8 +50,7 @@ class Jdc(Provider):
                         jdc_station['latitude'],
                         jdc_station['longitude'],
                         self.get_status(jdc_station['status']),
-                        url=urlparse.urljoin(self.provider_url, "/station/" + str(jdc_station['serial'])),
-                        timezone=jdc_station['timezone'])
+                        url=urlparse.urljoin(self.provider_url, "/station/" + str(jdc_station['serial'])))
 
                     try:
                         # Asking 2 days of data

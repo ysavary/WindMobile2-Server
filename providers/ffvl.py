@@ -1,12 +1,12 @@
 import os
-import time
 from datetime import datetime
+import pytz
 import xml.etree.ElementTree as ET
 
 # Modules
 import requests
 
-from provider import get_logger, Provider, ProviderException, Status, Category
+from provider import get_logger, Provider, ProviderException, Status, Category, timestamp
 
 logger = get_logger('ffvl')
 
@@ -15,9 +15,6 @@ class Ffvl(Provider):
     provider_prefix = 'ffvl'
     provider_name = 'ffvl.fr'
     provider_url = 'http://www.balisemeteo.com'
-
-    connect_timeout = 7
-    read_timeout = 30
 
     def __init__(self, mongo_url, api_key):
         super(Ffvl, self).__init__(mongo_url)
@@ -94,6 +91,7 @@ class Ffvl(Provider):
                                   timeout=(self.connect_timeout, self.read_timeout))
             ffvl_measures = ET.fromstring(result.text)
 
+            ffvl_timezone = pytz.timezone("Europe/Paris")
             for ffvl_measure in ffvl_measures:
                 try:
                     station_id = self.get_station_id(ffvl_measure.find('idbalise').text)
@@ -104,8 +102,8 @@ class Ffvl(Provider):
                     measures_collection = self.measures_collection(station_id)
                     new_measures = []
 
-                    date = datetime.strptime(ffvl_measure.find('date').text, '%Y-%m-%d %H:%M:%S')
-                    key = int(time.mktime(date.timetuple()))
+                    local_time = datetime.strptime(ffvl_measure.find('date').text, '%Y-%m-%d %H:%M:%S')
+                    key = timestamp(ffvl_timezone.localize(local_time))
                     if not measures_collection.find_one(key):
                         measure = self.create_measure(
                             key,

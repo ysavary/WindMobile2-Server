@@ -1,14 +1,13 @@
-import calendar
 from datetime import datetime
+import pytz
 import io
-from pytz import timezone
 import os
 import json
 
 # Modules
 import requests
 
-from provider import get_logger, Provider, ProviderException, Status
+from provider import get_logger, Provider, Status, timestamp
 
 logger = get_logger('meteoswiss')
 
@@ -57,9 +56,8 @@ class MeteoSwiss(Provider):
                         description['location']['lon'],
                         Status.GREEN)
 
-                    utc = timezone('UTC')
-                    update_time = utc.localize(datetime.strptime(data['time'], '%Y%m%d%H%M'))
-                    key = calendar.timegm(update_time.utctimetuple())
+                    date = pytz.utc.localize(datetime.strptime(data['time'], '%Y%m%d%H%M'))
+                    key = timestamp(date)
 
                     measures_collection = self.measures_collection(station_id)
                     new_measures = []

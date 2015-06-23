@@ -2,10 +2,13 @@ import sys
 import os
 import logging
 import logging.handlers
-from time import time
 from datetime import datetime
+import pytz
 from pymongo import uri_parser, MongoClient, GEOSPHERE
 from pymongo.errors import CollectionInvalid
+
+# Modules
+import requests
 
 
 class NoExceptionFormatter(logging.Formatter):
@@ -76,7 +79,16 @@ def to_float(value, ndigits=1):
         return None
 
 
+# datetime.timestamp() exists only in python >= 3.3
+# https://docs.python.org/3.3/library/datetime.html#datetime.datetime.timestamp
+def timestamp(dt):
+    return (dt - datetime(1970, 1, 1, tzinfo=pytz.utc)).total_seconds()
+
+
 class Provider(object):
+    connect_timeout = 7
+    read_timeout = 30
+
     def __init__(self, mongo_url):
         uri = uri_parser.parse_uri(mongo_url)
         client = MongoClient(uri['nodelist'][0][0], uri['nodelist'][0][1])
@@ -97,11 +109,8 @@ class Provider(object):
     def get_station_id(self, id):
         return self.provider_prefix + "-" + str(id)
 
-    def now_unix_time(self):
-        return int(time())
-
     def __create_station(self, short_name, name, category, tags, altitude, latitude, longitude, status,
-                         description=None, url=None, timezone=None, uptime=None, language=None):
+                         description=None, url=None, tz=None, uptime=None, language=None):
 
         station = {'prov': self.provider_name,
                    'url': url or self.provider_url,
@@ -118,14 +127,14 @@ class Provider(object):
                        ]
                    },
                    'status': status,
-                   'seen': self.now_unix_time()
+                   'seen': timestamp(datetime.now(pytz.utc))
                    }
 
         # Optional keys
         if description:
             station['desc'] = description
-        if timezone:
-            station['timezone'] = timezone
+        if tz:
+            station['tz'] = tz
         if uptime:
             station['uptime'] = uptime
         if language:
@@ -134,12 +143,30 @@ class Provider(object):
         return station
 
     def save_station(self, _id, short_name, name, category, tags, altitude, latitude, longitude, status,
-                     description=None, url=None, timezone=None, uptime=None, language=None):
+                     description=None, url=None, tz=None, uptime=None, language=None):
 
         station = self.__create_station(short_name, name, category, tags, altitude, latitude, longitude, status,
-                                        description, url, timezone, uptime, language)
+                                        description, url, tz, uptime, language)
         self.stations_collection().update({'_id': _id}, {'$set': station}, upsert=True)
-        return self.stations_collection().find_one(_id)
+        station = self.stations_collection().find_one(_id)
+
+        if not 'tz' in station:
+            try:
+                utc_now = timestamp(datetime.now(pytz.utc))
+                result = requests.get(
+                    "https://maps.googleapis.com/maps/api/timezone/json?location={lat},{lon}&timestamp={utc}&key={key}"
+                    .format(lat=station['loc']['coordinates'][1],
+                            lon=station['loc']['coordinates'][0],
+                            utc=utc_now,
+                            key=os.environ['GOOGLE_TIMEZONE_API_KEY']),
+                    timeout=(self.connect_timeout, self.read_timeout))
+                timezone = pytz.timezone(result.json()['timeZoneId'])
+                tz = timezone.zone
+            except:
+                tz = ""
+            self.stations_collection().update({'_id': _id}, {'$set': {'tz': tz}})
+            station = self.stations_collection().find_one(_id)
+        return station
 
     def create_measure(self, _id, wind_direction, wind_average, wind_maximum, temperature, humidity,
                        wind_direction_instant=None, wind_minimum=None, pressure=None, luminosity=None, rain=None):

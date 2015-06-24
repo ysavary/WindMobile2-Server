@@ -207,9 +207,28 @@ $wind-color: #cdcd00;
 .wdm-wind-text-color {
     color: darken($wind-color, 15%)
 }
+.wdm-direction-line {
+    stroke: darken($wind-color, 15%);
+    stroke-width: 2;
+}
+.wdm-minichart-line {
+    stroke: darken($wind-color, 15%);
+    stroke-width: 2;
+}
+
 $air-color: #3b71a0;
 .wdm-air-text-color {
     color: darken($air-color, 15%)
+}
+
+$temperature-color: #c72d46;
+.wdm-temperature-line {
+    color: darken($temperature-color, 15%)
+}
+
+$humidity-color: #3b71a0;
+.wdm-humidity-line {
+    color: darken($humidity-color, 15%)
 }
 
 .wdm-card-map {

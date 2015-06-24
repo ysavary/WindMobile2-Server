@@ -144,7 +144,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                 var paper = Snap(element[0]);
 
                 scope.$watch(element.attr('data-scope-watch'), function (newValue, oldValue) {
-                    element.find(".wdm-minichart-line").remove();
+                    element.find(".wdm-minichart").remove();
                     if (newValue && newValue.data) {
                         var values = newValue.data;
 
@@ -183,7 +183,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
 
                         var polygon = paper.polygon(points);
                         polygon.attr({
-                            class: 'wdm-minichart-line',
+                            class: 'wdm-minichart',
                             fill: '#333'
                         });
 
@@ -193,9 +193,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
 
                         var polyline = paper.polyline(points);
                         polyline.attr({
-                            class: 'wdm-minichart-line',
-                            strokeWidth: 2,
-                            stroke: '#7d7d00',
+                            class: 'wdm-minichart wdm-minichart-line',
                             fill: 'none'
                         });
                     }
@@ -241,7 +239,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
 
 
                 scope.$watch(element.attr('data-scope-watch'), function (newValue, oldValue) {
-                    element.find(".wdm-direction-line").remove();
+                    element.find(".wdm-direction").remove();
                     if (newValue && newValue.data) {
                         var values = newValue.data;
 
@@ -261,9 +259,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
 
                             var line = paper.line(lastX, lastY, x, y);
                             line.attr({
-                                class: 'wdm-direction-line',
-                                stroke: '#bfbb3d',
-                                strokeWidth: 1.5
+                                class: 'wdm-direction wdm-direction-line'
                             });
 
                             lastX = x;
@@ -284,7 +280,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                             name: 'windAvg',
                             type: 'areaspline',
                             lineWidth: 1,
-                            lineColor: '#7d7d00',
+                            lineColor: '#676700',
                             color: '#333',
                             marker: {
                                 enabled: false
@@ -296,7 +292,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                         var windMaxSerie = {
                             name: 'windMax',
                             type: 'spline',
-                            color: '#7d7d00',
+                            color: '#676700',
                             lineWidth: 1,
                             marker: {
                                 enabled: false
@@ -366,7 +362,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                         var temperatureSerie = {
                             name: 'temperature',
                             type: 'spline',
-                            color: '#c72d46',
+                            color: '#891f30',
                             lineWidth: 1,
                             marker: {
                                 enabled: false
@@ -376,7 +372,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                         var humiditySerie = {
                             name: 'humidity',
                             type: 'spline',
-                            color: '#3b71a0',
+                            color: '#264a68',
                             lineWidth: 1,
                             marker: {
                                 enabled: false

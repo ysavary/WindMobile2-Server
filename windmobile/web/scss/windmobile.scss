@@ -42,13 +42,11 @@ a.navbar-text {
 .navbar-form {
     .input-group {
         width: 250px;
-    }
-}
-
-@media (max-width: 600px) {
-    .navbar-form {
-        .input-group {
+        @media (max-width: 600px) {
             width: 150px;
+        }
+        @media (max-width: 330px) {
+            width: 120px;
         }
     }
 }

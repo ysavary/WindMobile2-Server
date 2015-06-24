@@ -343,8 +343,10 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                                 gridLineWidth: 0.5,
                                 gridLineColor: '#555',
                                 labels: {
+                                    format: '{value} kmh',
                                     style: {
-                                        color: "#7d7d00"
+                                        color: "#7d7d00",
+                                        fontSize: '9px'
                                     }
                                 }
                             },
@@ -420,16 +422,20 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                                 gridLineWidth: 0.5,
                                 gridLineColor: "#555",
                                 labels: {
+                                    format: '{value} °C',
                                     style: {
-                                        color: "#c72d46"
+                                        color: "#c72d46",
+                                        fontSize: '9px'
                                     }
                                 }
                             }, {
                                 opposite: false,
                                 gridLineWidth: 0,
                                 labels: {
+                                    format: '{value} %',
                                     style: {
-                                        color: "#3b71a0"
+                                        color: "#3b71a0",
+                                        fontSize: '9px'
                                     }
                                 }
                             }, {

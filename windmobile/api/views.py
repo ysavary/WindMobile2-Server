@@ -83,19 +83,44 @@ def stations(request):
             }
 
     if within_pt1_latitude and within_pt1_longitude and within_pt2_latitude and within_pt2_longitude:
-        x1 = float(within_pt1_longitude)
-        y1 = float(within_pt1_latitude)
-        x2 = float(within_pt2_longitude)
-        y2 = float(within_pt2_latitude)
+        result = []
 
-        query['loc'] = {
-            '$geoWithin': {
-                '$geometry': {
-                    'type': 'Polygon',
-                    'coordinates': [[(x1, y1), (x2, y1), (x2, y2), (x1, y2), (x1, y1)]]
+        def density_search(x1, y1, x2, y2, level=1):
+            sub_limit = limit / (pow(3, level - 1))
+            query['loc'] = {
+                '$geoWithin': {
+                    '$geometry': {
+                        'type': 'Polygon',
+                        'coordinates': [[(x1, y1), (x2, y1), (x2, y2), (x1, y2), (x1, y1)]]
+                    }
                 }
             }
-        }
+            cursor = mongo_db.stations.find(query)
+            count = cursor.count()
+
+            if count > 0:
+                if sub_limit == 0:
+                    result.extend(list(cursor.limit(1)))
+                elif count <= sub_limit:
+                    result.extend(list(cursor))
+                else:
+                    delta_x = (x2 - x1) / 2
+                    delta_y = (y2 - y1) / 2
+
+                    for i in range(0, 2):
+                        i1 = x1 + i * delta_x
+                        i2 = x1 + (i + 1) * delta_x
+                        for j in range(0, 2):
+                            j1 = y1 + j * delta_y
+                            j2 = y1 + (j + 1) * delta_y
+                            density_search(i1, j1, i2, j2, level + 1)
+
+        density_search(
+            float(within_pt1_longitude),
+            float(within_pt1_latitude),
+            float(within_pt2_longitude),
+            float(within_pt2_latitude))
+        return Response(result)
 
     if word:
         query['$text'] = {'$search': word, '$language': language}

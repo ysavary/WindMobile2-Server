@@ -148,22 +148,16 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     });
                 }
             }
-            function search(position) {
+            function search(bounds) {
                 var params = {};
-                /*
                 if (bounds) {
                     params['within-pt1-lat'] = bounds.getNorthEast().lat();
                     params['within-pt1-lon'] = bounds.getNorthEast().lng();
                     params['within-pt2-lat'] = bounds.getSouthWest().lat();
                     params['within-pt2-lon'] = bounds.getSouthWest().lng();
                 }
-                */
-                if (position) {
-                    params['near-lat'] = position.lat();
-                    params['near-lon'] = position.lng();
-                }
                 params.search = self.search;
-                params.limit = 500;
+                params.limit = 100;
 
                 $http({method: 'GET', url: '/api/2/stations/', params: params}).success(displayMarkers);
             }
@@ -198,7 +192,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 $state.go('map.detail', {stationId: this.selectedStation._id});
             };
             this.doSearch = function () {
-                search(this.map.getCenter());
+                search(this.map.getBounds());
             };
             this.clearSearch = function () {
                 this.search = null;
@@ -236,13 +230,21 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     infoBox.close();
                 }
             });
+            google.maps.event.addListener(self.map, 'bounds_changed', (function () {
+                var timer;
+                return function () {
+                    clearTimeout(timer);
+                    timer = setTimeout(function () {
+                        self.doSearch();
+                    }, 500);
+                }
+            }()));
 
             // Force modal to close on browser back
             $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
                 $('#detailModal').modal('hide');
             });
 
-            this.doSearch();
             this.centerMap();
         }])
 

@@ -91,7 +91,13 @@ def stations(request):
                 '$geoWithin': {
                     '$geometry': {
                         'type': 'Polygon',
-                        'coordinates': [[(x1, y1), (x2, y1), (x2, y2), (x1, y2), (x1, y1)]]
+                        'coordinates': [[(x1, y1), (x2, y1), (x2, y2), (x1, y2), (x1, y1)]],
+                        # Resolves "Big polygon" issue, requires mongodb 3.x
+                        # http://docs.mongodb.org/manual/reference/operator/query/geometry/#op._S_geometry
+                        'crs': {
+                            'type': 'name',
+                            'properties': {'name': 'urn:x-mongodb:crs:strictwinding:EPSG:4326'}
+                        }
                     }
                 }
             }

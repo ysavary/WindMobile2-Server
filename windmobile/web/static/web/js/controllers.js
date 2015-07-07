@@ -1,6 +1,6 @@
 angular.module('windmobile.controllers', ['windmobile.services'])
 
-    .controller('ListController', ['$rootScope', '$state', '$http', 'utils', function ($rootScope, $state, $http, utils) {
+    .controller('ListController', ['$scope', '$state', '$http', '$interval', 'utils', function ($scope, $state, $http, $interval, utils) {
         var self = this;
 
         function search(position) {
@@ -61,47 +61,72 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.doSearch();
         };
 
-        // Force modal to close on browser back
-        $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+        $scope.onRefreshInterval = function() {
+            self.doSearch();
+        };
+
+        $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+            if (toState.name === 'list') {
+                $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
+            } else if (fromState.name === 'list') {
+                $interval.cancel($scope.refreshInterval);
+            }
+            // Force modal to close on browser back
             $('#detailModal').modal('hide');
         });
 
+        $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
         this.doSearch();
     }])
 
-    .controller('MapController', ['$rootScope', '$scope', '$state', '$http', '$compile', '$templateCache', 'utils',
-        function ($rootScope, $scope, $state, $http, $compile, $templateCache, utils) {
-            var markersArray = [];
+    .controller('MapController', ['$scope', '$state', '$http', '$compile', '$templateCache', '$interval', 'utils',
+        function ($scope, $state, $http, $compile, $templateCache, $interval, utils) {
             var infoBox;
             var inboBoxContent = $compile($templateCache.get('_infobox.html'))($scope);
 
             var self = this;
 
-            function clearMarkers() {
+            var markersArray = [];
+            function getMarker(id) {
                 for (var i = 0; i < markersArray.length; i++) {
-                    markersArray[i].setMap(null);
+                    var marker = markersArray[i];
+                    if (marker.station._id === id) {
+                        return marker;
+                    }
                 }
-                markersArray.length = 0;
+                return null;
             }
-            function displayMarkers(stations) {
-                if (infoBox) {
-                    infoBox.close();
-                }
-                google.maps.event.clearListeners(this.map, 'click');
-                google.maps.event.clearListeners(this.map, 'dblclick');
-                clearMarkers();
 
+            function hasStation(id, stations) {
                 for (var i = 0; i < stations.length; i++) {
+                    if (stations[i]._id === id) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            function displayMarkers(stations) {
+                for (var i = 0; i < markersArray.length; i++) {
+                    var marker = markersArray[i];
+                    if (!hasStation(marker.station._id, stations)) {
+                        google.maps.event.clearInstanceListeners(marker);
+                        marker.setMap(null);
+                        markersArray.splice(i, 1);
+                        i--;
+                    }
+                }
+
+                for (i = 0; i < stations.length; i++) {
                     var station = stations[i];
-                    var status = utils.getStationStatus(station);
+                    var marker = getMarker(station._id);
 
                     var color;
-                    if (status == 0) {
+                    if (utils.getStationStatus(station) == 0) {
                         color = '#808080';
                     } else {
                         color = utils.getColorInRange(station.last['w-max'], 50);
                     }
-
                     var icon = {
                         path: 'M21,149.2v86.3L-19,213l50,77l50-77l-40,22.5v-86.3c28.4-4.8,50-29.4,50-59.2S69.4,35.6,41,30.8V-83H21V30.8C-7.4,35.6-29,60.3-29,90S-7.4,144.4,21,149.2z M31,50c22.1,0,40,17.9,40,40s-17.9,40-40,40S-9,112.1-9,90S8.9,50,31,50z',
                         anchor: new google.maps.Point(31, 90),
@@ -113,39 +138,43 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         rotation: (station.last ? station.last['w-dir'] : 0)
                     };
 
-                    var marker = new google.maps.Marker({
-                        title: station["short"],
-                        position: new google.maps.LatLng(station.loc.coordinates[1], station.loc.coordinates[0]),
-                        icon: icon,
-                        map: self.map
-                    });
-                    marker.station = station;
-                    markersArray.push(marker);
+                    if (!marker) {
+                        marker = new google.maps.Marker({
+                            title: station["short"],
+                            position: new google.maps.LatLng(station.loc.coordinates[1], station.loc.coordinates[0]),
+                            icon: icon,
+                            map: self.map
+                        });
+                        marker.station = station;
+                        markersArray.push(marker);
 
-                    google.maps.event.addListener(marker, 'click', function () {
-                        // 'click' is also called twice on 'dbckick' event
-                        if (!this.timeout) {
-                            marker = this;
-                            this.timeout = setTimeout(function () {
-                                marker.timeout = null;
-                                if (infoBox) {
-                                    infoBox.close();
-                                }
-                                self.selectedStation = marker.station;
-                                self.getHistoric();
-                                infoBox = new InfoBox({
-                                    content: inboBoxContent[0],
-                                    closeBoxURL: ''
-                                });
-                                infoBox.open(self.map, marker);
-                            }, 300);
-                        }
-                    });
-                    google.maps.event.addListener(marker, 'dblclick', function (event) {
-                        clearTimeout(this.timeout);
-                        this.timeout = null;
-                        throw "propagates dblclick event";
-                    });
+                        google.maps.event.addListener(marker, 'click', function () {
+                            // 'click' is also called twice on 'dbckick' event
+                            if (!this.timeout) {
+                                marker = this;
+                                this.timeout = setTimeout(function () {
+                                    marker.timeout = null;
+                                    if (infoBox) {
+                                        infoBox.close();
+                                    }
+                                    self.selectedStation = marker.station;
+                                    self.getHistoric();
+                                    infoBox = new InfoBox({
+                                        content: inboBoxContent[0],
+                                        closeBoxURL: ''
+                                    });
+                                    infoBox.open(self.map, marker);
+                                }, 300);
+                            }
+                        });
+                        google.maps.event.addListener(marker, 'dblclick', function (event) {
+                            clearTimeout(this.timeout);
+                            this.timeout = null;
+                            throw "propagates dblclick event";
+                        });
+                    } else {
+                        marker.setIcon(icon);
+                    }
                 }
             }
             function search(bounds) {
@@ -233,6 +262,10 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             google.maps.event.addListener(self.map, 'bounds_changed', (function () {
                 var timer;
                 return function () {
+                    if (infoBox) {
+                        infoBox.close();
+                    }
+                    
                     clearTimeout(timer);
                     timer = setTimeout(function () {
                         self.doSearch();
@@ -240,16 +273,26 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
             }()));
 
-            // Force modal to close on browser back
-            $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+            $scope.onRefreshInterval = function() {
+                self.doSearch();
+            };
+
+            $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+                if (toState.name === 'map') {
+                    $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
+                } else if (fromState.name === 'map') {
+                    $interval.cancel($scope.refreshInterval);
+                }
+                // Force modal to close on browser back
                 $('#detailModal').modal('hide');
             });
 
+            $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
             this.centerMap();
         }])
 
-    .controller('DetailController', ['$state', '$stateParams', '$http',
-        function ($state, $stateParams, $http) {
+    .controller('DetailController', ['$scope', '$state', '$stateParams', '$http', '$interval', 'utils',
+        function ($scope, $state, $stateParams, $http, $interval, utils) {
             var self = this;
 
             $('#detailModal').modal().on('hidden.bs.modal', function (e) {
@@ -300,6 +343,23 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         self.stationHistoric = historic;
                     })
             };
-            this.getStation();
-            this.getStationHistoric();
+            this.doDetail = function () {
+                this.getStation();
+                this.getStationHistoric();
+            };
+
+            $scope.onRefreshInterval = function() {
+                self.doDetail();
+            };
+
+            $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+                if (toState.name.indexOf('detail') > -1) {
+                    $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
+                } else if (fromState.name.indexOf('detail') > -1) {
+                    $interval.cancel($scope.refreshInterval);
+                }
+            });
+
+            $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
+            this.doDetail();
         }]);

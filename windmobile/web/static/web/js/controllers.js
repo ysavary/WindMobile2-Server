@@ -262,10 +262,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             google.maps.event.addListener(self.map, 'bounds_changed', (function () {
                 var timer;
                 return function () {
-                    if (infoBox) {
-                        infoBox.close();
-                    }
-                    
                     clearTimeout(timer);
                     timer = setTimeout(function () {
                         self.doSearch();

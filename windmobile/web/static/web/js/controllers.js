@@ -131,6 +131,10 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
                     if (self.selectedStation && self.selectedStation._id === station._id) {
                         self.selectedStation = station;
+                        self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
+                        var status = utils.getStationStatus(self.selectedStation);
+                        self.selectedStation.fromNowClass = utils.getStatusClass(status);
+                        self.getHistoric();
                     }
 
                     var color;

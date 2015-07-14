@@ -127,14 +127,6 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                 $rootScope.controller = toState.name.split('.')[0];
             });
     })
-    .filter('fromNow', function () {
-        return function (input) {
-            if (input) {
-                return moment.unix(input).fromNow();
-            }
-            return "Unknown";
-        };
-    })
     .directive('wdmWindMiniChart', function () {
         return {
             restrict: "C",

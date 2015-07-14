@@ -4,7 +4,7 @@
             <div class="wdm-name" style="float:left;">[[ detail.station.name ]]</div>
             <a class="btn" href="#" style="float:right; margin-left: 10px" data-dismiss="modal"><i class="fa fa-close fa-lg"></i></a>
             <div class="wdm-info" style="float:right;">
-                <div class="wdm-last-update" style="float:right;" ng-class="main.getStatusClass(detail.station)">[[ detail.station.last._id|fromNow ]]</div>
+                <div class="wdm-last-update" style="float:right;" ng-class="detail.station.fromNowClass">[[ detail.station.fromNow ]]</div>
                 <a class="wdm-provider" style="clear:right;float:right;" href="[[ detail.station.url ]]" target="_blank">[[ detail.station.prov ]]</a>
             </div>
             <div class="wdm-altitude" style="clear:left;float:left;">[[ detail.station.alt ]] meters</div>

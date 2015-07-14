@@ -16,17 +16,14 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 success(function (data) {
                     self.stations = data;
                     for (var i = 0; i < self.stations.length; i++) {
-                        self.getHistoric(self.stations[i]);
+                        var station = self.stations[i];
+                        station.fromNow = moment.unix(station.last._id).fromNow();
+                        var status = utils.getStationStatus(station);
+                        station.fromNowClass = utils.getStatusClass(status);
+                        self.getHistoric(station);
                     }
                 });
         }
-
-        this.getStatusClass = function (station) {
-            if (station) {
-                var status = utils.getStationStatus(station);
-                return utils.getStatusClass(status);
-            }
-        };
         this.getHistoric = function (station) {
             $http({method: 'GET', url: '/api/2/stations/' + station._id + '/historic?duration=3600'}).
                 success(function (data) {
@@ -61,20 +58,31 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.doSearch();
         };
 
+        $scope.onFromNowInterval = function() {
+            for (var i = 0; i < self.stations.length; i++) {
+                var station = self.stations[i];
+                station.fromNow = moment.unix(station.last._id).fromNow();
+                var status = utils.getStationStatus(station);
+                station.fromNowClass = utils.getStatusClass(status);
+            }
+        };
         $scope.onRefreshInterval = function() {
             self.doSearch();
         };
 
         $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
             if (toState.name === 'list') {
+                $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
                 $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
             } else if (fromState.name === 'list') {
+                $interval.cancel($scope.fromNowInterval);
                 $interval.cancel($scope.refreshInterval);
             }
             // Force modal to close on browser back
             $('#detailModal').modal('hide');
         });
 
+        $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
         $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
         this.doSearch();
     }])
@@ -121,6 +129,10 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     var station = stations[i];
                     var marker = getMarker(station._id);
 
+                    if (self.selectedStation && self.selectedStation._id === station._id) {
+                        self.selectedStation = station;
+                    }
+
                     var color;
                     if (utils.getStationStatus(station) == 0) {
                         color = '#808080';
@@ -157,8 +169,13 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                                     if (infoBox) {
                                         infoBox.close();
                                     }
+
                                     self.selectedStation = marker.station;
+                                    self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
+                                    var status = utils.getStationStatus(self.selectedStation);
+                                    self.selectedStation.fromNowClass = utils.getStatusClass(status);
                                     self.getHistoric();
+
                                     infoBox = new InfoBox({
                                         content: inboBoxContent[0],
                                         closeBoxURL: ''
@@ -191,12 +208,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 $http({method: 'GET', url: '/api/2/stations/', params: params}).success(displayMarkers);
             }
 
-            this.getStatusClass = function (station) {
-                if (station) {
-                    var status = utils.getStationStatus(station);
-                    return utils.getStatusClass(status);
-                }
-            };
             this.getHistoric = function () {
                 $http({method: 'GET', url: '/api/2/stations/' + this.selectedStation._id + '/historic?duration=3600'})
                     .success(function (data) {
@@ -257,6 +268,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             google.maps.event.addListener(self.map, 'click', function () {
                 if (infoBox) {
                     infoBox.close();
+                    self.selectedStation = null;
                 }
             });
             google.maps.event.addListener(self.map, 'bounds_changed', (function () {
@@ -269,20 +281,33 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
             }()));
 
+            $scope.onFromNowInterval = function() {
+                if (self.selectedStation) {
+                    self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
+                    var status = utils.getStationStatus(self.selectedStation);
+                    self.selectedStation.fromNowClass = utils.getStatusClass(status);
+                }
+            };
             $scope.onRefreshInterval = function() {
                 self.doSearch();
+                if (self.selectedStation) {
+                    self.getHistoric();
+                }
             };
 
             $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
                 if (toState.name === 'map') {
+                    $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
                     $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
                 } else if (fromState.name === 'map') {
+                    $interval.cancel($scope.fromNowInterval);
                     $interval.cancel($scope.refreshInterval);
                 }
                 // Force modal to close on browser back
                 $('#detailModal').modal('hide');
             });
 
+            $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
             $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
             this.centerMap();
         }])
@@ -316,6 +341,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 $http({method: 'GET', url: '/api/2/stations/' + $stateParams.stationId}).
                     success(function (data) {
                         self.station = data;
+                        self.station.fromNow = moment.unix(self.station.last._id).fromNow();
+                        var status = utils.getStationStatus(self.station);
+                        self.station.fromNowClass = utils.getStatusClass(status);
                     });
             };
             this.getStationHistoric = function () {
@@ -344,18 +372,26 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 this.getStationHistoric();
             };
 
+            $scope.onFromNowInterval = function() {
+                self.station.fromNow = moment.unix(self.station.last._id).fromNow();
+                var status = utils.getStationStatus(self.station);
+                self.station.fromNowClass = utils.getStatusClass(status);
+            };
             $scope.onRefreshInterval = function() {
                 self.doDetail();
             };
 
             $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
                 if (toState.name.indexOf('detail') > -1) {
+                    $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
                     $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
                 } else if (fromState.name.indexOf('detail') > -1) {
+                    $interval.cancel($scope.fromNowInterval);
                     $interval.cancel($scope.refreshInterval);
                 }
             });
 
+            $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
             $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
             this.doDetail();
         }]);

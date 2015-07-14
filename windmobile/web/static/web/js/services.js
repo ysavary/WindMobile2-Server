@@ -1,6 +1,7 @@
 angular.module('windmobile.services', [])
     .factory('utils', function () {
         return {
+            fromNowInterval: 30000,
             refreshInterval: 120000,
             getStationStatus: function (station) {
                 // status: 0=red, 1=orange, 2=green

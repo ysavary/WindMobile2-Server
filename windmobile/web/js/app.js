@@ -1,8 +1,8 @@
 var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.services', 'windmobile.controllers'],
-    function ($interpolateProvider) {
+    ["$interpolateProvider", function ($interpolateProvider) {
         $interpolateProvider.startSymbol('[[');
         $interpolateProvider.endSymbol(']]');
-    })
+    }])
     .config(['$locationProvider', '$stateProvider', '$urlRouterProvider',
         function ($locationProvider, $stateProvider, $urlRouterProvider) {
             $locationProvider.html5Mode(true);
@@ -37,7 +37,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                 });
             $urlRouterProvider.otherwise("/map");
         }])
-    .run(function ($rootScope) {
+    .run(["$rootScope", function ($rootScope) {
         Highcharts.setOptions({
             global: {
                 useUTC: false
@@ -126,7 +126,7 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
             function (event, toState, toParams, fromState, fromParams) {
                 $rootScope.controller = toState.name.split('.')[0];
             });
-    })
+    }])
     .directive('wdmWindMiniChart', function () {
         return {
             restrict: "C",

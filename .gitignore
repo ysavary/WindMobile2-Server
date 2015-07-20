@@ -1,5 +1,6 @@
 *.pyc
-.idea
-.sass-cache
-envdir
+.idea/
+.sass-cache/
+node_modules/
+envdir/
 windmobile/static

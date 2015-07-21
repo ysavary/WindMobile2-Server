@@ -11,5 +11,9 @@
     "gulp-uglify": "^1.2.0"
   },
   "author": "Yann Savary",
-  "license": "http://www.gnu.org/licenses/agpl-3.0.fr.html"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ysavary/WindMobile2-Server"
+  },
+  "license": "AGPL-3.0"
 }

@@ -1,30 +1,67 @@
 <html>
+<head>
+    <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+    <script src="http://winds.mobi/static/web/lib/tinycolor.js"></script>
+    <script type="application/javascript">
+        function getColorInRange(value, max) {
+            var hueStart = 90;
+
+            var hue = hueStart + (value / max) * (360 - hueStart);
+            if (hue > 360) {
+                hue = 360;
+            }
+            return tinycolor.fromRatio({h: hue, s: 1, v: 0.7}).toHexString();
+        }
+
+        $(document).ready(function () {
+            $('#5').css('background', getColorInRange(5, 50));
+            $('#10').css('background', getColorInRange(10, 50));
+            $('#15').css('background', getColorInRange(15, 50));
+            $('#20').css('background', getColorInRange(20, 50));
+            $('#25').css('background', getColorInRange(25, 50));
+            $('#30').css('background', getColorInRange(30, 50));
+            $('#35').css('background', getColorInRange(35, 50));
+            $('#40').css('background', getColorInRange(40, 50));
+            $('#45').css('background', getColorInRange(45, 50));
+            $('#50').css('background', getColorInRange(50, 50));
+        });
+    </script>
+</head>
 <body>
 <table>
-<tr>
-<td style="width:200px; text-align:center; padding:5px" bgcolor="DarkGray">No data</td>
-</tr>
-<tr>
-<td style="width:200px; text-align:center; padding:5px" bgcolor="MediumAquaMarine">0-10 km/h</td>
-</tr>
-<tr>
-<td style="width:200px; text-align:center; padding:5px" bgcolor="SeaGreen">10-20 km/h</td>
-</tr>
-<tr>
-<td style="width:200px; text-align:center; padding:5px" bgcolor="DarkCyan">20-25 km/h</td>
-</tr>
-<tr>
-<td style="width:200px; text-align:center; padding:5px" bgcolor="MediumSlateBlue ">25-30 km/h</td>
-</tr>
-<tr>
-<td style="width:200px; text-align:center; padding:5px" bgcolor="BlueViolet ">30-35 km/h</td>
-</tr>
-<tr>
-<td style="width:200px; text-align:center; padding:5px" bgcolor="OrangeRed">35-40 km/h</td>
-</tr>
-<tr>
-<td style="width:200px; text-align:center; padding:5px" bgcolor="Crimson">>40 km/h</td>
-</tr>
+    <tr>
+        <td style="width:200px; text-align:center; padding:5px" bgcolor="DarkGray">Pas de donnée valide</td>
+    </tr>
+    <tr>
+        <td id="5" style="width:200px; text-align:center; padding:5px"><5 km/h</td>
+    </tr>
+    <tr>
+        <td id="10" style="width:200px; text-align:center; padding:5px">10 km/h</td>
+    </tr>
+    <tr>
+        <td id="15" style="width:200px; text-align:center; padding:5px">15 km/h</td>
+    </tr>
+    <tr>
+        <td id="20" style="width:200px; text-align:center; padding:5px">20 km/h</td>
+    </tr>
+    <tr>
+        <td id="25" style="width:200px; text-align:center; padding:5px">25 km/h</td>
+    </tr>
+    <tr>
+        <td id="30" style="width:200px; text-align:center; padding:5px">30 km/h</td>
+    </tr>
+    <tr>
+        <td id="35" style="width:200px; text-align:center; padding:5px">35 km/h</td>
+    </tr>
+    <tr>
+        <td id="40" style="width:200px; text-align:center; padding:5px">40 km/h</td>
+    </tr>
+    <tr>
+        <td id="45" style="width:200px; text-align:center; padding:5px">45 km/h</td>
+    </tr>
+    <tr>
+        <td id="50" style="width:200px; text-align:center; padding:5px">>50 km/h</td>
+    </tr>
 </table>
 </body>
 </html>

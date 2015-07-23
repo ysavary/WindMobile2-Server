@@ -73,6 +73,11 @@ a.navbar-text {
     font-size: 1.2em;
 }
 
+.navbar-nav > li > a {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 #map-header {
     position: absolute;
     top: 0px;

@@ -65,7 +65,7 @@ class Jdc(Provider):
                         if json['ERROR'] == 'OK':
                             measures_collection = self.measures_collection(station_id)
 
-                            measures = result.json()['data']['measurements']
+                            measures = json['data']['measurements']
                             new_measures = []
                             for jdc_measure in measures:
                                 key = jdc_measure['unix-time']

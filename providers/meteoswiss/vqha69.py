@@ -1,12 +1,11 @@
 # coding=utf-8
-from __future__ import division
 import codecs
 import json
 import math
 
 
 def dm_to_dd(s):
-    d, m = s.split(u'°')
+    d, m = s.split('°')
     dd = float(d) + float(m.strip()[:-1]) / 60
     return dd
 

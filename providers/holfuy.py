@@ -3,13 +3,13 @@ from datetime import datetime, timedelta
 import pytz
 import json
 import re
-import urlparse
+import urllib.parse
 
 # Modules
 import requests
 import xmltodict
 
-from provider import get_logger, Provider, Status, to_float, timestamp
+from provider import get_logger, Provider, Status, to_float
 
 logger = get_logger('holfuy')
 
@@ -20,11 +20,11 @@ class Holfuy(Provider):
     provider_url = 'http://holfuy.hu'
 
     def __init__(self, mongo_url):
-        super(Holfuy, self).__init__(mongo_url)
+        super().__init__(mongo_url)
 
     def process_data(self):
         try:
-            logger.info(u"Processing Holfuy data...")
+            logger.info("Processing Holfuy data...")
             result = requests.get("http://holfuy.hu/en/mkrs.php",
                                   timeout=(self.connect_timeout, self.read_timeout))
             result.encoding = 'utf-8'
@@ -47,7 +47,7 @@ class Holfuy(Provider):
                             holfuy_station['@lat'],
                             holfuy_station['@lng'],
                             Status.GREEN,
-                            url=urlparse.urljoin(self.provider_url, "/en/data/" + holfuy_id))
+                            url=urllib.parse.urljoin(self.provider_url, "/en/data/" + holfuy_id))
 
                         measures_collection = self.measures_collection(station_id)
                         new_measures = []
@@ -63,7 +63,7 @@ class Holfuy(Provider):
                                 try_day = try_day - timedelta(days=1)
                             else:
                                 break
-                        key = timestamp(date)
+                        key = date.timestamp()
                         if not measures_collection.find_one(key):
                             measure = self.create_measure(
                                 key,
@@ -79,12 +79,12 @@ class Holfuy(Provider):
                         self.add_last_measure(station_id)
 
                     except Exception as e:
-                        logger.error(u"Error while processing station '{0}': {1}".format(json.dumps(holfuy_station), e))
+                        logger.error("Error while processing station '{0}': {1}".format(json.dumps(holfuy_station), e))
 
         except Exception as e:
             raise e
 
-        logger.info(u"Done !")
+        logger.info("Done !")
 
 
 holfuy = Holfuy(os.environ['WINDMOBILE_MONGO_URL'])

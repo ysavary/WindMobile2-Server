@@ -204,7 +204,7 @@ def station_historic(request, station_id):
     duration = int(request.QUERY_PARAMS.get('duration', 3600))
 
     if duration > 7 * 24 * 3600:
-        raise ParseError(u"Duration > 7 days")
+        raise ParseError("Duration > 7 days")
 
     if station_id in mongo_db.collection_names():
         station = mongo_db.stations.find_one(station_id)

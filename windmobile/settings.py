@@ -114,7 +114,6 @@ INSTALLED_APPS = (
     'corsheaders',
     'rest_framework',
     'rest_framework_swagger',
-    'windmobile.provider',
     'windmobile.api',
     'windmobile.web'
 )
@@ -172,7 +171,7 @@ DATABASES = {'default': dj_database_url.config(default='postgres://localhost/win
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.UnicodeJSONRenderer',
+        'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     )
 }

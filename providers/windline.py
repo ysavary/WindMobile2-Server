@@ -1,11 +1,10 @@
 import os
-from urlparse import urlparse
+from urllib.parse import urlparse
 from datetime import datetime, timedelta
-import calendar
 
 # Modules
-#import mysql.connector
 import MySQLdb
+import arrow
 
 from provider import get_logger, Provider, ProviderException, Status, Category
 import wgs84
@@ -23,7 +22,7 @@ class Windline(Provider):
     provider_url = 'http://www.windline.ch'
 
     def __init__(self, mongo_url, windline_url):
-        super(Windline, self).__init__(mongo_url)
+        super().__init__(mongo_url)
         self.windline_url = windline_url
 
     # Windline status: offline, maintenance, demo or online
@@ -44,7 +43,7 @@ class Windline(Provider):
         try:
             return cursor.fetchone()[0]
         except TypeError:
-            raise ProviderException(u"No property '{0}'".format(key))
+            raise ProviderException("No property '{0}'".format(key))
 
     def get_property_value(self, cursor, station_no, property_id):
         cursor.execute(
@@ -53,7 +52,7 @@ class Windline(Provider):
         try:
             return cursor.fetchone()[0]
         except TypeError:
-            raise ProviderException(u"No property value for property '{0}'".format(property_id))
+            raise ProviderException("No property value for property '{0}'".format(property_id))
 
     def get_measures(self, cursor, station_id, data_id, start_date):
         cursor.execute("""SELECT measuredate, data FROM tblstationdata
@@ -80,7 +79,7 @@ class Windline(Provider):
 
     def process_data(self):
         try:
-            logger.info(u"Processing WINDLINE data...")
+            logger.info("Processing WINDLINE data...")
 
             connection_info = urlparse(self.windline_url)
             mysql_connection = MySQLdb.connect(connection_info.hostname, connection_info.username,
@@ -151,7 +150,7 @@ class Windline(Provider):
                         # The wind average measure is the time reference for a measure
                         for row in wind_average_rows:
                             try:
-                                key = calendar.timegm(row[0].timetuple())
+                                key = arrow.get(row[0]).timestamp
                                 if not key in [measure['_id'] for measure in new_measures] and \
                                         not measures_collection.find_one(key):
                                     wind_average = self.ms_to_kmh(row[1])
@@ -188,20 +187,20 @@ class Windline(Provider):
                         self.insert_new_measures(measures_collection, station, new_measures, logger)
 
                     except Exception as e:
-                        logger.exception(u"Error while processing measures for station '{0}': {1}".format(station_id, e))
+                        logger.exception("Error while processing measures for station '{0}': {1}".format(station_id, e))
 
                     self.add_last_measure(station_id)
 
                 except Exception as e:
-                    logger.error(u"Error while processing station '{0}': {1}".format(station_id, e))
+                    logger.error("Error while processing station '{0}': {1}".format(station_id, e))
 
         except Exception as e:
-            logger.error(u"Error while processing WINDLINE: {0}".format(e))
+            logger.error("Error while processing WINDLINE: {0}".format(e))
         finally:
             mysql_cursor.close()
             mysql_connection.close()
 
-        logger.info(u"Done !")
+        logger.info("Done !")
 
 windline = Windline(os.environ['WINDMOBILE_MONGO_URL'], os.environ['WINDMOBILE_WINDLINE_URL'])
 windline.process_data()

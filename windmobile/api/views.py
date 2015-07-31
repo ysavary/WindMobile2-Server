@@ -86,7 +86,7 @@ def stations(request):
         result = []
 
         def density_search(x1, y1, x2, y2, level=1):
-            sub_limit = limit / (pow(3, level - 1))
+            sub_limit = limit // (pow(3, level - 1))
             query['loc'] = {
                 '$geoWithin': {
                     '$geometry': {

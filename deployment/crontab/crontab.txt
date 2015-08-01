@@ -1,5 +1,7 @@
-* * * * * /home/windmobile/WindMobile2-Server/jdc.sh
-* * * * * sleep 15;/home/windmobile/WindMobile2-Server/windline.sh
-* * * * * sleep 30;/home/windmobile/WindMobile2-Server/ffvl.sh
-* * * * * sleep 45;/home/windmobile/WindMobile2-Server/meteoswiss.sh
-0 2 * * * /usr/local/bin/curator delete --older-than 90
+*/2 * * * * /home/windmobile/WindMobile2-Server/providers/provider.sh jdc
+* * * * * sleep 10;/home/windmobile/WindMobile2-Server/providers/provider.sh windline
+* * * * * sleep 20;/home/windmobile/WindMobile2-Server/providers/provider.sh ffvl
+* * * * * sleep 30;/home/windmobile/WindMobile2-Server/providers/provider.sh meteoswiss
+* * * * * sleep 40;/home/windmobile/WindMobile2-Server/providers/provider.sh holfuy
+* * * * * sleep 50;/home/windmobile/WindMobile2-Server/providers/provider.sh windspots
+0 2 * * * /usr/local/bin/curator delete --older-than 120 &>>/var/log/windmobile/curator.log

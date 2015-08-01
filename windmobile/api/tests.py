@@ -16,6 +16,6 @@ class SimpleTest(TestCase):
         """
         Test diacritics functions
         """
-        self.assertEqual(diacritics.normalize(u'Élèves!'), u'Eleves!')
-        self.assertEqual(diacritics.create_regexp(u'Eleves!'), u'[ÈÉÊËE]l[èéêëe]v[èéêëe][šßs]!')
+        self.assertEqual(diacritics.normalize('Élèves!'), 'Eleves!')
+        self.assertEqual(diacritics.create_regexp('Eleves!'), '[ÈÉÊËE]l[èéêëe]v[èéêëe][šßs]!')
 

@@ -1,5 +1,5 @@
 import os
-import urlparse
+import urllib.parse
 
 # Modules
 import requests
@@ -15,7 +15,7 @@ class Jdc(Provider):
     provider_url = 'http://meteo.jdc.ch'
 
     def __init__(self, mongo_url):
-        super(Jdc, self).__init__(mongo_url)
+        super().__init__(mongo_url)
 
     # Jdc status: offline, maintenance, test or online
     def get_status(self, status):
@@ -32,7 +32,7 @@ class Jdc(Provider):
 
     def process_data(self):
         try:
-            logger.info(u"Processing JDC data...")
+            logger.info("Processing JDC data...")
             result = requests.get("http://meteo.jdc.ch/API/?Action=StationView&flags=offline|maintenance|test|online",
                                   timeout=(self.connect_timeout, self.read_timeout))
 
@@ -50,7 +50,7 @@ class Jdc(Provider):
                         jdc_station['latitude'],
                         jdc_station['longitude'],
                         self.get_status(jdc_station['status']),
-                        url=urlparse.urljoin(self.provider_url, "/station/" + str(jdc_station['serial'])))
+                        url=urllib.parse.urljoin(self.provider_url, "/station/" + str(jdc_station['serial'])))
 
                     try:
                         # Asking 2 days of data
@@ -61,7 +61,7 @@ class Jdc(Provider):
                         try:
                             json = result.json()
                         except ValueError:
-                            raise ProviderException(u"Action=Data return invalid json response")
+                            raise ProviderException("Action=Data return invalid json response")
                         if json['ERROR'] == 'OK':
                             measures_collection = self.measures_collection(station_id)
 
@@ -82,26 +82,26 @@ class Jdc(Provider):
                                             rain=jdc_measure.get('rain', None))
                                         new_measures.append(measure)
                                     except Exception as e:
-                                        logger.error(u"Error while processing measure '{0}' for station '{1}': {2}"
+                                        logger.error("Error while processing measure '{0}' for station '{1}': {2}"
                                                      .format(key, station_id, e))
 
                             self.insert_new_measures(measures_collection, station, new_measures, logger)
                         else:
                             raise ProviderException(
-                                u"Action=Data return an error: '{0}'".format(json['ERROR']))
+                                "Action=Data return an error: '{0}'".format(json['ERROR']))
 
                     except Exception as e:
-                        logger.error(u"Error while processing measures for station '{0}': {1}".format(station_id, e))
+                        logger.error("Error while processing measures for station '{0}': {1}".format(station_id, e))
 
                     self.add_last_measure(station_id)
 
                 except Exception as e:
-                    logger.error(u"Error while processing station '{0}': {1}".format(station_id, e))
+                    logger.error("Error while processing station '{0}': {1}".format(station_id, e))
 
         except Exception as e:
-            logger.error(u"Error while processing JDC: {0}".format(e))
+            logger.error("Error while processing JDC: {0}".format(e))
 
-        logger.info(u"Done !")
+        logger.info("Done !")
 
 
 jdc = Jdc(os.environ['WINDMOBILE_MONGO_URL'])

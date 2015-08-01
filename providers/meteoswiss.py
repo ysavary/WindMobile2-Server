@@ -1,13 +1,12 @@
-from datetime import datetime
-import pytz
 import io
 import os
 import json
 
 # Modules
 import requests
+import arrow
 
-from provider import get_logger, Provider, Status, timestamp
+from provider import get_logger, Provider, Status
 
 logger = get_logger('meteoswiss')
 
@@ -18,11 +17,11 @@ class MeteoSwiss(Provider):
     provider_url = 'http://www.meteoswiss.ch'
 
     def __init__(self, mongo_url):
-        super(MeteoSwiss, self).__init__(mongo_url)
+        super().__init__(mongo_url)
 
     def process_data(self):
         try:
-            logger.info(u"Processing METEOSWISS data...")
+            logger.info("Processing METEOSWISS data...")
 
             with open(os.path.join(os.path.dirname(__file__), 'meteoswiss/vqha69.json')) as in_file:
                 descriptions = json.load(in_file)
@@ -56,8 +55,7 @@ class MeteoSwiss(Provider):
                         description['location']['lon'],
                         Status.GREEN)
 
-                    date = pytz.utc.localize(datetime.strptime(data['time'], '%Y%m%d%H%M'))
-                    key = timestamp(date)
+                    key = arrow.get(data['time'], 'YYYYMMDDHHmm').timestamp
 
                     measures_collection = self.measures_collection(station_id)
                     new_measures = []
@@ -79,12 +77,12 @@ class MeteoSwiss(Provider):
                     self.add_last_measure(station_id)
 
                 except Exception as e:
-                    logger.error(u"Error while processing station '{0}': {1}".format(station_id, e))
+                    logger.error("Error while processing station '{0}': {1}".format(station_id, e))
 
         except Exception as e:
-            logger.error(u"Error while processing METEOSWISS: {0}".format(e))
+            logger.error("Error while processing METEOSWISS: {0}".format(e))
 
-        logger.info(u"...Done!")
+        logger.info("...Done!")
 
 meteoswiss = MeteoSwiss(os.environ['WINDMOBILE_MONGO_URL'])
 meteoswiss.process_data()

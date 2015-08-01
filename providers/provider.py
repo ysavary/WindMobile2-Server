@@ -2,13 +2,13 @@ import sys
 import os
 import logging
 import logging.handlers
-from datetime import datetime
-import pytz
 from pymongo import uri_parser, MongoClient, GEOSPHERE
 from pymongo.errors import CollectionInvalid
 
 # Modules
 import requests
+import arrow
+import dateutil
 
 
 class NoExceptionFormatter(logging.Formatter):
@@ -79,12 +79,6 @@ def to_float(value, ndigits=1):
         return None
 
 
-# datetime.timestamp() exists only in python >= 3.3
-# https://docs.python.org/3.3/library/datetime.html#datetime.datetime.timestamp
-def timestamp(dt):
-    return (dt - datetime(1970, 1, 1, tzinfo=pytz.utc)).total_seconds()
-
-
 class Provider(object):
     connect_timeout = 7
     read_timeout = 30
@@ -127,7 +121,7 @@ class Provider(object):
                        ]
                    },
                    'status': status,
-                   'seen': timestamp(datetime.now(pytz.utc))
+                   'seen': arrow.utcnow().timestamp
                    }
 
         # Optional keys
@@ -152,16 +146,15 @@ class Provider(object):
 
         if not 'tz' in station:
             try:
-                utc_now = timestamp(datetime.now(pytz.utc))
                 result = requests.get(
                     "https://maps.googleapis.com/maps/api/timezone/json?location={lat},{lon}&timestamp={utc}&key={key}"
                     .format(lat=station['loc']['coordinates'][1],
                             lon=station['loc']['coordinates'][0],
-                            utc=utc_now,
+                            utc=arrow.utcnow().timestamp,
                             key=os.environ['GOOGLE_TIMEZONE_API_KEY']),
                     timeout=(self.connect_timeout, self.read_timeout))
-                timezone = pytz.timezone(result.json()['timeZoneId'])
-                tz = timezone.zone
+                tz = result.json()['timeZoneId']
+                dateutil.tz.gettz(tz)
             except:
                 tz = ""
             self.stations_collection().update({'_id': _id}, {'$set': {'tz': tz}})
@@ -184,7 +177,7 @@ class Provider(object):
                 not measure['w-max'],
                 not measure['temp'],
                 not measure['hum'])):
-            raise ProviderException(u"All mandatory values are null!")
+            raise ProviderException("All mandatory values are null!")
 
         # Optional keys
         if wind_direction_instant is not None:
@@ -204,11 +197,15 @@ class Provider(object):
         if len(new_measures) > 0:
             measure_collection.insert(new_measures)
 
-            start_date = datetime.fromtimestamp(new_measures[0]['_id'])
-            end_date = datetime.fromtimestamp(new_measures[-1]['_id'])
-            logger.info("--> from " + start_date.strftime('%Y-%m-%dT%H:%M:%S') + " to " +
-                        end_date.strftime('%Y-%m-%dT%H:%M:%S') + ", " + station['short'] +
-                        " (" + station['_id'] + "): " + str(len(new_measures)) + " values inserted")
+            start_date = arrow.Arrow.fromtimestamp(new_measures[0]['_id'], dateutil.tz.gettz(station['tz']))
+            end_date = arrow.Arrow.fromtimestamp(new_measures[-1]['_id'], dateutil.tz.gettz(station['tz']))
+            logger.info(
+                "--> {end_date} ({end_date_local}), {name} ({id}): {nb} values inserted".format(
+                    end_date=end_date.format('YY-MM-DD HH:mm:ssZZ'),
+                    end_date_local=end_date.to('local').format('YY-MM-DD HH:mm:ssZZ'),
+                    name=station['short'],
+                    id=station['_id'],
+                    nb=str(len(new_measures))))
 
     def add_last_measure(self, station_id):
         measures_collection = self.mongo_db[station_id]

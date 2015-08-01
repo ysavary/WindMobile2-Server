@@ -1,12 +1,12 @@
 import os
-from datetime import datetime
-import pytz
 import xml.etree.ElementTree as ET
 
 # Modules
 import requests
+import arrow
+import dateutil
 
-from provider import get_logger, Provider, ProviderException, Status, Category, timestamp
+from provider import get_logger, Provider, ProviderException, Status, Category
 
 logger = get_logger('ffvl')
 
@@ -17,7 +17,7 @@ class Ffvl(Provider):
     provider_url = 'http://www.balisemeteo.com'
 
     def __init__(self, mongo_url, api_key):
-        super(Ffvl, self).__init__(mongo_url)
+        super().__init__(mongo_url)
         self.api_key = api_key
 
     # FFVL active: '0', '1'
@@ -57,7 +57,7 @@ class Ffvl(Provider):
 
     def process_data(self):
         try:
-            logger.info(u"Processing FFVL data...")
+            logger.info("Processing FFVL data...")
 
             result = requests.get("http://data.ffvl.fr/xml/" + self.api_key + "/meteo/balise_list.xml",
                                   timeout=(self.connect_timeout, self.read_timeout))
@@ -81,29 +81,29 @@ class Ffvl(Provider):
                         url=self.get_xml_attribute(ffvl_station, 'url', 'value'))
 
                 except Exception as e:
-                    logger.error(u"Error while processing station '{0}': {1}".format(station_id, e))
+                    logger.error("Error while processing station '{0}': {1}".format(station_id, e))
 
         except Exception as e:
-            logger.error(u"Error while processing stations: {0}".format(e))
+            logger.error("Error while processing stations: {0}".format(e))
 
         try:
             result = requests.get("http://data.ffvl.fr/xml/" + self.api_key + "/meteo/relevemeteo.xml",
                                   timeout=(self.connect_timeout, self.read_timeout))
             ffvl_measures = ET.fromstring(result.text)
 
-            ffvl_timezone = pytz.timezone("Europe/Paris")
+            ffvl_tz = dateutil.tz.gettz('Europe/Paris')
             for ffvl_measure in ffvl_measures:
                 try:
                     station_id = self.get_station_id(ffvl_measure.find('idbalise').text)
                     station = self.stations_collection().find_one(station_id)
                     if not station:
-                        raise ProviderException(u"Unknown station '{0}'".format(station_id))
+                        raise ProviderException("Unknown station '{0}'".format(station_id))
 
                     measures_collection = self.measures_collection(station_id)
                     new_measures = []
 
-                    local_time = datetime.strptime(ffvl_measure.find('date').text, '%Y-%m-%d %H:%M:%S')
-                    key = timestamp(ffvl_timezone.localize(local_time))
+                    key = arrow.get(ffvl_measure.find('date').text, 'YYYY-MM-DD HH:mm:ss').replace(
+                        tzinfo=ffvl_tz).timestamp
                     if not measures_collection.find_one(key):
                         measure = self.create_measure(
                             key,
@@ -122,14 +122,14 @@ class Ffvl(Provider):
                     self.insert_new_measures(measures_collection, station, new_measures, logger)
 
                 except Exception as e:
-                    logger.error(u"Error while processing measures for station '{0}': {1}".format(station_id, e))
+                    logger.error("Error while processing measures for station '{0}': {1}".format(station_id, e))
 
                 self.add_last_measure(station_id)
 
         except Exception as e:
-            logger.error(u"Error while processing FFVL: {0}", e)
+            logger.error("Error while processing FFVL: {0}", e)
 
-        logger.info(u"...Done!")
+        logger.info("...Done!")
 
 ffvl = Ffvl(os.environ['WINDMOBILE_MONGO_URL'], os.environ['WINDMOBILE_FFVL_KEY'])
 ffvl.process_data()

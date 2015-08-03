@@ -229,7 +229,6 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                     angle += 45;
                 }
 
-
                 scope.$watch(element.attr('data-scope-watch'), function (newValue, oldValue) {
                     element.find(".wdm-direction").remove();
                     if (newValue && newValue.data) {

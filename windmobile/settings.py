@@ -1,8 +1,11 @@
 # Django settings for windmobile project.
 import os
 
-DEBUG = True
+DEBUG = (os.environ.get('DEBUG', 'True').lower() not in [
+    'false', 'no', 'none'])
 TEMPLATE_DEBUG = DEBUG
+
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split()
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),

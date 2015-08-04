@@ -120,6 +120,14 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
                         }
                     }
                 }
+            },
+            loading: {
+                labelStyle: {
+                    color: 'white'
+                },
+                style: {
+                    backgroundColor: 'transparent'
+                }
             }
         });
         $rootScope.$on('$stateChangeSuccess',
@@ -265,80 +273,83 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
         return {
             restrict: "C",
             link: function (scope, element, attrs) {
+                var windAvgSerie = {
+                    name: 'windAvg',
+                    type: 'areaspline',
+                    lineWidth: 1,
+                    lineColor: '#676700',
+                    color: '#333',
+                    marker: {
+                        enabled: false
+                    }
+                };
+                var windDir = {};
+                var windMaxSerie = {
+                    name: 'windMax',
+                    type: 'spline',
+                    color: '#676700',
+                    lineWidth: 1,
+                    marker: {
+                        enabled: false
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function () {
+                            return utils.getWindDirectionLabel(
+                                ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
+                                windDir[this.key]
+                            );
+                        },
+                        color: '#666',
+                        style: {
+                            textShadow: false
+                        }
+                    }
+                };
+                $(element).highcharts('StockChart', {
+                    tooltip: {
+                        enabled: false,
+                        crosshairs: false
+                    },
+                    navigator: {
+                        enabled: false
+                    },
+                    scrollbar: {
+                        enabled: false
+                    },
+                    xAxis: {
+                        type: 'datetime',
+                        lineColor: '#8d8d8d'
+                    },
+                    yAxis: {
+                        gridLineWidth: 0.5,
+                        gridLineColor: '#555',
+                        labels: {
+                            format: '{value} kmh',
+                            style: {
+                                color: "#7d7d00",
+                                fontSize: '9px'
+                            }
+                        }
+                    },
+                    series: [windAvgSerie, windMaxSerie]
+                });
+                element.highcharts().showLoading();
+
                 scope.$watch(element.attr('data-scope-watch'), function (value) {
                     if (value) {
-                        var windAvgSerie = {
-                            name: 'windAvg',
-                            type: 'areaspline',
-                            lineWidth: 1,
-                            lineColor: '#676700',
-                            color: '#333',
-                            marker: {
-                                enabled: false
-                            },
-                            data: []
-                        };
-                        var windDir = {
-                        };
-                        var windMaxSerie = {
-                            name: 'windMax',
-                            type: 'spline',
-                            color: '#676700',
-                            lineWidth: 1,
-                            marker: {
-                                enabled: false
-                            },
-                            dataLabels: {
-                                enabled: true,
-                                formatter: function() {
-                                    return utils.getWindDirectionLabel(
-                                        ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
-                                        windDir[this.key]
-                                    );
-                                },
-                                color: '#666',
-                                style: {
-                                    textShadow: false
-                                }
-                            },
-                            data: []
-                        };
-                        var count = value.length;
-                        for (var i = count - 1; i >= 0; i--) {
+                        var chart = element.highcharts();
+                        chart.hideLoading();
+                        var serie0 = [], serie1 = [];
+                        for (var i = value.length - 1; i >= 0; i--) {
                             var date = value[i]['_id'] * 1000;
 
-                            windMaxSerie.data.push([date, value[i]['w-max']]);
-                            windAvgSerie.data.push([date, value[i]['w-avg']]);
+                            serie0.push([date, value[i]['w-avg']]);
+                            serie1.push([date, value[i]['w-max']]);
                             windDir[date] = value[i]['w-dir'];
                         }
-                        $(element).highcharts('StockChart', {
-                            tooltip: {
-                                enabled: false,
-                                crosshairs: false
-                            },
-                            navigator: {
-                                enabled: false
-                            },
-                            scrollbar: {
-                                enabled: false
-                            },
-                            xAxis: {
-                                type: 'datetime',
-                                lineColor: '#8d8d8d'
-                            },
-                            yAxis: {
-                                gridLineWidth: 0.5,
-                                gridLineColor: '#555',
-                                labels: {
-                                    format: '{value} kmh',
-                                    style: {
-                                        color: "#7d7d00",
-                                        fontSize: '9px'
-                                    }
-                                }
-                            },
-                            series: [windAvgSerie, windMaxSerie]
-                        });
+                        chart.series[0].setData(serie0);
+                        chart.series[1].setData(serie1);
                     }
                 });
             }
@@ -348,91 +359,96 @@ var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.servi
         return {
             restrict: "C",
             link: function (scope, element, attrs) {
+                var rainSerie = {
+                    name: 'rain',
+                    type: 'column',
+                    borderColor: '#444',
+                    borderWidth: 0.5,
+                    color: 'rgba(30, 30, 30, 0.4)',
+                    marker: {
+                        enabled: false
+                    },
+                    yAxis: 2
+                };
+                var temperatureSerie = {
+                    name: 'temperature',
+                    type: 'spline',
+                    color: '#891f30',
+                    lineWidth: 1,
+                    marker: {
+                        enabled: false
+                    }
+                };
+                var humiditySerie = {
+                    name: 'humidity',
+                    type: 'spline',
+                    color: '#264a68',
+                    lineWidth: 1,
+                    marker: {
+                        enabled: false
+                    },
+                    yAxis: 1
+                };
+                $(element).highcharts('StockChart', {
+                    tooltip: {
+                        enabled: false,
+                        crosshairs: false
+                    },
+                    navigator: {
+                        enabled: false
+                    },
+                    scrollbar: {
+                        enabled: false
+                    },
+                    xAxis: {
+                        type: 'datetime',
+                        lineColor: '#8d8d8d'
+                    },
+                    yAxis: [{
+                        gridLineWidth: 0.5,
+                        gridLineColor: "#555",
+                        labels: {
+                            format: '{value} °C',
+                            style: {
+                                color: "#c72d46",
+                                fontSize: '9px'
+                            }
+                        }
+                    }, {
+                        opposite: false,
+                        gridLineWidth: 0,
+                        labels: {
+                            format: '{value} %',
+                            style: {
+                                color: "#3b71a0",
+                                fontSize: '9px'
+                            }
+                        }
+                    }, {
+                        gridLineWidth: 0,
+                        labels: {
+                            enabled: false
+                        }
+                    }],
+                    series: [rainSerie, temperatureSerie, humiditySerie]
+                });
+                element.highcharts().showLoading();
+
                 scope.$watch(element.attr('data-scope-watch'), function (value) {
                     if (value) {
-                        var temperatureSerie = {
-                            name: 'temperature',
-                            type: 'spline',
-                            color: '#891f30',
-                            lineWidth: 1,
-                            marker: {
-                                enabled: false
-                            },
-                            data: []
-                        };
-                        var humiditySerie = {
-                            name: 'humidity',
-                            type: 'spline',
-                            color: '#264a68',
-                            lineWidth: 1,
-                            marker: {
-                                enabled: false
-                            },
-                            yAxis: 1,
-                            data: []
-                        };
-                        var rainSerie = {
-                            name: 'rain',
-                            type: 'column',
-                            borderColor: '#444',
-                            borderWidth: 0.5,
-                            color: 'rgba(30, 30, 30, 0.4)',
-                            marker: {
-                                enabled: false
-                            },
-                            yAxis: 2,
-                            data: []
-                        };
-                        var count = value.length;
-                        for (var i = count - 1; i >= 0; i--) {
+                        var chart = element.highcharts();
+                        chart.hideLoading();
+                        var serie0 = [], serie1 = [], serie2 = [];
+                        for (var i = value.length - 1; i >= 0; i--) {
                             var date = value[i]['_id'] * 1000;
-                            temperatureSerie.data.push([date, value[i]['temp']]);
-                            humiditySerie.data.push([date, value[i]['hum']]);
-                            rainSerie.data.push([date, value[i]['rain']]);
+
+                            serie0.push([date, value[i]['rain']]);
+                            serie1.push([date, value[i]['temp']]);
+                            serie2.push([date, value[i]['hum']]);
                         }
-                        $(element).highcharts('StockChart', {
-                            tooltip: {
-                                enabled: false,
-                                crosshairs: false
-                            },
-                            navigator: {
-                                enabled: false
-                            },
-                            scrollbar: {
-                                enabled: false
-                            },
-                            xAxis: {
-                                type: 'datetime',
-                                lineColor: '#8d8d8d'
-                            },
-                            yAxis: [{
-                                gridLineWidth: 0.5,
-                                gridLineColor: "#555",
-                                labels: {
-                                    format: '{value} °C',
-                                    style: {
-                                        color: "#c72d46",
-                                        fontSize: '9px'
-                                    }
-                                }
-                            }, {
-                                opposite: false,
-                                gridLineWidth: 0,
-                                labels: {
-                                    format: '{value} %',
-                                    style: {
-                                        color: "#3b71a0",
-                                        fontSize: '9px'
-                                    }
-                                }
-                            }, {
-                                gridLineWidth: 0,
-                                labels: {
-                                    enabled: false
-                                }
-                            }],
-                            series: [rainSerie, temperatureSerie, humiditySerie]
-                        });
+                        chart.series[0].setData(serie0);
+                        chart.series[1].setData(serie1);
+                        chart.series[2].setData(serie2);
                     }
                 });
             }

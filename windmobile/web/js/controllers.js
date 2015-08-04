@@ -281,9 +281,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 center: new google.maps.LatLng(46.76, 4.08),
                 zoom: 6,
                 panControl: false,
+                streetViewControl: false,
                 mapTypeControlOptions: {
                     mapTypeIds: [google.maps.MapTypeId.TERRAIN, google.maps.MapTypeId.ROADMAP,
-                        google.maps.MapTypeId.SATELLITE]
+                        google.maps.MapTypeId.SATELLITE],
+                    position: google.maps.ControlPosition.RIGHT_BOTTOM
                 },
                 mapTypeId: google.maps.MapTypeId.TERRAIN
             };

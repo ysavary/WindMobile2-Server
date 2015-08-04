@@ -3,15 +3,15 @@
 
 <script type="text/ng-template" id="_infobox.html">
     <div class="wdm-card-border wdm-card-layout wdm-card-map" ng-click="main.selectStation()">
-        <div class="wdm-name" style="float:left;">[[ main.selectedStation.short ]]</div>
+        <div class="wdm-name" style="float:left;">{{ main.selectedStation.short }}</div>
         <div class="wdm-info" style="float:right;">
-            <div class="wdm-last-update" style="float:right;" ng-class="main.selectedStation.fromNowClass">[[ main.selectedStation.fromNow ]]</div>
-            <div class="wdm-provider" style="clear:right;float:right;">[[ main.selectedStation.prov ]]</div>
+            <div class="wdm-last-update" style="float:right;" ng-class="main.selectedStation.fromNowClass">{{ main.selectedStation.fromNow }}</div>
+            <div class="wdm-provider" style="clear:right;float:right;">{{ main.selectedStation.prov }}</div>
         </div>
-        <div class="wdm-altitude" style="clear:left;float:left;">[[ main.selectedStation.alt ]] meters</div>
+        <div class="wdm-altitude" style="clear:left;float:left;">{{ main.selectedStation.alt }} meters</div>
         <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">
-            <div class="wdm-wind-avg">[[ main.selectedStation.last['w-avg'].toFixed(1) ]]</div>
-            <div class="wdm-wind-max">[[ main.selectedStation.last['w-max'].toFixed(1) ]]<span class="wdm-unit">km/h</span></div>
+            <div class="wdm-wind-avg">{{ main.selectedStation.last['w-avg'].toFixed(1) }}</div>
+            <div class="wdm-wind-max">{{ main.selectedStation.last['w-max'].toFixed(1) }}<span class="wdm-unit">km/h</span></div>
             <svg class="wdm-wind-mini-chart" style="width:100%;max-width:70px;" viewBox="0 0 100 40" data-scope-watch="main.selectedStation.historic"></svg>
         </div>
         <svg class="wdm-wind-direction" style="float:right;width:70px;height:70px;" viewBox="0 0 100 100" data-scope-watch="main.selectedStation.historic"></svg>

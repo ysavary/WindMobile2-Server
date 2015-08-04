@@ -1,8 +1,4 @@
-var windmobileApp = angular.module('windmobile', ['ui.router', 'windmobile.services', 'windmobile.controllers'],
-    ["$interpolateProvider", function ($interpolateProvider) {
-        $interpolateProvider.startSymbol('[[');
-        $interpolateProvider.endSymbol(']]');
-    }])
+angular.module('windmobile', ['ui.router', 'windmobile.services', 'windmobile.controllers'])
     .config(['$locationProvider', '$stateProvider', '$urlRouterProvider',
         function ($locationProvider, $stateProvider, $urlRouterProvider) {
             $locationProvider.html5Mode(true);

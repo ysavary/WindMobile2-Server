@@ -4,7 +4,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
         var self = this;
 
         function search(position) {
-            var params = {};
+            var params = {
+                proj: ['short', 'loc', 'status', 'prov', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max']
+            };
             if (position) {
                 params['near-lat'] = position.coords.latitude;
                 params['near-lon'] = position.coords.longitude;
@@ -12,26 +14,36 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             params.search = self.search;
             params.limit = 12;
 
-            $http({method: 'GET', url: '/api/2/stations/', params: params}).
-                success(function (data) {
-                    self.stations = data;
-                    for (var i = 0; i < self.stations.length; i++) {
-                        var station = self.stations[i];
-                        station.fromNow = moment.unix(station.last._id).fromNow();
-                        var status = utils.getStationStatus(station);
-                        station.fromNowClass = utils.getStatusClass(status);
-                        self.getHistoric(station);
-                    }
-                });
+            $http({
+                method: 'GET',
+                url: '/api/2/stations/',
+                params: params
+            }).success(function (data) {
+                self.stations = data;
+                for (var i = 0; i < self.stations.length; i++) {
+                    var station = self.stations[i];
+                    station.fromNow = moment.unix(station.last._id).fromNow();
+                    var status = utils.getStationStatus(station);
+                    station.fromNowClass = utils.getStatusClass(status);
+                    self.getHistoric(station);
+                }
+            });
         }
         this.getHistoric = function (station) {
-            $http({method: 'GET', url: '/api/2/stations/' + station._id + '/historic?duration=3600'}).
-                success(function (data) {
-                    var historic = {
-                        data: data
-                    };
-                    station.historic = historic;
-                });
+            var params = {
+                duration: 3600,
+                proj: ['w-dir', 'w-avg']
+            };
+            $http({
+                method: 'GET',
+                url: '/api/2/stations/' + station._id + '/historic',
+                params: params
+            }).success(function (data) {
+                var historic = {
+                    data: data
+                };
+                station.historic = historic;
+            });
         };
         this.selectStation = function (station) {
             $state.go('list.detail', {stationId: station._id});
@@ -199,7 +211,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
             }
             function search(bounds) {
-                var params = {};
+                var params = {
+                    proj: [
+                        'short', 'loc', 'status', 'prov', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max'
+                    ]
+                };
                 if (bounds) {
                     params['within-pt1-lat'] = bounds.getNorthEast().lat();
                     params['within-pt1-lon'] = bounds.getNorthEast().lng();
@@ -209,25 +225,28 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 params.search = self.search;
                 params.limit = 100;
 
-                $http({method: 'GET', url: '/api/2/stations/', params: params}).success(displayMarkers);
+                $http({
+                    method: 'GET',
+                    url: '/api/2/stations/',
+                    params: params
+                }).success(displayMarkers);
             }
 
             this.getHistoric = function () {
-                $http({method: 'GET', url: '/api/2/stations/' + this.selectedStation._id + '/historic?duration=3600'})
-                    .success(function (data) {
-                        var historic = {};
-                        historic.data = data;
-                        var windAvg = function (value) {
-                            return value['w-avg'];
-                        };
-                        historic['w-avg'] = {};
-                        historic['w-avg'].min = Math.min.apply(null, data.map(windAvg));
-                        historic['w-avg'].mean = data.map(windAvg).reduce(function (previousValue, currentValue) {
-                                return previousValue + currentValue;
-                            }, 0) / data.length;
-                        historic['w-avg'].max = Math.max.apply(null, data.map(windAvg));
-                        self.selectedStation.historic = historic;
-                    })
+                var params = {
+                    duration: 3600,
+                    proj: ['w-dir', 'w-avg']
+                };
+                $http({
+                    method: 'GET',
+                    url: '/api/2/stations/' + self.selectedStation._id + '/historic',
+                    params: params
+                }).success(function (data) {
+                    var historic = {
+                        data: data
+                    };
+                    self.selectedStation.historic = historic;
+                })
             };
             this.selectStation = function () {
                 if (infoBox) {
@@ -325,51 +344,70 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             });
 
             $('a[data-target="#tab2"]').on('shown.bs.tab', function (event) {
+                var params = {
+                    duration: 432000,
+                    proj: ['w-dir', 'w-avg', 'w-max']
+                };
                 $http({
                     method: 'GET',
-                    url: '/api/2/stations/' + $stateParams.stationId + '/historic?duration=432000'
+                    url: '/api/2/stations/' + $stateParams.stationId + '/historic',
+                    params: params
                 }).success(function (data) {
                     self.stationWindChart = data;
                 });
             });
             $('a[data-target="#tab3"]').on('shown.bs.tab', function (event) {
+                var params = {
+                    duration: 432000,
+                    proj: ['temp', 'hum', 'rain']
+                };
                 $http({
                     method: 'GET',
-                    url: '/api/2/stations/' + $stateParams.stationId + '/historic?duration=432000'
+                    url: '/api/2/stations/' + $stateParams.stationId + '/historic',
+                    params: params
                 }).success(function (data) {
                     self.stationAirChart = data;
                 });
             });
 
             this.getStation = function () {
-                $http({method: 'GET', url: '/api/2/stations/' + $stateParams.stationId}).
-                    success(function (data) {
-                        self.station = data;
-                        self.station.fromNow = moment.unix(self.station.last._id).fromNow();
-                        var status = utils.getStationStatus(self.station);
-                        self.station.fromNowClass = utils.getStatusClass(status);
-                    });
+                $http({
+                    method: 'GET',
+                    url: '/api/2/stations/' + $stateParams.stationId
+                }).success(function (data) {
+                    self.station = data;
+                    self.station.fromNow = moment.unix(self.station.last._id).fromNow();
+                    var status = utils.getStationStatus(self.station);
+                    self.station.fromNowClass = utils.getStatusClass(status);
+                });
             };
             this.getStationHistoric = function () {
-                $http({method: 'GET', url: '/api/2/stations/' + $stateParams.stationId + '/historic?duration=3600'})
-                    .success(function (data) {
-                        var historic = {
-                            data: data
-                        };
-                        var windAvg = function (value) {
-                            return value['w-avg'];
-                        };
-                        var windMax = function (value) {
-                            return value['w-max'];
-                        };
-                        historic['lastHour'] = {};
-                        historic['lastHour'].min = Math.min.apply(null, data.map(windAvg));
-                        historic['lastHour'].mean = data.map(windAvg).reduce(function (previousValue, currentValue) {
-                                return previousValue + currentValue;
-                            }, 0) / data.length;
-                        historic['lastHour'].max = Math.max.apply(null, data.map(windMax));
-                        self.stationHistoric = historic;
-                    })
+                var params = {
+                    duration: 3600,
+                    proj: ['w-dir', 'w-avg', 'w-max']
+                };
+                $http({
+                    method: 'GET',
+                    url: '/api/2/stations/' + $stateParams.stationId + '/historic',
+                    params: params
+                }).success(function (data) {
+                    var historic = {
+                        data: data
+                    };
+                    var windAvg = function (value) {
+                        return value['w-avg'];
+                    };
+                    var windMax = function (value) {
+                        return value['w-max'];
+                    };
+                    historic['lastHour'] = {};
+                    historic['lastHour'].min = Math.min.apply(null, data.map(windAvg));
+                    historic['lastHour'].mean = data.map(windAvg).reduce(function (previousValue, currentValue) {
+                        return previousValue + currentValue;
+                    }, 0) / data.length;
+                    historic['lastHour'].max = Math.max.apply(null, data.map(windMax));
+                    self.stationHistoric = historic;
+                })
             };
             this.doDetail = function () {
                 this.getStation();

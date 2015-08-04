@@ -50,6 +50,14 @@ def stations(request):
     word = request.QUERY_PARAMS.get('word')
     language = request.QUERY_PARAMS.get('language', 'fr')
 
+    projections = request.QUERY_PARAMS.getlist('proj', None)
+    if projections:
+        projection_dict = {}
+        for key in projections:
+            projection_dict[key] = 1
+    else:
+        projection_dict = None
+
     query = {'status': {'$ne': 'hidden'}}
 
     if provider:
@@ -101,7 +109,7 @@ def stations(request):
                     }
                 }
             }
-            cursor = mongo_db.stations.find(query)
+            cursor = mongo_db.stations.find(query, projection_dict)
             count = cursor.count()
 
             if count > 0:
@@ -132,7 +140,7 @@ def stations(request):
         query['$text'] = {'$search': word, '$language': language}
 
     try:
-        return Response(list(mongo_db.stations.find(query).limit(limit)))
+        return Response(list(mongo_db.stations.find(query, projection_dict).limit(limit)))
     except OperationFailure as e:
         raise ParseError(e.details)
 
@@ -203,6 +211,14 @@ def station_historic(request, station_id):
     """
     duration = int(request.QUERY_PARAMS.get('duration', 3600))
 
+    projections = request.QUERY_PARAMS.getlist('proj', None)
+    if projections:
+        projection_dict = {}
+        for key in projections:
+            projection_dict[key] = 1
+    else:
+        projection_dict = None
+
     if duration > 7 * 24 * 3600:
         raise ParseError("Duration > 7 days")
 
@@ -213,7 +229,7 @@ def station_historic(request, station_id):
         last_time = station['last']['_id']
         start_time = last_time - duration
         nb_data = mongo_db[station_id].find({'_id': {'$gte': start_time}}).count() + 1
-        return Response(list(mongo_db[station_id].find({}, sort=(('_id', -1),)).limit(nb_data)))
+        return Response(list(mongo_db[station_id].find({}, projection_dict, sort=(('_id', -1),)).limit(nb_data)))
     else:
         return Response({'detail': "No historic data for id '%s'" % station_id}, status=status.HTTP_404_NOT_FOUND)
 

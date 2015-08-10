@@ -44,9 +44,7 @@ angular.module('windmobile', ['ui.router', 'windmobile.services', 'windmobile.co
                     theme: {
                         fill: 'none',
                         stroke: '#ddd',
-                        style: {
-                            color: '#8d8d8d'
-                        }
+                        style: {color: '#8d8d8d'}
                     }
                 }
             },
@@ -65,27 +63,13 @@ angular.module('windmobile', ['ui.router', 'windmobile.services', 'windmobile.co
             },
             rangeSelector: {
                 inputEnabled: false,
-                buttons: [{
-                    type: 'day',
-                    count: 5,
-                    text: '5d'
-                }, {
-                    type: 'day',
-                    count: 2,
-                    text: '2d'
-                }, {
-                    type: 'day',
-                    count: 1,
-                    text: '1d'
-                }, {
-                    type: 'hour',
-                    count: 12,
-                    text: '12h'
-                }, {
-                    type: 'hour',
-                    count: 6,
-                    text: '6h'
-                }],
+                buttons: [
+                    {type: 'day', count: 5, text: '5d'},
+                    {type: 'day', count: 2, text: '2d'},
+                    {type: 'day', count: 1, text: '1d'},
+                    {type: 'hour', count: 12, text: '12h'},
+                    {type: 'hour', count: 6, text: '6h'}
+                ],
                 selected: 4,
                 buttonTheme: {
                     width: 35,
@@ -93,37 +77,25 @@ angular.module('windmobile', ['ui.router', 'windmobile.services', 'windmobile.co
                     stroke: 'none',
                     'stroke-width': 0,
                     r: 8,
-                    style: {
-                        color: '#8d8d8d'
-                    },
+                    style: {color: '#8d8d8d'},
                     states: {
                         hover: {
                             fill: 'none',
-                            style: {
-                                color: '#ddd'
-                            }
+                            style: {color: '#ddd'}
                         },
                         select: {
                             fill: 'none',
-                            style: {
-                                color: '#ddd'
-                            }
+                            style: {color: '#ddd'}
                         },
                         disabled: {
-                            style: {
-                                color: '#666'
-                            }
+                            style: {color: '#666'}
                         }
                     }
                 }
             },
             loading: {
-                labelStyle: {
-                    color: 'white'
-                },
-                style: {
-                    backgroundColor: 'transparent'
-                }
+                labelStyle: {color: 'white'},
+                style: {backgroundColor: 'transparent'}
             }
         });
         $rootScope.$on('$stateChangeSuccess',
@@ -297,9 +269,7 @@ angular.module('windmobile', ['ui.router', 'windmobile.services', 'windmobile.co
                             );
                         },
                         color: '#666',
-                        style: {
-                            textShadow: false
-                        }
+                        style: {textShadow: false}
                     }
                 };
                 $(element).highcharts('StockChart', {
@@ -322,10 +292,7 @@ angular.module('windmobile', ['ui.router', 'windmobile.services', 'windmobile.co
                         gridLineColor: '#555',
                         labels: {
                             format: '{value} kmh',
-                            style: {
-                                color: "#7d7d00",
-                                fontSize: '9px'
-                            }
+                            style: {color: "#7d7d00", fontSize: '9px'}
                         }
                     },
                     series: [windAvgSerie, windMaxSerie]
@@ -346,6 +313,7 @@ angular.module('windmobile', ['ui.router', 'windmobile.services', 'windmobile.co
                         }
                         chart.series[0].setData(serie0);
                         chart.series[1].setData(serie1);
+                        chart.reflow();
                     }
                 });
             }
@@ -405,20 +373,14 @@ angular.module('windmobile', ['ui.router', 'windmobile.services', 'windmobile.co
                         gridLineColor: "#555",
                         labels: {
                             format: '{value} °C',
-                            style: {
-                                color: "#c72d46",
-                                fontSize: '9px'
-                            }
+                            style: {color: "#c72d46", fontSize: '9px'}
                         }
                     }, {
                         opposite: false,
                         gridLineWidth: 0,
                         labels: {
                             format: '{value} %',
-                            style: {
-                                color: "#3b71a0",
-                                fontSize: '9px'
-                            }
+                            style: {color: "#3b71a0", fontSize: '9px'}
                         }
                     }, {
                         gridLineWidth: 0,
@@ -445,6 +407,7 @@ angular.module('windmobile', ['ui.router', 'windmobile.services', 'windmobile.co
                         chart.series[0].setData(serie0);
                         chart.series[1].setData(serie1);
                         chart.series[2].setData(serie2);
+                        chart.reflow();
                     }
                 });
             }

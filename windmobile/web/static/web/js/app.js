@@ -318,7 +318,6 @@ angular.module('windmobile', [require('angular-ui-router'), 'windmobile.services
                         }
                         chart.series[0].setData(serie0);
                         chart.series[1].setData(serie1);
-                        chart.reflow();
                     }
                 });
             }
@@ -412,7 +411,6 @@ angular.module('windmobile', [require('angular-ui-router'), 'windmobile.services
                         chart.series[0].setData(serie0);
                         chart.series[1].setData(serie1);
                         chart.series[2].setData(serie2);
-                        chart.reflow();
                     }
                 });
             }

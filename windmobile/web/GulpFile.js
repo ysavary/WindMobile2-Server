@@ -9,10 +9,10 @@ var browserify = require('browserify');
 var sourcemaps = require('gulp-sourcemaps');
 var uglify = require('gulp-uglify');
 
-gulp.task('ng-annotate', function () {
+gulp.task('fix-angular-src-for-browserify', function () {
     return gulp.src(['static/web/js/app.js', 'static/web/js/controllers.js', 'static/web/js/services.js'])
         .pipe(ngAnnotate())
-        .pipe(gulp.dest('js'));
+        .pipe(gulp.dest('static/web/js/'));
 });
 
 gulp.task('js', function () {
@@ -42,8 +42,8 @@ gulp.task('sass', function () {
         .pipe(gulp.dest('static/web/css/'));
 });
 
-// Watch tasks
-gulp.task('default', function () {
+gulp.task('watch', function () {
     gulp.watch('static/web/js/*.js', ['js']);
     gulp.watch('scss/*.*', ['sass']);
 });
+gulp.task('default', ['js', 'sass']);

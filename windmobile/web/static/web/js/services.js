@@ -1,3 +1,7 @@
+var angular = require('angular');
+var moment = require('moment');
+var tinycolor = require('tinycolor2');
+
 angular.module('windmobile.services', [])
     .factory('utils', function () {
         return {

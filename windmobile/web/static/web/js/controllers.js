@@ -1,3 +1,7 @@
+var angular = require('angular');
+var moment = require('moment');
+var InfoBox = require('google-maps-infobox');
+
 angular.module('windmobile.controllers', ['windmobile.services'])
 
     .controller('ListController', ['$scope', '$state', '$http', '$interval', 'utils', function ($scope, $state, $http, $interval, utils) {

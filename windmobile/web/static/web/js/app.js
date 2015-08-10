@@ -1,4 +1,9 @@
-angular.module('windmobile', ['ui.router', 'windmobile.services', 'windmobile.controllers'])
+require('bootstrap-sass');
+
+var angular = require('angular');
+var Snap = require('snapsvg');
+
+angular.module('windmobile', [require('angular-ui-router'), 'windmobile.services', 'windmobile.controllers'])
     .config(['$locationProvider', '$stateProvider', '$urlRouterProvider',
         function ($locationProvider, $stateProvider, $urlRouterProvider) {
             $locationProvider.html5Mode(true);

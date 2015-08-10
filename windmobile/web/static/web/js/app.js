@@ -3,9 +3,13 @@ require('bootstrap-sass');
 var angular = require('angular');
 var Snap = require('snapsvg');
 
-angular.module('windmobile', [require('angular-ui-router'), 'windmobile.services', 'windmobile.controllers'])
-    .config(['$locationProvider', '$stateProvider', '$urlRouterProvider',
-        function ($locationProvider, $stateProvider, $urlRouterProvider) {
+angular.module('windmobile', [require('angular-ui-router'), require('oclazyload'), 'windmobile.services', 'windmobile.controllers'])
+    .config(['$ocLazyLoadProvider', '$locationProvider', '$stateProvider', '$urlRouterProvider',
+        function ($ocLazyLoadProvider, $locationProvider, $stateProvider, $urlRouterProvider) {
+            $ocLazyLoadProvider.config({
+                events: true
+            });
+
             $locationProvider.html5Mode(true);
             $stateProvider
                 .state('map', {
@@ -20,6 +24,11 @@ angular.module('windmobile', [require('angular-ui-router'), 'windmobile.services
                             templateUrl: '/static/web/templates/detail.html',
                             controller: 'DetailController as detail'
                         }
+                    },
+                    resolve: {
+                        loadMyCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load('/static/web/lib/highstock.js');
+                        }]
                     }
                 })
                 .state('list', {
@@ -34,74 +43,81 @@ angular.module('windmobile', [require('angular-ui-router'), 'windmobile.services
                             templateUrl: '/static/web/templates/detail.html',
                             controller: 'DetailController as detail'
                         }
+                    },
+                    resolve: {
+                        loadMyCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load('/static/web/lib/highstock.js');
+                        }]
                     }
                 });
             $urlRouterProvider.otherwise("/map");
         }])
-    .run(["$rootScope", function ($rootScope) {
-        Highcharts.setOptions({
-            global: {
-                useUTC: false
-            },
-            chart: {
-                backgroundColor: null,
-                resetZoomButton: {
-                    theme: {
+    .run(['$rootScope', function ($rootScope) {
+        $rootScope.$on('ocLazyLoad.fileLoaded', function (event, file) {
+            Highcharts.setOptions({
+                global: {
+                    useUTC: false
+                },
+                chart: {
+                    backgroundColor: null,
+                    resetZoomButton: {
+                        theme: {
+                            fill: 'none',
+                            stroke: '#ddd',
+                            style: {color: '#8d8d8d'}
+                        }
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                plotOptions: {
+                    series: {
+                        animation: false,
+                        states: {
+                            hover: {
+                                enabled: false
+                            }
+                        }
+                    }
+                },
+                rangeSelector: {
+                    inputEnabled: false,
+                    buttons: [
+                        {type: 'day', count: 5, text: '5d'},
+                        {type: 'day', count: 2, text: '2d'},
+                        {type: 'day', count: 1, text: '1d'},
+                        {type: 'hour', count: 12, text: '12h'},
+                        {type: 'hour', count: 6, text: '6h'}
+                    ],
+                    selected: 4,
+                    buttonTheme: {
+                        width: 35,
                         fill: 'none',
-                        stroke: '#ddd',
-                        style: {color: '#8d8d8d'}
-                    }
-                }
-            },
-            legend: {
-                enabled: false
-            },
-            plotOptions: {
-                series: {
-                    animation: false,
-                    states: {
-                        hover: {
-                            enabled: false
+                        stroke: 'none',
+                        'stroke-width': 0,
+                        r: 8,
+                        style: {color: '#8d8d8d'},
+                        states: {
+                            hover: {
+                                fill: 'none',
+                                style: {color: '#ddd'}
+                            },
+                            select: {
+                                fill: 'none',
+                                style: {color: '#ddd'}
+                            },
+                            disabled: {
+                                style: {color: '#666'}
+                            }
                         }
                     }
+                },
+                loading: {
+                    labelStyle: {color: 'white'},
+                    style: {backgroundColor: 'transparent'}
                 }
-            },
-            rangeSelector: {
-                inputEnabled: false,
-                buttons: [
-                    {type: 'day', count: 5, text: '5d'},
-                    {type: 'day', count: 2, text: '2d'},
-                    {type: 'day', count: 1, text: '1d'},
-                    {type: 'hour', count: 12, text: '12h'},
-                    {type: 'hour', count: 6, text: '6h'}
-                ],
-                selected: 4,
-                buttonTheme: {
-                    width: 35,
-                    fill: 'none',
-                    stroke: 'none',
-                    'stroke-width': 0,
-                    r: 8,
-                    style: {color: '#8d8d8d'},
-                    states: {
-                        hover: {
-                            fill: 'none',
-                            style: {color: '#ddd'}
-                        },
-                        select: {
-                            fill: 'none',
-                            style: {color: '#ddd'}
-                        },
-                        disabled: {
-                            style: {color: '#666'}
-                        }
-                    }
-                }
-            },
-            loading: {
-                labelStyle: {color: 'white'},
-                style: {backgroundColor: 'transparent'}
-            }
+            });
         });
         $rootScope.$on('$stateChangeSuccess',
             function (event, toState, toParams, fromState, fromParams) {

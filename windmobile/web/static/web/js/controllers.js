@@ -350,6 +350,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             });
 
             $('a[data-target="#tab2"]').on('shown.bs.tab', function (event) {
+                // Force highcharts to resize
                 $('.wdm-wind-chart').highcharts().reflow();
                 var params = {
                     duration: 432000,
@@ -364,6 +365,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 });
             });
             $('a[data-target="#tab3"]').on('shown.bs.tab', function (event) {
+                // Force highcharts to resize
                 $('.wdm-air-chart').highcharts().reflow();
                 var params = {
                     duration: 432000,

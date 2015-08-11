@@ -332,8 +332,11 @@ angular.module('windmobile', [require('angular-ui-router'), require('oclazyload'
                             serie1.push([date, value[i]['w-max']]);
                             windDir[date] = value[i]['w-dir'];
                         }
-                        chart.series[0].setData(serie0);
-                        chart.series[1].setData(serie1);
+                        chart.series[0].setData(serie0, false);
+                        chart.series[1].setData(serie1, false);
+                        // Workaround for https://github.com/highslide-software/highcharts.com/issues/4452
+                        chart.xAxis[0].isDirtyExtremes = true;
+                        chart.redraw();
                     }
                 });
             }
@@ -424,9 +427,12 @@ angular.module('windmobile', [require('angular-ui-router'), require('oclazyload'
                             serie1.push([date, value[i]['temp']]);
                             serie2.push([date, value[i]['hum']]);
                         }
-                        chart.series[0].setData(serie0);
-                        chart.series[1].setData(serie1);
-                        chart.series[2].setData(serie2);
+                        chart.series[0].setData(serie0, false);
+                        chart.series[1].setData(serie1, false);
+                        chart.series[2].setData(serie2, false);
+                        // Workaround for https://github.com/highslide-software/highcharts.com/issues/4452
+                        chart.xAxis[0].isDirtyExtremes = true;
+                        chart.redraw();
                     }
                 });
             }

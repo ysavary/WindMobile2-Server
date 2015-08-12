@@ -1,4 +1,5 @@
-require('bootstrap-sass');
+require('bootstrap-sass/assets/javascripts/bootstrap/modal.js');
+require('bootstrap-sass/assets/javascripts/bootstrap/tab.js');
 
 var angular = require('angular');
 var Snap = require('snapsvg');

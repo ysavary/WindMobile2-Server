@@ -309,11 +309,12 @@ angular.module('windmobile', [require('angular-ui-router'), require('oclazyload'
                         lineColor: '#8d8d8d'
                     },
                     yAxis: {
+                        opposite: false,
                         gridLineWidth: 0.5,
                         gridLineColor: '#555',
                         labels: {
-                            format: '{value} kmh',
-                            style: {color: "#7d7d00", fontSize: '9px'}
+                            format: '{value} km/h',
+                            style: {color: "#7d7d00", fontSize: '8.5px'}
                         }
                     },
                     series: [windAvgSerie, windMaxSerie]
@@ -336,7 +337,7 @@ angular.module('windmobile', [require('angular-ui-router'), require('oclazyload'
                         chart.series[1].setData(serie1, false);
                         // Workaround for https://github.com/highslide-software/highcharts.com/issues/4452
                         chart.xAxis[0].isDirtyExtremes = true;
-                        chart.redraw();
+                        chart.redraw(false);
                     }
                 });
             }
@@ -392,18 +393,18 @@ angular.module('windmobile', [require('angular-ui-router'), require('oclazyload'
                         lineColor: '#8d8d8d'
                     },
                     yAxis: [{
+                        opposite: false,
                         gridLineWidth: 0.5,
                         gridLineColor: "#555",
                         labels: {
                             format: '{value} °C',
-                            style: {color: "#c72d46", fontSize: '9px'}
+                            style: {color: "#c72d46", fontSize: '8.5px'}
                         }
                     }, {
-                        opposite: false,
                         gridLineWidth: 0,
                         labels: {
                             format: '{value} %',
-                            style: {color: "#3b71a0", fontSize: '9px'}
+                            style: {color: "#3b71a0", fontSize: '8.5px'}
                         }
                     }, {
                         gridLineWidth: 0,
@@ -432,7 +433,7 @@ angular.module('windmobile', [require('angular-ui-router'), require('oclazyload'
                         chart.series[2].setData(serie2, false);
                         // Workaround for https://github.com/highslide-software/highcharts.com/issues/4452
                         chart.xAxis[0].isDirtyExtremes = true;
-                        chart.redraw();
+                        chart.redraw(false);
                     }
                 });
             }

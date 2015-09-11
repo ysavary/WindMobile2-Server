@@ -72,4 +72,49 @@ angular.module('windmobile.services', [])
                 }
             }
         };
-    });
+    })
+    .factory('visibilityBroadcaster', ['$rootScope', '$document', function ($rootScope, $document) {
+        var document = $document[0];
+        var detectedFeature;
+
+        var features = {
+            standard: {
+                eventName: 'visibilitychange',
+                propertyName: 'hidden'
+            },
+            moz: {
+                eventName: 'mozvisibilitychange',
+                propertyName: 'mozHidden'
+            },
+            ms: {
+                eventName: 'msvisibilitychange',
+                propertyName: 'msHidden'
+            },
+            webkit: {
+                eventName: 'webkitvisibilitychange',
+                propertyName: 'webkitHidden'
+            }
+        };
+
+        isBoolean = function (obj) {
+            return obj === true || obj === false || toString.call(obj) == '[object Boolean]';
+        };
+
+        Object.keys(features).some(function (feature) {
+            if (isBoolean(document[features[feature].propertyName])) {
+                detectedFeature = features[feature];
+                return true;
+            }
+        });
+
+        if (detectedFeature) {
+            $document.on(detectedFeature.eventName, function () {
+                $rootScope.$broadcast('visibilityChange',
+                    document[detectedFeature.propertyName]);
+            });
+        }
+
+        return {
+            supported: !!detectedFeature
+        }
+    }]);

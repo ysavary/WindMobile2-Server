@@ -341,8 +341,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.centerMap();
         }])
 
-    .controller('DetailController', ['$scope', '$state', '$stateParams', '$http', '$interval', 'utils',
-        function ($scope, $state, $stateParams, $http, $interval, utils) {
+    .controller('DetailController', ['$scope', '$state', '$stateParams', '$http', '$interval', 'utils', 'visibilityBroadcaster',
+        function ($scope, $state, $stateParams, $http, $interval, utils, visibilityBroadcaster) {
             var self = this;
 
             $('#detailModal').modal().on('hidden.bs.modal', function (e) {
@@ -425,21 +425,31 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             };
 
             $scope.onFromNowInterval = function() {
+                console.info(moment().format() + "--> onFromNowInterval");
                 self.station.fromNow = moment.unix(self.station.last._id).fromNow();
                 var status = utils.getStationStatus(self.station);
                 self.station.fromNowClass = utils.getStatusClass(status);
             };
             $scope.onRefreshInterval = function() {
+                console.info(moment().format() + "--> onRefreshInterval");
                 self.doDetail();
             };
 
             $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
-                if (toState.name.indexOf('detail') > -1) {
-                    $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-                    $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
-                } else if (fromState.name.indexOf('detail') > -1) {
+                if (fromState.name.indexOf('detail') > -1) {
                     $interval.cancel($scope.fromNowInterval);
                     $interval.cancel($scope.refreshInterval);
+                }
+            });
+            $scope.$on('visibilityChange', function(event, isHidden) {
+                console.info(moment().format() + "--> visibilityChange: isHidden=" + isHidden);
+                if (isHidden) {
+                    $interval.cancel($scope.fromNowInterval);
+                    $interval.cancel($scope.refreshInterval);
+                } else {
+                    $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
+                    $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
+                    this.doDetail();
                 }
             });
 

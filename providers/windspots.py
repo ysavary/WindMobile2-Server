@@ -31,13 +31,10 @@ class Windspots(Provider):
                         station_id,
                         windspots_station['@shortName'],
                         windspots_station['@name'],
-                        '',
-                        '',
-                        windspots_station['@altitude'],
                         windspots_station['@wgs84Latitude'],
                         windspots_station['@wgs84Longitude'],
                         windspots_station['@maintenanceStatus'],
-                        url=self.provider_url)
+                        altitude=windspots_station['@altitude'])
 
                     try:
                         # Asking 2 days of data

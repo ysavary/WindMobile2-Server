@@ -9,6 +9,7 @@ from pymongo.errors import CollectionInvalid
 import requests
 import arrow
 import dateutil
+import redis
 
 
 class NoExceptionFormatter(logging.Formatter):
@@ -60,11 +61,6 @@ class Status:
     GREEN = 'green'
 
 
-class Category:
-    PARAGLIDING = 'para'
-    KITE = 'kite'
-
-
 def to_int(value):
     try:
         return int(round(float(value)))
@@ -87,11 +83,13 @@ class Provider(object):
         uri = uri_parser.parse_uri(mongo_url)
         client = MongoClient(uri['nodelist'][0][0], uri['nodelist'][0][1])
         self.mongo_db = client[uri['database']]
+        self.redis = redis.StrictRedis()
 
     def stations_collection(self):
         collection = self.mongo_db.stations
-        collection.ensure_index([('loc', GEOSPHERE)])
-        collection.ensure_index([('name', 'text'), ('desc', 'text')], default_language='fr')
+        collection.create_index('short')
+        collection.create_index('name')
+        collection.create_index([('loc', GEOSPHERE)])
         return collection
 
     def measures_collection(self, station_id):
@@ -103,15 +101,15 @@ class Provider(object):
     def get_station_id(self, id):
         return self.provider_prefix + "-" + str(id)
 
-    def __create_station(self, short_name, name, category, tags, altitude, latitude, longitude, status,
-                         description=None, url=None, tz=None, uptime=None, language=None):
+    def __create_station(self, short_name, name, altitude, latitude, longitude, status, tz, url=None):
+
+        if any((not short_name, not name, altitude is None, latitude is None, longitude is None, not status, not tz)):
+            raise ProviderException("A mandatory value is null!")
 
         station = {'prov': self.provider_name,
                    'url': url or self.provider_url,
                    'short': short_name,
                    'name': name,
-                   'cat': category,
-                   'tags': tags,
                    'alt': to_int(altitude),
                    'loc': {
                        'type': 'Point',
@@ -121,45 +119,52 @@ class Provider(object):
                        ]
                    },
                    'status': status,
+                   'tz': tz,
                    'seen': arrow.utcnow().timestamp
                    }
-
-        # Optional keys
-        if description:
-            station['desc'] = description
-        if tz:
-            station['tz'] = tz
-        if uptime:
-            station['uptime'] = uptime
-        if language:
-            station['language'] = language
-
         return station
 
-    def save_station(self, _id, short_name, name, category, tags, altitude, latitude, longitude, status,
-                     description=None, url=None, tz=None, uptime=None, language=None):
+    def save_station(self, _id, short_name, name, latitude, longitude, status, altitude=None, tz=None, url=None):
+        try:
+            if not altitude and not self.redis.get("elevation-api-{_id}".format(_id=_id)):
+                result = requests.get(
+                    "https://maps.googleapis.com/maps/api/elevation/json?locations={lat},{lon}&key={key}"
+                    .format(lat=to_float(latitude, 6),
+                            lon=to_float(longitude, 6),
+                            key=os.environ['GOOGLE_API_KEY']),
+                    timeout=(self.connect_timeout, self.read_timeout))
+                if result.json()['status'] == 'OVER_QUERY_LIMIT':
+                    raise ProviderException('maps.googleapis.com/maps/api/elevation: usage limits exceeded')
+                self.redis.setex("elevation-api-{_id}".format(_id=_id), 3600, 'ok')
+                if result.json()['status'] == 'REQUEST_DENIED':
+                    raise ProviderException('maps.googleapis.com/maps/api/elevation: request denied')
+                altitude = to_int(result.json()['results'][0]['elevation'])
 
-        station = self.__create_station(short_name, name, category, tags, altitude, latitude, longitude, status,
-                                        description, url, tz, uptime, language)
-        self.stations_collection().update({'_id': _id}, {'$set': station}, upsert=True)
-        station = self.stations_collection().find_one(_id)
-
-        if not 'tz' in station:
-            try:
+            if not tz and not self.redis.get("timezone-api-{_id}".format(_id=_id)):
                 result = requests.get(
                     "https://maps.googleapis.com/maps/api/timezone/json?location={lat},{lon}&timestamp={utc}&key={key}"
-                    .format(lat=station['loc']['coordinates'][1],
-                            lon=station['loc']['coordinates'][0],
+                    .format(lat=to_float(latitude, 6),
+                            lon=to_float(longitude, 6),
                             utc=arrow.utcnow().timestamp,
-                            key=os.environ['GOOGLE_TIMEZONE_API_KEY']),
+                            key=os.environ['GOOGLE_API_KEY']),
                     timeout=(self.connect_timeout, self.read_timeout))
+                if result.json()['status'] == 'OVER_QUERY_LIMIT':
+                    raise ProviderException('maps.googleapis.com/maps/api/timezone: usage limits exceeded')
+                self.redis.setex("timezone-api-{_id}".format(_id=_id), 3600, 'ok')
+                if result.json()['status'] == 'REQUEST_DENIED':
+                    raise ProviderException('maps.googleapis.com/maps/api/elevation: request denied')
                 tz = result.json()['timeZoneId']
                 dateutil.tz.gettz(tz)
-            except:
-                tz = ""
-            self.stations_collection().update({'_id': _id}, {'$set': {'tz': tz}})
+
+            station = self.__create_station(short_name, name, altitude, latitude, longitude, status, tz, url)
+            self.stations_collection().update({'_id': _id}, {'$set': station}, upsert=True)
+            return self.stations_collection().find_one(_id)
+        except Exception as e:
+            # Unable to update the station based on the provided parameters: return the database version if available
             station = self.stations_collection().find_one(_id)
-        return station
+            if not station:
+                raise e
+            return station
 
     def create_measure(self, _id, wind_direction, wind_average, wind_maximum, temperature, humidity,
                        wind_direction_instant=None, wind_minimum=None, pressure=None, luminosity=None, rain=None):

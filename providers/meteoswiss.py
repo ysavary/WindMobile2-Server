@@ -48,12 +48,10 @@ class MeteoSwiss(Provider):
                         station_id,
                         description['name'],
                         description['name'],
-                        '',
-                        ['switzerland'],
-                        description['altitude'],
                         description['location']['lat'],
                         description['location']['lon'],
-                        Status.GREEN)
+                        Status.GREEN,
+                        altitude=description['altitude'])
 
                     key = arrow.get(data['time'], 'YYYYMMDDHHmm').timestamp
 

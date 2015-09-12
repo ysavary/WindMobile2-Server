@@ -4,7 +4,7 @@ import urllib.parse
 # Modules
 import requests
 
-from provider import get_logger, Provider, ProviderException, Status, Category
+from provider import get_logger, Provider, ProviderException, Status
 
 logger = get_logger('jdc')
 
@@ -44,12 +44,10 @@ class Jdc(Provider):
                         station_id,
                         jdc_station['short-name'],
                         jdc_station['name'],
-                        Category.PARAGLIDING,
-                        ['switzerland'],
-                        jdc_station['altitude'],
                         jdc_station['latitude'],
                         jdc_station['longitude'],
                         self.get_status(jdc_station['status']),
+                        altitude=jdc_station['altitude'],
                         url=urllib.parse.urljoin(self.provider_url, "/station/" + str(jdc_station['serial'])))
 
                     try:

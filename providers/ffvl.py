@@ -6,7 +6,7 @@ import requests
 import arrow
 import dateutil
 
-from provider import get_logger, Provider, ProviderException, Status, Category
+from provider import get_logger, Provider, ProviderException, Status
 
 logger = get_logger('ffvl')
 
@@ -29,9 +29,6 @@ class Ffvl(Provider):
         else:
             return Status.HIDDEN
 
-    def get_tags(self, ffvl_station):
-        return ['france', ffvl_station.find('departement').attrib['value']]
-
     def get_xml_element(self, xml_element, xml_child_name):
         child = xml_element.find(xml_child_name)
         if not child is None:
@@ -45,15 +42,6 @@ class Ffvl(Provider):
             return child.attrib[xml_child_attrib]
 
         return None
-
-    def get_category(self, xml_element):
-        try:
-            child = xml_element.find('forKyte')
-            if int(child.text) == 1:
-                return Category.KITE
-        except (AttributeError, ValueError):
-            pass
-        return Category.PARAGLIDING
 
     def process_data(self):
         try:
@@ -71,13 +59,10 @@ class Ffvl(Provider):
                         station_id,
                         self.get_xml_element(ffvl_station, 'nom'),
                         self.get_xml_element(ffvl_station, 'nom'),
-                        self.get_category(ffvl_station),
-                        self.get_tags(ffvl_station),
-                        self.get_xml_attribute(ffvl_station, 'altitude', 'value'),
                         self.get_xml_attribute(ffvl_station, 'coord', 'lat'),
                         self.get_xml_attribute(ffvl_station, 'coord', 'lon'),
                         self.get_status(self.get_xml_element(ffvl_station, 'active')),
-                        description=self.get_xml_element(ffvl_station, 'description'),
+                        altitude=self.get_xml_attribute(ffvl_station, 'altitude', 'value'),
                         url=self.get_xml_attribute(ffvl_station, 'url', 'value'))
 
                 except Exception as e:

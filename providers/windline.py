@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import MySQLdb
 import arrow
 
-from provider import get_logger, Provider, ProviderException, Status, Category
+from provider import get_logger, Provider, ProviderException, Status
 import wgs84
 
 logger = get_logger('windline')
@@ -125,12 +125,10 @@ class Windline(Provider):
                         station_id,
                         short_name,
                         name,
-                        Category.PARAGLIDING,
-                        ['switzerland'],
-                        self.get_property_value(mysql_cursor, station_no, altitude_property_id),
                         wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no, latitude_property_id)),
                         wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no, longitude_property_id)),
-                        self.get_status(status))
+                        self.get_status(status),
+                        altitude=self.get_property_value(mysql_cursor, station_no, altitude_property_id))
 
                     try:
                         measures_collection = self.measures_collection(station_id)

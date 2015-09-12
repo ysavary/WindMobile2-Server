@@ -21,7 +21,6 @@ def stations(request):
     - Search (ignore accents): <a href=/api/2/stations/?search=dole>/api/2/stations/?search=dole</a>
     - Search for 3 stations around Yverdon: <a href=/api/2/stations/?lat=46.78&lon=6.63&limit=3>/api/2/stations/?lat=46.78&lon=6.63&limit=3</a>
     - Search 20 km around Yverdon: <a href=/api/2/stations/?lat=46.78&lon=6.63&distance=20000>/api/2/stations/?lat=46.78&lon=6.63&distance=20000</a>
-    - Text search: <a href=/api/2/stations/?word=sommet>/api/2/stations/?word=sommet</a>
 
     Query parameters:
     limit          -- Nb stations to return (default=20)
@@ -66,8 +65,7 @@ def stations(request):
     if search:
         regexp_query = diacritics.create_regexp(diacritics.normalize(search))
         query['$or'] = [{'name': {'$regex': regexp_query, '$options': 'i'}},
-                        {'short': {'$regex': regexp_query, '$options': 'i'}},
-                        {'tags': search}]
+                        {'short': {'$regex': regexp_query, '$options': 'i'}}]
 
     if near_latitude and near_longitude:
         if near_distance:
@@ -144,6 +142,7 @@ def stations(request):
     except OperationFailure as e:
         raise ParseError(e.details)
 
+
 @api_view(['GET'])
 def station_json_doc(request):
     """
@@ -165,8 +164,6 @@ def station_json_doc(request):
             'type': 'Point',
             'coordinates': "[ [float] longitude, [float] latitude ]"
         },
-        "tags": "[array of string] tags",
-        "cat": "[string] category",
         "seen": "[integer] last time updated (unix time)",
 
         "last": {

@@ -33,8 +33,6 @@ def stations(request):
     within-pt1-lon -- Geo search within rectangle: pt1 longitude
     within-pt2-lat -- Geo search within rectangle: pt2 latitude
     within-pt2-lon -- Geo search within rectangle: pt2 longitude
-    word           -- Full text search
-    language       -- Language of the query (default 'fr')
     """
     limit = int(request.QUERY_PARAMS.get('limit', 20))
     provider = request.QUERY_PARAMS.get('provider')
@@ -46,8 +44,6 @@ def stations(request):
     within_pt1_longitude = request.QUERY_PARAMS.get('within-pt1-lon')
     within_pt2_latitude = request.QUERY_PARAMS.get('within-pt2-lat')
     within_pt2_longitude = request.QUERY_PARAMS.get('within-pt2-lon')
-    word = request.QUERY_PARAMS.get('word')
-    language = request.QUERY_PARAMS.get('language', 'fr')
 
     projections = request.QUERY_PARAMS.getlist('proj', None)
     if projections:
@@ -133,9 +129,6 @@ def stations(request):
             float(within_pt2_longitude),
             float(within_pt2_latitude))
         return Response(result)
-
-    if word:
-        query['$text'] = {'$search': word, '$language': language}
 
     try:
         return Response(list(mongo_db.stations.find(query, projection_dict).limit(limit)))

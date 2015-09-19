@@ -135,7 +135,7 @@ class Provider(object):
             lat = to_float(latitude, 6)
             lon = to_float(longitude, 6)
 
-            alt_key = "alt-{lat},{lon}".format(lat=lat, lon=lon)
+            alt_key = "alt/{lat},{lon}".format(lat=lat, lon=lon)
             if not self.redis.exists(alt_key):
                 radius = 500
                 nb = 6
@@ -160,7 +160,7 @@ class Provider(object):
                     elevation = float(result.json()['results'][0]['elevation'])
                     is_peak = False
                     for result in result.json()['results'][1:]:
-                        glide_ratio = radius / (altitude - float(result['elevation']))
+                        glide_ratio = radius / (elevation - float(result['elevation']))
                         if 0 < glide_ratio < 6:
                             is_peak = True
                             break
@@ -175,7 +175,7 @@ class Provider(object):
                     pipe.expire(alt_key, 24*3600)
                     pipe.execute()
 
-            tz_key = "tz-{lat},{lon}".format(lat=lat, lon=lon)
+            tz_key = "tz/{lat},{lon}".format(lat=lat, lon=lon)
             if not tz and not self.redis.exists(tz_key):
                 result = requests.get(
                     "https://maps.googleapis.com/maps/api/timezone/json?location={lat},{lon}&timestamp={utc}&key={key}"

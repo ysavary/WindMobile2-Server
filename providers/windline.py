@@ -1,10 +1,12 @@
 import os
+import subprocess
 from urllib.parse import urlparse
 from datetime import datetime, timedelta
 
 # Modules
 import MySQLdb
 import arrow
+from cachetools import hashkey, cached
 
 from provider import get_logger, Provider, ProviderException, Status
 import wgs84
@@ -60,6 +62,25 @@ class Windline(Provider):
             ORDER BY measuredate""", (station_id, data_id, start_date))
         return cursor.fetchall()
 
+    @cached(cache={}, key=lambda self, cursor, station_no, data_id: hashkey(station_no, data_id))
+    def get_measure_correction(self, cursor, station_no, data_id):
+        try:
+            cursor.execute(
+                """SELECT calibratevalue FROM tblcalibrate WHERE tblstationno=%s AND tbldatatypeno=("""
+                """    SELECT tbldatatypeno FROM tbldatatype WHERE dataid=%s"""
+                """)""", (station_no, data_id))
+            return cursor.fetchone()[0]
+        except (TypeError, ValueError):
+            return None
+
+    def get_corrected_value(self, cursor, value, station_no, data_id):
+        php_correction = self.get_measure_correction(cursor, station_no, data_id)
+        if php_correction:
+            php_cmd = "php -r '$_data={value}; $_data={php_correction}; echo \"$_data\";'".format(
+                value=value, php_correction=php_correction)
+            return float(subprocess.check_output(php_cmd, shell=True))
+        return value
+
     def get_measure_value(self, rows, start_date, end_date):
         for row in reversed(rows):
             date = row[0]
@@ -85,9 +106,7 @@ class Windline(Provider):
             mysql_connection = MySQLdb.connect(connection_info.hostname, connection_info.username,
                                                connection_info.password, connection_info.path[1:], charset='utf8')
 
-            # Cannot leave cursors open with module 'mysql-connector-python':
-            # the loops are too long (db connection timeout) and it's too slow
-            # Module 'mysql-python' is buffered by default so we can use the same cursor with fetchall
+            # mysql_connection is buffered by default so we can use the same cursor with fetchall
             mysql_cursor = mysql_connection.cursor()
 
             # status_property_id = get_property_id('status')
@@ -162,6 +181,8 @@ class Windline(Provider):
                                     wind_direction = self.get_measure_value(
                                         wind_direction_rows,
                                         measure_date - timedelta(seconds=10), measure_date + timedelta(seconds=10))
+                                    wind_direction = self.get_corrected_value(mysql_cursor, wind_direction, station_no,
+                                                                              wind_direction_type)
 
                                     temperature = self.get_last_measure_value(
                                         temperature_rows,

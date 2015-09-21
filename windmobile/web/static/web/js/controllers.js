@@ -160,8 +160,10 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         color = utils.getColorInRange(station.last['w-max'], 50);
                     }
                     var icon = {
-                        path: 'M21,149.2v86.3L-19,213l50,77l50-77l-40,22.5v-86.3c28.4-4.8,50-29.4,50-59.2S69.4,35.6,41,30.8V-83H21V30.8C-7.4,35.6-29,60.3-29,90S-7.4,144.4,21,149.2z M31,50c22.1,0,40,17.9,40,40s-17.9,40-40,40S-9,112.1-9,90S8.9,50,31,50z',
-                        anchor: new google.maps.Point(31, 90),
+                        path: (station.peak ?
+                            "M10,60v-2.3l55-95.2H10V-60v-90h-20v90v22.5h-55l55,95.2V60v70l-50-30l60,90l60-90l-50,30V60z M-30,0c0-16.6,13.4-30,30-30S30-16.6,30,0S16.6,30,0,30S-30,16.6-30,0z" :
+                            "M10,60v-0.8C38.4,54.4,60,29.7,60,0S38.4-54.4,10-59.2V-60v-90h-20v90v0.8C-38.4-54.4-60-29.7-60,0s21.6,54.4,50,59.2V60v70l-50-30l60,90l60-90l-50,30V60z M-40,0c0-22.1,17.9-40,40-40S40-22.1,40,0S22.1,40,0,40S-40,22.1-40,0z"
+                        ),
                         scale: 0.12,
                         fillOpacity: 1,
                         fillColor: color,
@@ -217,7 +219,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             function search(bounds) {
                 var params = {
                     proj: [
-                        'short', 'loc', 'status', 'prov', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max'
+                        'short', 'loc', 'status', 'prov', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max',
+                        'peak'
                     ]
                 };
                 if (bounds) {

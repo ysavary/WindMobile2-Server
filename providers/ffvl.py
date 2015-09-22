@@ -16,8 +16,8 @@ class Ffvl(Provider):
     provider_name = 'ffvl.fr'
     provider_url = 'http://www.balisemeteo.com'
 
-    def __init__(self, mongo_url, api_key):
-        super().__init__(mongo_url)
+    def __init__(self, mongo_url, google_api_key, api_key):
+        super().__init__(mongo_url, google_api_key)
         self.api_key = api_key
 
     # FFVL active: '0', '1'
@@ -116,5 +116,5 @@ class Ffvl(Provider):
 
         logger.info("...Done!")
 
-ffvl = Ffvl(os.environ['WINDMOBILE_MONGO_URL'], os.environ['WINDMOBILE_FFVL_KEY'])
+ffvl = Ffvl(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'], os.environ['WINDMOBILE_FFVL_KEY'])
 ffvl.process_data()

@@ -19,8 +19,8 @@ class Holfuy(Provider):
     provider_name = 'holfuy.hu'
     provider_url = 'http://holfuy.hu'
 
-    def __init__(self, mongo_url):
-        super().__init__(mongo_url)
+    def __init__(self, mongo_url, google_api_key):
+        super().__init__(mongo_url, google_api_key)
 
     def process_data(self):
         try:
@@ -84,5 +84,5 @@ class Holfuy(Provider):
         logger.info("Done !")
 
 
-holfuy = Holfuy(os.environ['WINDMOBILE_MONGO_URL'])
+holfuy = Holfuy(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'])
 holfuy.process_data()

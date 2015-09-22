@@ -14,8 +14,8 @@ class Jdc(Provider):
     provider_name = 'jdc.ch'
     provider_url = 'http://meteo.jdc.ch'
 
-    def __init__(self, mongo_url):
-        super().__init__(mongo_url)
+    def __init__(self, mongo_url, google_api_key):
+        super().__init__(mongo_url, google_api_key)
 
     # Jdc status: offline, maintenance, test or online
     def get_status(self, status):
@@ -102,5 +102,5 @@ class Jdc(Provider):
         logger.info("Done !")
 
 
-jdc = Jdc(os.environ['WINDMOBILE_MONGO_URL'])
+jdc = Jdc(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'])
 jdc.process_data()

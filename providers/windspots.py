@@ -14,8 +14,8 @@ class Windspots(Provider):
     provider_name = 'windspots.com'
     provider_url = 'http://www.windspots.com/spots'
 
-    def __init__(self, mongo_url):
-        super().__init__(mongo_url)
+    def __init__(self, mongo_url, google_api_key):
+        super().__init__(mongo_url, google_api_key)
 
     def process_data(self):
         try:
@@ -92,5 +92,5 @@ class Windspots(Provider):
         logger.info("Done !")
 
 
-windspots = Windspots(os.environ['WINDMOBILE_MONGO_URL'])
+windspots = Windspots(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'])
 windspots.process_data()

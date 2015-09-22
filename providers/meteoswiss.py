@@ -16,8 +16,8 @@ class MeteoSwiss(Provider):
     provider_name = 'meteoswiss.ch'
     provider_url = 'http://www.meteoswiss.ch'
 
-    def __init__(self, mongo_url):
-        super().__init__(mongo_url)
+    def __init__(self, mongo_url, google_api_key):
+        super().__init__(mongo_url, google_api_key)
 
     def process_data(self):
         try:
@@ -82,5 +82,5 @@ class MeteoSwiss(Provider):
 
         logger.info("...Done!")
 
-meteoswiss = MeteoSwiss(os.environ['WINDMOBILE_MONGO_URL'])
+meteoswiss = MeteoSwiss(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'])
 meteoswiss.process_data()

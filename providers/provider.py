@@ -84,11 +84,12 @@ class Provider(object):
     connect_timeout = 7
     read_timeout = 30
 
-    def __init__(self, mongo_url):
+    def __init__(self, mongo_url, google_api_key):
         uri = uri_parser.parse_uri(mongo_url)
         client = MongoClient(uri['nodelist'][0][0], uri['nodelist'][0][1])
         self.mongo_db = client[uri['database']]
         self.redis = redis.StrictRedis(decode_responses=True)
+        self.google_api_key = google_api_key
 
     def stations_collection(self):
         collection = self.mongo_db.stations
@@ -130,6 +131,38 @@ class Provider(object):
                    }
         return station
 
+    def compute_elevation(self, lat, lon):
+        radius = 500
+        nb = 6
+        path = "{lat},{lon}|".format(lat=lat, lon=lon)
+        for k in range(nb):
+            angle = math.pi * 2 * k / nb
+            dx = radius * math.cos(angle)
+            dy = radius * math.sin(angle)
+            path += "{lat},{lon}".format(
+                lat=str(lat + (180 / math.pi) * (dy / 6378137)),
+                lon=str(lon + (180 / math.pi) * (dx / 6378137) / math.cos(lat * math.pi / 180)))
+            if k < nb - 1:
+                path += '|'
+
+        result = requests.get(
+            "https://maps.googleapis.com/maps/api/elevation/json?locations={path}&key={key}"
+            .format(path=path, key=self.google_api_key),
+            timeout=(self.connect_timeout, self.read_timeout))
+        if result.json()['status'] == 'OVER_QUERY_LIMIT':
+            raise ProviderException('maps.googleapis.com/maps/api/elevation: usage limits exceeded')
+        try:
+            elevation = float(result.json()['results'][0]['elevation'])
+            is_peak = False
+            for result in result.json()['results'][1:]:
+                glide_ratio = radius / (elevation - float(result['elevation']))
+                if 0 < glide_ratio < 6:
+                    is_peak = True
+                    break
+            return elevation, is_peak
+        except Exception:
+            raise ProviderException("Unable to compute elevation")
+
     def save_station(self, _id, short_name, name, latitude, longitude, status, altitude=None, tz=None, url=None):
         try:
             lat = to_float(latitude, 6)
@@ -137,39 +170,14 @@ class Provider(object):
 
             alt_key = "alt/{lat},{lon}".format(lat=lat, lon=lon)
             if not self.redis.exists(alt_key):
-                radius = 500
-                nb = 6
-                path = "{lat},{lon}|".format(lat=lat, lon=lon)
-                for k in range(nb):
-                    angle = math.pi * 2 * k / nb
-                    dx = radius * math.cos(angle)
-                    dy = radius * math.sin(angle)
-                    path += "{lat},{lon}".format(
-                        lat=str(lat + (180 / math.pi) * (dy / 6378137)),
-                        lon=str(lon + (180 / math.pi) * (dx / 6378137) / math.cos(lat * math.pi / 180)))
-                    if k < nb - 1:
-                        path += '|'
-
-                result = requests.get(
-                    "https://maps.googleapis.com/maps/api/elevation/json?locations={path}&key={key}"
-                    .format(path=path, key=os.environ['GOOGLE_API_KEY']),
-                    timeout=(self.connect_timeout, self.read_timeout))
-                if result.json()['status'] == 'OVER_QUERY_LIMIT':
-                    raise ProviderException('maps.googleapis.com/maps/api/elevation: usage limits exceeded')
                 try:
-                    elevation = float(result.json()['results'][0]['elevation'])
-                    is_peak = False
-                    for result in result.json()['results'][1:]:
-                        glide_ratio = radius / (elevation - float(result['elevation']))
-                        if 0 < glide_ratio < 6:
-                            is_peak = True
-                            break
+                    elevation, is_peak = self.compute_elevation(lat, lon)
                     pipe = self.redis.pipeline()
                     pipe.hset(alt_key, 'alt', elevation)
                     pipe.hset(alt_key, 'is_peak', is_peak)
                     pipe.expire(alt_key, 24*3600)
                     pipe.execute()
-                except Exception :
+                except ProviderException:
                     pipe = self.redis.pipeline()
                     pipe.hset(alt_key, 'status', 'error')
                     pipe.expire(alt_key, 24*3600)
@@ -179,7 +187,7 @@ class Provider(object):
             if not tz and not self.redis.exists(tz_key):
                 result = requests.get(
                     "https://maps.googleapis.com/maps/api/timezone/json?location={lat},{lon}&timestamp={utc}&key={key}"
-                    .format(lat=lat, lon=lon, utc=arrow.utcnow().timestamp, key=os.environ['GOOGLE_API_KEY']),
+                    .format(lat=lat, lon=lon, utc=arrow.utcnow().timestamp, key=self.google_api_key),
                     timeout=(self.connect_timeout, self.read_timeout))
                 if result.json()['status'] == 'OVER_QUERY_LIMIT':
                     raise ProviderException('maps.googleapis.com/maps/api/timezone: usage limits exceeded')
@@ -187,7 +195,7 @@ class Provider(object):
                     tz = result.json()['timeZoneId']
                     dateutil.tz.gettz(tz)
                     self.redis.setex(tz_key, 12*3600, tz)
-                except Exception as e:
+                except Exception:
                     self.redis.setex(tz_key, 12*3600, 'error')
 
             if not altitude:

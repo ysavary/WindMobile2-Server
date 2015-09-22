@@ -23,8 +23,8 @@ class Windline(Provider):
     provider_name = 'windline.ch'
     provider_url = 'http://www.windline.ch'
 
-    def __init__(self, mongo_url, windline_url):
-        super().__init__(mongo_url)
+    def __init__(self, mongo_url, google_api_key, windline_url):
+        super().__init__(mongo_url, google_api_key)
         self.windline_url = windline_url
 
     # Windline status: offline, maintenance, demo or online
@@ -221,5 +221,6 @@ class Windline(Provider):
 
         logger.info("Done !")
 
-windline = Windline(os.environ['WINDMOBILE_MONGO_URL'], os.environ['WINDMOBILE_WINDLINE_URL'])
+windline = Windline(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'],
+                    os.environ['WINDMOBILE_WINDLINE_URL'])
 windline.process_data()

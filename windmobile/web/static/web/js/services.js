@@ -44,6 +44,9 @@ angular.module('windmobile.services', [])
                 }
             },
             getColorInRange: function (value, max) {
+                if (value == -1) {
+                    return '#808080';
+                }
                 var hueStart = 90;
 
                 var hue = hueStart + (value / max) * (360 - hueStart);

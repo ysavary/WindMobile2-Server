@@ -325,3 +325,32 @@ $humidity-color: #3b71a0;
         }
     }
 }
+
+.wdm-map-legend {
+    background: white;
+    padding: 2px;
+    @media (max-height: 400px) {
+        display: none;
+    }
+
+    td {
+        width: 55px;
+        @media (min-height: 600px) {
+            padding-top: 2px;
+            padding-bottom: 2px;
+        }
+        @media (max-height: 500px) {
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        padding-top: 1px;
+        padding-bottom: 1px;
+        text-align: center;
+        font-weight: 900;
+    }
+    .wdm-map-hideable {
+        @media (max-height: 500px) {
+            display: none;
+        }
+    }
+}

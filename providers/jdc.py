@@ -4,7 +4,7 @@ import urllib.parse
 # Modules
 import requests
 
-from provider import get_logger, Provider, ProviderException, Status, Category
+from provider import get_logger, Provider, ProviderException, Status
 
 logger = get_logger('jdc')
 
@@ -13,9 +13,6 @@ class Jdc(Provider):
     provider_prefix = 'jdc'
     provider_name = 'jdc.ch'
     provider_url = 'http://meteo.jdc.ch'
-
-    def __init__(self, mongo_url):
-        super().__init__(mongo_url)
 
     # Jdc status: offline, maintenance, test or online
     def get_status(self, status):
@@ -44,12 +41,10 @@ class Jdc(Provider):
                         station_id,
                         jdc_station['short-name'],
                         jdc_station['name'],
-                        Category.PARAGLIDING,
-                        ['switzerland'],
-                        jdc_station['altitude'],
                         jdc_station['latitude'],
                         jdc_station['longitude'],
                         self.get_status(jdc_station['status']),
+                        altitude=jdc_station['altitude'],
                         url=urllib.parse.urljoin(self.provider_url, "/station/" + str(jdc_station['serial'])))
 
                     try:
@@ -104,5 +99,5 @@ class Jdc(Provider):
         logger.info("Done !")
 
 
-jdc = Jdc(os.environ['WINDMOBILE_MONGO_URL'])
+jdc = Jdc(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'])
 jdc.process_data()

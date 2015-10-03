@@ -14,9 +14,6 @@ class Windspots(Provider):
     provider_name = 'windspots.com'
     provider_url = 'http://www.windspots.com/spots'
 
-    def __init__(self, mongo_url):
-        super().__init__(mongo_url)
-
     def process_data(self):
         try:
             logger.info("Processing WindsSpots data...")
@@ -31,13 +28,10 @@ class Windspots(Provider):
                         station_id,
                         windspots_station['@shortName'],
                         windspots_station['@name'],
-                        '',
-                        '',
-                        windspots_station['@altitude'],
                         windspots_station['@wgs84Latitude'],
                         windspots_station['@wgs84Longitude'],
                         windspots_station['@maintenanceStatus'],
-                        url=self.provider_url)
+                        altitude=windspots_station['@altitude'])
 
                     try:
                         # Asking 2 days of data
@@ -95,5 +89,5 @@ class Windspots(Provider):
         logger.info("Done !")
 
 
-windspots = Windspots(os.environ['WINDMOBILE_MONGO_URL'])
+windspots = Windspots(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'])
 windspots.process_data()

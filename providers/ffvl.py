@@ -6,7 +6,7 @@ import requests
 import arrow
 import dateutil
 
-from provider import get_logger, Provider, ProviderException, Status, Category
+from provider import get_logger, Provider, ProviderException, Status
 
 logger = get_logger('ffvl')
 
@@ -16,8 +16,8 @@ class Ffvl(Provider):
     provider_name = 'ffvl.fr'
     provider_url = 'http://www.balisemeteo.com'
 
-    def __init__(self, mongo_url, api_key):
-        super().__init__(mongo_url)
+    def __init__(self, mongo_url, google_api_key, api_key):
+        super().__init__(mongo_url, google_api_key)
         self.api_key = api_key
 
     # FFVL active: '0', '1'
@@ -28,9 +28,6 @@ class Ffvl(Provider):
             return Status.GREEN
         else:
             return Status.HIDDEN
-
-    def get_tags(self, ffvl_station):
-        return ['france', ffvl_station.find('departement').attrib['value']]
 
     def get_xml_element(self, xml_element, xml_child_name):
         child = xml_element.find(xml_child_name)
@@ -45,15 +42,6 @@ class Ffvl(Provider):
             return child.attrib[xml_child_attrib]
 
         return None
-
-    def get_category(self, xml_element):
-        try:
-            child = xml_element.find('forKyte')
-            if int(child.text) == 1:
-                return Category.KITE
-        except (AttributeError, ValueError):
-            pass
-        return Category.PARAGLIDING
 
     def process_data(self):
         try:
@@ -71,13 +59,10 @@ class Ffvl(Provider):
                         station_id,
                         self.get_xml_element(ffvl_station, 'nom'),
                         self.get_xml_element(ffvl_station, 'nom'),
-                        self.get_category(ffvl_station),
-                        self.get_tags(ffvl_station),
-                        self.get_xml_attribute(ffvl_station, 'altitude', 'value'),
                         self.get_xml_attribute(ffvl_station, 'coord', 'lat'),
                         self.get_xml_attribute(ffvl_station, 'coord', 'lon'),
                         self.get_status(self.get_xml_element(ffvl_station, 'active')),
-                        description=self.get_xml_element(ffvl_station, 'description'),
+                        altitude=self.get_xml_attribute(ffvl_station, 'altitude', 'value'),
                         url=self.get_xml_attribute(ffvl_station, 'url', 'value'))
 
                 except Exception as e:
@@ -112,8 +97,6 @@ class Ffvl(Provider):
                             self.get_xml_element(ffvl_measure, 'vitesseVentMax'),
                             self.get_xml_element(ffvl_measure, 'temperature'),
                             self.get_xml_element(ffvl_measure, 'hydrometrie'),
-                            wind_direction_instant=self.get_xml_element(ffvl_measure, 'directVentInst'),
-                            wind_minimum=self.get_xml_element(ffvl_measure, 'vitesseVentMin'),
                             pressure=self.get_xml_element(ffvl_measure, 'pression'),
                             luminosity=self.get_xml_element(ffvl_measure, 'luminosite'))
 
@@ -131,5 +114,5 @@ class Ffvl(Provider):
 
         logger.info("...Done!")
 
-ffvl = Ffvl(os.environ['WINDMOBILE_MONGO_URL'], os.environ['WINDMOBILE_FFVL_KEY'])
+ffvl = Ffvl(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'], os.environ['WINDMOBILE_FFVL_KEY'])
 ffvl.process_data()

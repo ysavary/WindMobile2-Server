@@ -326,10 +326,12 @@ $humidity-color: #3b71a0;
     }
 }
 
-td.wdm-map-legend {
-    width: 55px;
-    padding: 2px;
-    text-align: center;
-    font-weight: 900;
-    background: White;
+.wdm-map-legend {
+    td {
+        width: 55px;
+        padding: 2px;
+        text-align: center;
+        font-weight: 900;
+        background: White;
+    }
 }

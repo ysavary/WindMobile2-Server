@@ -295,23 +295,13 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 mapTypeId: google.maps.MapTypeId.TERRAIN
             };
             this.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-            $('#legend-nodata').css('color', utils.getColorInRange(-1));
-            $('#legend-5').css('color', utils.getColorInRange(5, 50));
-            $('#legend-10').css('color', utils.getColorInRange(10, 50));
-            $('#legend-15').css('color', utils.getColorInRange(15, 50));
-            $('#legend-20').css('color', utils.getColorInRange(20, 50));
-            $('#legend-25').css('color', utils.getColorInRange(25, 50));
-            $('#legend-30').css('color', utils.getColorInRange(30, 50));
-            $('#legend-35').css('color', utils.getColorInRange(35, 50));
-            $('#legend-40').css('color', utils.getColorInRange(40, 50));
-            $('#legend-45').css('color', utils.getColorInRange(45, 50));
-            $('#legend-50').css('color', utils.getColorInRange(50, 50));
-            var legend = $('#legend');
-            this.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(legend[0]);
 
-            google.maps.event.addListenerOnce(self.map, 'idle', function(){
-                legend.show();
-            });
+            this.getLegendColor = function(value) {
+                return utils.getColorInRange(value, 50);
+            };
+            var legendDiv = $compile($templateCache.get('_legend.html'))($scope);
+            this.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(legendDiv[0]);
+
             google.maps.event.addListener(self.map, 'click', function () {
                 if (infoBox) {
                     infoBox.close();

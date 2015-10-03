@@ -167,6 +167,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         scale: 0.12,
                         fillOpacity: 1,
                         fillColor: color,
+                        strokeWeight: 0,
                         rotation: (station.last ? station.last['w-dir'] : 0)
                     };
 

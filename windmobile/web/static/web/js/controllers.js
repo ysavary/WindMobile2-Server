@@ -4,107 +4,111 @@ var InfoBox = require('google-maps-infobox');
 
 angular.module('windmobile.controllers', ['windmobile.services'])
 
-    .controller('ListController', ['$scope', '$state', '$http', '$interval', 'utils', function ($scope, $state, $http, $interval, utils) {
-        var self = this;
+    .controller('ListController', ['$scope', '$state', '$http', '$interval', '$location', 'utils',
+        function ($scope, $state, $http, $interval, $location, utils) {
+            var self = this;
 
-        function search(position) {
-            var params = {
-                proj: ['short', 'loc', 'status', 'prov', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max']
-            };
-            if (position) {
-                params['near-lat'] = position.coords.latitude;
-                params['near-lon'] = position.coords.longitude;
+            function search(position) {
+                var params = {
+                    proj: ['short', 'loc', 'status', 'prov', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max']
+                };
+                if (position) {
+                    params['near-lat'] = position.coords.latitude;
+                    params['near-lon'] = position.coords.longitude;
+                }
+                params.search = self.search;
+                params.limit = 12;
+
+                $http({
+                    method: 'GET',
+                    url: '/api/2/stations/',
+                    params: params
+                }).success(function (data) {
+                    self.stations = data;
+                    for (var i = 0; i < self.stations.length; i++) {
+                        var station = self.stations[i];
+                        station.fromNow = moment.unix(station.last._id).fromNow();
+                        var status = utils.getStationStatus(station);
+                        station.fromNowClass = utils.getStatusClass(status);
+                        self.getHistoric(station);
+                    }
+                });
             }
-            params.search = self.search;
-            params.limit = 12;
+            this.getHistoric = function (station) {
+                var params = {
+                    duration: 3600,
+                    proj: ['w-dir', 'w-avg']
+                };
+                $http({
+                    method: 'GET',
+                    url: '/api/2/stations/' + station._id + '/historic',
+                    params: params
+                }).success(function (data) {
+                    var historic = {
+                        data: data
+                    };
+                    station.historic = historic;
+                });
+            };
+            this.selectStation = function (station) {
+                $state.go('list.detail', {stationId: station._id});
+            };
+            this.doSearch = function () {
+                if (navigator.geolocation) {
+                    var locationTimeout = setTimeout(search, 1000);
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        clearTimeout(locationTimeout);
+                        search(position);
+                    }, function (error) {
+                        clearTimeout(locationTimeout);
+                        search();
+                    }, {
+                        enableHighAccuracy: true,
+                        maximumAge: 300000
+                    });
+                } else {
+                    search();
+                }
+            };
+            this.clearSearch = function () {
+                this.search = null;
+                $location.search('search', null);
+                this.doSearch();
+            };
 
-            $http({
-                method: 'GET',
-                url: '/api/2/stations/',
-                params: params
-            }).success(function (data) {
-                self.stations = data;
+            $scope.onFromNowInterval = function () {
                 for (var i = 0; i < self.stations.length; i++) {
                     var station = self.stations[i];
                     station.fromNow = moment.unix(station.last._id).fromNow();
                     var status = utils.getStationStatus(station);
                     station.fromNowClass = utils.getStatusClass(status);
-                    self.getHistoric(station);
                 }
-            });
-        }
-        this.getHistoric = function (station) {
-            var params = {
-                duration: 3600,
-                proj: ['w-dir', 'w-avg']
             };
-            $http({
-                method: 'GET',
-                url: '/api/2/stations/' + station._id + '/historic',
-                params: params
-            }).success(function (data) {
-                var historic = {
-                    data: data
-                };
-                station.historic = historic;
+            $scope.onRefreshInterval = function () {
+                self.doSearch();
+            };
+
+            $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+                if (toState.name === 'list') {
+                    $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
+                    $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
+                } else if (fromState.name === 'list') {
+                    $interval.cancel($scope.fromNowInterval);
+                    $interval.cancel($scope.refreshInterval);
+                }
+                // Force modal to close on browser back
+                $('#detailModal').modal('hide');
             });
-        };
-        this.selectStation = function (station) {
-            $state.go('list.detail', {stationId: station._id});
-        };
-        this.doSearch = function () {
-            if (navigator.geolocation) {
-                var locationTimeout = setTimeout(search, 1000);
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    clearTimeout(locationTimeout);
-                    search(position);
-                }, function(error) {
-                    clearTimeout(locationTimeout);
-                    search();
-                }, {
-                    enableHighAccuracy: true,
-                    maximumAge: 300000
-                });
-            } else {
-                search();
-            }
-        };
-        this.clearSearch = function () {
-            this.search = null;
+
+            $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
+            $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
+
+            this.search = $location.search().search;
             this.doSearch();
-        };
+        }])
 
-        $scope.onFromNowInterval = function() {
-            for (var i = 0; i < self.stations.length; i++) {
-                var station = self.stations[i];
-                station.fromNow = moment.unix(station.last._id).fromNow();
-                var status = utils.getStationStatus(station);
-                station.fromNowClass = utils.getStatusClass(status);
-            }
-        };
-        $scope.onRefreshInterval = function() {
-            self.doSearch();
-        };
-
-        $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
-            if (toState.name === 'list') {
-                $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-                $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
-            } else if (fromState.name === 'list') {
-                $interval.cancel($scope.fromNowInterval);
-                $interval.cancel($scope.refreshInterval);
-            }
-            // Force modal to close on browser back
-            $('#detailModal').modal('hide');
-        });
-
-        $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-        $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
-        this.doSearch();
-    }])
-
-    .controller('MapController', ['$scope', '$state', '$http', '$compile', '$templateCache', '$interval', 'utils',
-        function ($scope, $state, $http, $compile, $templateCache, $interval, utils) {
+    .controller('MapController', ['$scope', '$state', '$http', '$compile', '$templateCache', '$interval', '$location', 'utils',
+        function ($scope, $state, $http, $compile, $templateCache, $interval, $location, utils) {
             var infoBox;
             var inboBoxContent = $compile($templateCache.get('_infobox.html'))($scope);
 
@@ -265,6 +269,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             };
             this.clearSearch = function () {
                 this.search = null;
+                $location.search('search', null);
                 this.doSearch();
             };
             this.centerMap = function () {
@@ -347,6 +352,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
             $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
             $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
+
+            this.search = $location.search().search;
             this.centerMap();
         }])
 

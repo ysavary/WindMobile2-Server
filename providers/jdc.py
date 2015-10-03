@@ -14,9 +14,6 @@ class Jdc(Provider):
     provider_name = 'jdc.ch'
     provider_url = 'http://meteo.jdc.ch'
 
-    def __init__(self, mongo_url, google_api_key):
-        super().__init__(mongo_url, google_api_key)
-
     # Jdc status: offline, maintenance, test or online
     def get_status(self, status):
         if status == 'offline':

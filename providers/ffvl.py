@@ -97,8 +97,6 @@ class Ffvl(Provider):
                             self.get_xml_element(ffvl_measure, 'vitesseVentMax'),
                             self.get_xml_element(ffvl_measure, 'temperature'),
                             self.get_xml_element(ffvl_measure, 'hydrometrie'),
-                            wind_direction_instant=self.get_xml_element(ffvl_measure, 'directVentInst'),
-                            wind_minimum=self.get_xml_element(ffvl_measure, 'vitesseVentMin'),
                             pressure=self.get_xml_element(ffvl_measure, 'pression'),
                             luminosity=self.get_xml_element(ffvl_measure, 'luminosite'))
 

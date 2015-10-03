@@ -19,9 +19,6 @@ class Holfuy(Provider):
     provider_name = 'holfuy.hu'
     provider_url = 'http://holfuy.hu'
 
-    def __init__(self, mongo_url, google_api_key):
-        super().__init__(mongo_url, google_api_key)
-
     def process_data(self):
         try:
             logger.info("Processing Holfuy data...")

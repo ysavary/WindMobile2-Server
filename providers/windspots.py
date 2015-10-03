@@ -14,9 +14,6 @@ class Windspots(Provider):
     provider_name = 'windspots.com'
     provider_url = 'http://www.windspots.com/spots'
 
-    def __init__(self, mongo_url, google_api_key):
-        super().__init__(mongo_url, google_api_key)
-
     def process_data(self):
         try:
             logger.info("Processing WindsSpots data...")

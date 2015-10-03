@@ -61,7 +61,8 @@ def stations(request):
     if search:
         regexp_query = diacritics.create_regexp(diacritics.normalize(search))
         query['$or'] = [{'name': {'$regex': regexp_query, '$options': 'i'}},
-                        {'short': {'$regex': regexp_query, '$options': 'i'}}]
+                        {'short': {'$regex': regexp_query, '$options': 'i'}},
+                        {'prov': {'$eq': search}}]
 
     if near_latitude and near_longitude:
         if near_distance:

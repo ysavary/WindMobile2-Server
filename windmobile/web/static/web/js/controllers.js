@@ -4,8 +4,8 @@ var InfoBox = require('google-maps-infobox');
 
 angular.module('windmobile.controllers', ['windmobile.services'])
 
-    .controller('ListController', ['$scope', '$state', '$http', '$interval', '$location', 'utils',
-        function ($scope, $state, $http, $interval, $location, utils) {
+    .controller('ListController', ['$scope', '$state', '$http', '$interval', '$location', 'utils', 'visibilityBroadcaster',
+        function ($scope, $state, $http, $interval, $location, utils, visibilityBroadcaster) {
             var self = this;
 
             function search(position) {
@@ -76,7 +76,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 this.doSearch();
             };
 
-            $scope.onFromNowInterval = function () {
+            this.onFromNowInterval = function () {
+                console.info(moment().format() + "--> [ListController] onFromNowInterval");
                 for (var i = 0; i < self.stations.length; i++) {
                     var station = self.stations[i];
                     station.fromNow = moment.unix(station.last._id).fromNow();
@@ -84,31 +85,41 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     station.fromNowClass = utils.getStatusClass(status);
                 }
             };
-            $scope.onRefreshInterval = function () {
+            this.onRefreshInterval = function () {
+                console.info(moment().format() + "--> [ListController] onRefreshInterval");
                 self.doSearch();
             };
 
             $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
-                if (toState.name === 'list') {
-                    $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-                    $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
-                } else if (fromState.name === 'list') {
-                    $interval.cancel($scope.fromNowInterval);
-                    $interval.cancel($scope.refreshInterval);
+                console.info(moment().format() + "--> [ListController] $stateChangeStart: fromState=" + fromState.name);
+                if (fromState.name.indexOf('list') > -1) {
+                    $interval.cancel(self.fromNowInterval);
+                    $interval.cancel(self.refreshInterval);
                 }
                 // Force modal to close on browser back
                 $('#detailModal').modal('hide');
             });
+            $scope.$on('visibilityChange', function(event, isHidden) {
+                console.info(moment().format() + "--> [ListController] visibilityChange: isHidden=" + isHidden);
+                if (isHidden) {
+                    $interval.cancel(self.fromNowInterval);
+                    $interval.cancel(self.refreshInterval);
+                } else {
+                    self.fromNowInterval = $interval(self.onFromNowInterval, utils.fromNowInterval);
+                    self.refreshInterval = $interval(self.onRefreshInterval, utils.refreshInterval);
+                    self.doSearch();
+                }
+            });
 
-            $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-            $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
+            this.fromNowInterval = $interval(this.onFromNowInterval, utils.fromNowInterval);
+            this.refreshInterval = $interval(this.onRefreshInterval, utils.refreshInterval);
 
             this.search = $location.search().search;
             this.doSearch();
         }])
 
-    .controller('MapController', ['$scope', '$state', '$http', '$compile', '$templateCache', '$interval', '$location', 'utils',
-        function ($scope, $state, $http, $compile, $templateCache, $interval, $location, utils) {
+    .controller('MapController', ['$scope', '$state', '$http', '$compile', '$templateCache', '$interval', '$location', 'utils', 'visibilityBroadcaster',
+        function ($scope, $state, $http, $compile, $templateCache, $interval, $location, utils, visibilityBroadcaster) {
             var infoBox;
             var inboBoxContent = $compile($templateCache.get('_infobox.html'))($scope);
 
@@ -324,14 +335,16 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
             }()));
 
-            $scope.onFromNowInterval = function() {
+            this.onFromNowInterval = function() {
+                console.info(moment().format() + "--> [MapController] onFromNowInterval");
                 if (self.selectedStation) {
                     self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
                     var status = utils.getStationStatus(self.selectedStation);
                     self.selectedStation.fromNowClass = utils.getStatusClass(status);
                 }
             };
-            $scope.onRefreshInterval = function() {
+            this.onRefreshInterval = function() {
+                console.info(moment().format() + "--> [MapController] onRefreshInterval");
                 self.doSearch();
                 if (self.selectedStation) {
                     self.getHistoric();
@@ -339,19 +352,31 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             };
 
             $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
-                if (toState.name === 'map') {
-                    $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-                    $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
-                } else if (fromState.name === 'map') {
-                    $interval.cancel($scope.fromNowInterval);
-                    $interval.cancel($scope.refreshInterval);
+                console.info(moment().format() + "--> [MapController] $stateChangeStart: fromState=" + fromState.name);
+                if (fromState.name.indexOf('map') > -1) {
+                    $interval.cancel(self.fromNowInterval);
+                    $interval.cancel(self.refreshInterval);
                 }
                 // Force modal to close on browser back
                 $('#detailModal').modal('hide');
             });
+            $scope.$on('visibilityChange', function(event, isHidden) {
+                console.info(moment().format() + "--> [MapController] visibilityChange: isHidden=" + isHidden);
+                if (isHidden) {
+                    $interval.cancel(self.fromNowInterval);
+                    $interval.cancel(self.refreshInterval);
+                } else {
+                    self.fromNowInterval = $interval(self.onFromNowInterval, utils.fromNowInterval);
+                    self.refreshInterval = $interval(self.onRefreshInterval, utils.refreshInterval);
+                    self.doSearch();
+                    if (self.selectedStation) {
+                        self.getHistoric();
+                    }
+                }
+            });
 
-            $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-            $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
+            this.fromNowInterval = $interval(this.onFromNowInterval, utils.fromNowInterval);
+            this.refreshInterval = $interval(this.onRefreshInterval, utils.refreshInterval);
 
             this.search = $location.search().search;
             this.centerMap();
@@ -440,36 +465,37 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 this.getStationHistoric();
             };
 
-            $scope.onFromNowInterval = function() {
-                console.info(moment().format() + "--> onFromNowInterval");
+            this.onFromNowInterval = function() {
+                console.info(moment().format() + "--> [DetailController] onFromNowInterval");
                 self.station.fromNow = moment.unix(self.station.last._id).fromNow();
                 var status = utils.getStationStatus(self.station);
                 self.station.fromNowClass = utils.getStatusClass(status);
             };
-            $scope.onRefreshInterval = function() {
-                console.info(moment().format() + "--> onRefreshInterval");
+            this.onRefreshInterval = function() {
+                console.info(moment().format() + "--> [DetailController] onRefreshInterval");
                 self.doDetail();
             };
 
             $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+                console.info(moment().format() + "--> [DetailController] $stateChangeStart: fromState=" + fromState.name);
                 if (fromState.name.indexOf('detail') > -1) {
-                    $interval.cancel($scope.fromNowInterval);
-                    $interval.cancel($scope.refreshInterval);
+                    $interval.cancel(self.fromNowInterval);
+                    $interval.cancel(self.refreshInterval);
                 }
             });
             $scope.$on('visibilityChange', function(event, isHidden) {
-                console.info(moment().format() + "--> visibilityChange: isHidden=" + isHidden);
+                console.info(moment().format() + "--> [DetailController] visibilityChange: isHidden=" + isHidden);
                 if (isHidden) {
-                    $interval.cancel($scope.fromNowInterval);
-                    $interval.cancel($scope.refreshInterval);
+                    $interval.cancel(self.fromNowInterval);
+                    $interval.cancel(self.refreshInterval);
                 } else {
-                    $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-                    $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
-                    this.doDetail();
+                    self.fromNowInterval = $interval(self.onFromNowInterval, utils.fromNowInterval);
+                    self.refreshInterval = $interval(self.onRefreshInterval, utils.refreshInterval);
+                    self.doDetail();
                 }
             });
 
-            $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-            $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
+            this.fromNowInterval = $interval(this.onFromNowInterval, utils.fromNowInterval);
+            this.refreshInterval = $interval(this.onRefreshInterval, utils.refreshInterval);
             this.doDetail();
         }]);

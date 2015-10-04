@@ -53,7 +53,7 @@ angular.module('windmobile', [require('angular-ui-router'), require('oclazyload'
                 });
             $urlRouterProvider.otherwise("/map");
         }])
-    .run(['$rootScope', function ($rootScope) {
+    .run(['$rootScope', '$location', '$window', function ($rootScope, $location, $window) {
         $rootScope.$on('ocLazyLoad.fileLoaded', function (event, file) {
             Highcharts.setOptions({
                 global: {
@@ -122,6 +122,9 @@ angular.module('windmobile', [require('angular-ui-router'), require('oclazyload'
         });
         $rootScope.$on('$stateChangeSuccess',
             function (event, toState, toParams, fromState, fromParams) {
+                if ($window.ga) {
+                    $window.ga('send', 'pageview', {page: $location.path()});
+                }
                 $rootScope.controller = toState.name.split('.')[0];
             });
     }])

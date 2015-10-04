@@ -62,17 +62,21 @@ class Status:
     GREEN = 'green'
 
 
-def to_int(value):
+def to_int(value, mandatory=False):
     try:
         return int(round(float(value)))
     except (TypeError, ValueError):
+        if mandatory:
+            return 0
         return None
 
 
-def to_float(value, ndigits=1):
+def to_float(value, ndigits=1, mandatory=False):
     try:
         return round(float(value), ndigits)
     except (TypeError, ValueError):
+        if mandatory:
+            return 0.0
         return None
 
 
@@ -222,25 +226,24 @@ class Provider(object):
                 raise e
             return station
 
-    def create_measure(self, _id, wind_direction, wind_average, wind_maximum, temperature, humidity,
-                       pressure=None, luminosity=None, rain=None):
+    def create_measure(self, _id, wind_direction, wind_average, wind_maximum,
+                       temperature=None, humidity=None, pressure=None, luminosity=None, rain=None):
+
+        if all((wind_direction is None, wind_average is None, wind_maximum is None)):
+            raise ProviderException("All mandatory values are null!")
 
         # Mandatory keys: json 'null' if not present
         measure = {'_id': _id,
-                   'w-dir': to_int(wind_direction),
-                   'w-avg': to_float(wind_average, 1),
-                   'w-max': to_float(wind_maximum, 1),
-                   'temp': to_float(temperature, 1),
-                   'hum': to_float(humidity, 1)
+                   'w-dir': to_int(wind_direction, mandatory=True),
+                   'w-avg': to_float(wind_average, 1, mandatory=True),
+                   'w-max': to_float(wind_maximum, 1, mandatory=True)
                    }
-        if all((not measure['w-dir'],
-                not measure['w-avg'],
-                not measure['w-max'],
-                not measure['temp'],
-                not measure['hum'])):
-            raise ProviderException("All mandatory values are null!")
 
         # Optional keys
+        if temperature is not None:
+            measure['temp'] = to_float(temperature, 1),
+        if humidity is not None:
+            measure['hum'] = to_float(humidity, 1)
         if pressure is not None:
             measure['pres'] = to_int(pressure)
         if luminosity is not None:

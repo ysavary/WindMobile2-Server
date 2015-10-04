@@ -22,10 +22,13 @@ angular.module('windmobile.services', [])
 
                 var lastValue;
                 if (station.last) {
-                    if (moment.unix(station.last._id).isBefore(moment().subtract(2, 'hours'))) {
+                    var last = moment.unix(station.last._id);
+                    if (last.isBefore(moment().subtract(2, 'hours'))) {
                         lastValue = 0;
-                    } else if (moment.unix(station.last._id).isBefore(moment().subtract(1, 'hours'))) {
+                    } else if (last.isBefore(moment().subtract(1, 'hours'))) {
                         lastValue = 1;
+                    } else if (last.isAfter(moment().add(5, 'minutes'))) {
+                        lastValue = 0;
                     } else {
                         lastValue = 2;
                     }

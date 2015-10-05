@@ -241,7 +241,7 @@ class Provider(object):
 
         # Optional keys
         if temperature is not None:
-            measure['temp'] = to_float(temperature, 1),
+            measure['temp'] = to_float(temperature, 1)
         if humidity is not None:
             measure['hum'] = to_float(humidity, 1)
         if pressure is not None:

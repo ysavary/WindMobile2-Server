@@ -21,7 +21,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
                 $http({
                     method: 'GET',
-                    url: 'http://winds.mobi/api/2/stations/',
+                    url: '/api/2/stations/',
                     params: params
                 }).success(function (data) {
                     self.stations = data;
@@ -43,7 +43,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 };
                 $http({
                     method: 'GET',
-                    url: 'http://winds.mobi/api/2/stations/' + station._id + '/historic',
+                    url: '/api/2/stations/' + station._id + '/historic',
                     params: params
                 }).success(function (data) {
                     var historic = {
@@ -244,7 +244,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
                 $http({
                     method: 'GET',
-                    url: 'http://winds.mobi/api/2/stations/',
+                    url: '/api/2/stations/',
                     params: params
                 }).success(displayMarkers);
             }
@@ -256,7 +256,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 };
                 $http({
                     method: 'GET',
-                    url: 'http://winds.mobi/api/2/stations/' + self.selectedStation._id + '/historic',
+                    url: '/api/2/stations/' + self.selectedStation._id + '/historic',
                     params: params
                 }).success(function (data) {
                     var historic = {
@@ -383,7 +383,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 };
                 $http({
                     method: 'GET',
-                    url: 'http://winds.mobi/api/2/stations/' + $stateParams.stationId + '/historic',
+                    url: '/api/2/stations/' + $stateParams.stationId + '/historic',
                     params: params
                 }).success(function (data) {
                     self.stationWindChart = data;
@@ -398,7 +398,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 };
                 $http({
                     method: 'GET',
-                    url: 'http://winds.mobi/api/2/stations/' + $stateParams.stationId + '/historic',
+                    url: '/api/2/stations/' + $stateParams.stationId + '/historic',
                     params: params
                 }).success(function (data) {
                     self.stationAirChart = data;
@@ -408,7 +408,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.getStation = function () {
                 $http({
                     method: 'GET',
-                    url: 'http://winds.mobi/api/2/stations/' + $stateParams.stationId
+                    url: '/api/2/stations/' + $stateParams.stationId
                 }).success(function (data) {
                     self.station = data;
                     if (self.station.last) {
@@ -425,7 +425,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 };
                 $http({
                     method: 'GET',
-                    url: 'http://winds.mobi/api/2/stations/' + $stateParams.stationId + '/historic',
+                    url: '/api/2/stations/' + $stateParams.stationId + '/historic',
                     params: params
                 }).success(function (data) {
                     var historic = {

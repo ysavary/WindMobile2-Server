@@ -110,10 +110,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
             $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
 
-            var domains = $location.host().split('.');
-            if (domains.length === 2) {
-                this.tenant = domains[0];
-            }
+            this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
             this.doSearch();
         }])
@@ -373,10 +370,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
             $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
 
-            var domains = $location.host().split('.');
-            if (domains.length === 2) {
-                this.tenant = domains[0];
-            }
+
+            this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
             this.centerMap();
         }])

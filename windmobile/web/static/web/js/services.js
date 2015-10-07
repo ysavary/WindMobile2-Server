@@ -7,6 +7,7 @@ angular.module('windmobile.services', [])
         return {
             fromNowInterval: 30000,
             refreshInterval: 120000,
+
             getStationStatus: function (station) {
                 // status: 0=red, 1=orange, 2=green
                 var stationValue;
@@ -37,6 +38,7 @@ angular.module('windmobile.services', [])
                 }
                 return Math.min(stationValue, lastValue);
             },
+
             getStatusClass: function (status) {
                 // status: 0=red, 1=orange, 2=green
                 if (status === 0) {
@@ -46,6 +48,7 @@ angular.module('windmobile.services', [])
                     return 'wdm-status-orange';
                 }
             },
+
             getColorInRange: function (value, max) {
                 if (value == -1) {
                     return '#808080';
@@ -58,6 +61,7 @@ angular.module('windmobile.services', [])
                 }
                 return tinycolor.fromRatio({h: hue, s: 1, v: 0.7}).toHexString();
             },
+
             getWindDirectionLabel: function (labels, direction) {
                 var sectors = 360 / labels.length;
                 var angle = 0;
@@ -75,6 +79,17 @@ angular.module('windmobile.services', [])
                         return labels[i];
                     }
                     angle += sectors;
+                }
+            },
+
+            getTenant: function (hostname) {
+                var domains = hostname.split('.');
+                if (domains.length === 3) {
+                    return domains[0];
+                }
+                // Special case for localhost
+                if ((domains.length === 2) && (domains[1] === "localhost" )) {
+                    return domains[0];
                 }
             }
         };

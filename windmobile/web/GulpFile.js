@@ -8,7 +8,6 @@ var ngAnnotate = require('gulp-ng-annotate');
 var browserify = require('browserify');
 var sourcemaps = require('gulp-sourcemaps');
 var uglify = require('gulp-uglify');
-var glob = require("glob");
 var disc = require("disc");
 
 gulp.task('fix-angular-src-for-browserify', function () {
@@ -50,25 +49,17 @@ gulp.task('sass', function () {
 });
 
 gulp.task('discify', function (cb) {
-    return glob('static/web/js/app.js', {}, function (err, files) {
-        if (err) {
-            return cb(err);
-        }
-        var b = browserify(
-            ['static/web/js/app.js', 'static/web/js/controllers.js', 'static/web/js/services.js'],
-            {fullPaths: true}
-        );
-        files.forEach(function (file) {
-            b.add(file);
+    var b = browserify(
+        ['static/web/js/app.js', 'static/web/js/controllers.js', 'static/web/js/services.js'],
+        {fullPaths: true}
+    );
+    b.bundle()
+        .pipe(disc())
+        .pipe(source('index.html'))
+        .pipe(gulp.dest('./disc'))
+        .once('end', function () {
+            cb();
         });
-        b.bundle()
-            .pipe(disc())
-            .pipe(source('index.html'))
-            .pipe(gulp.dest('./disc'))
-            .once('end', function () {
-                cb();
-            });
-    });
 });
 
 gulp.task('watch', function () {

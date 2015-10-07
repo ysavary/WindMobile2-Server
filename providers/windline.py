@@ -19,7 +19,7 @@ class NoMeasure(Exception):
 
 
 class Windline(Provider):
-    provider_prefix = 'windline'
+    provider_code = 'windline'
     provider_name = 'windline.ch'
     provider_url = 'http://www.windline.ch'
 

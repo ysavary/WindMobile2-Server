@@ -35,7 +35,7 @@
         <div class="wdm-name" style="float:left;">{{ station.short }}</div>
         <div class="wdm-info" style="float:right;">
             <div class="wdm-last-update" style="float:right;" ng-class="station.fromNowClass">{{ station.fromNow }}</div>
-            <div class="wdm-provider" style="clear:right;float:right;">{{ station.prov }}</div>
+            <div class="wdm-provider" style="clear:right;float:right;">{{ station['pv-name'] }}</div>
         </div>
         <div class="wdm-altitude" style="clear:left;float:left;">{{ station.alt }} meters</div>
         <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">

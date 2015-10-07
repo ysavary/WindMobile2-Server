@@ -24,10 +24,15 @@ gulp.task('js', function () {
     ).bundle();
 
     return bundle
+        // http://stackoverflow.com/questions/23161387/catching-browserify-parse-error-standalone-option
+        .on('error', function (err) {
+            gutil.log(err);
+            this.emit('end');
+        })
         .pipe(source('windmobile.js'))
         .pipe(buffer())
         .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(uglify())
+        .pipe(gutil.env.production ? uglify() : gutil.noop())
         .on('error', gutil.log)
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('static/web/js/'));
@@ -67,7 +72,7 @@ gulp.task('discify', function (cb) {
 });
 
 gulp.task('watch', function () {
-    gulp.watch('static/web/js/*.js', ['js']);
+    gulp.watch(['static/web/js/app.js', 'static/web/js/controllers.js', 'static/web/js/services.js'], ['js']);
     gulp.watch('scss/*.*', ['sass']);
 });
 gulp.task('default', ['js', 'sass']);

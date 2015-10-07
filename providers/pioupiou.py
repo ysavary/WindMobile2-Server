@@ -11,7 +11,7 @@ logger = get_logger('jdc')
 
 
 class Pioupiou(Provider):
-    provider_prefix = 'pioupiou'
+    provider_code = 'pioupiou'
     provider_name = 'pioupiou.fr'
     provider_url = 'http://pioupiou.fr'
 

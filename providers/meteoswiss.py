@@ -12,7 +12,7 @@ logger = get_logger('meteoswiss')
 
 
 class MeteoSwiss(Provider):
-    provider_prefix = 'meteoswiss'
+    provider_code = 'meteoswiss'
     provider_name = 'meteoswiss.ch'
     provider_url = 'http://www.meteoswiss.ch'
 

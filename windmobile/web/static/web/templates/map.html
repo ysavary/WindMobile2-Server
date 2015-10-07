@@ -6,7 +6,7 @@
         <div class="wdm-name" style="float:left;">{{ main.selectedStation.short }}</div>
         <div class="wdm-info" style="float:right;">
             <div class="wdm-last-update" style="float:right;" ng-class="main.selectedStation.fromNowClass">{{ main.selectedStation.fromNow }}</div>
-            <div class="wdm-provider" style="clear:right;float:right;">{{ main.selectedStation.prov }}</div>
+            <div class="wdm-provider" style="clear:right;float:right;">{{ main.selectedStation['pv-name'] }}</div>
         </div>
         <div class="wdm-altitude" style="clear:left;float:left;">{{ main.selectedStation.alt }} meters</div>
         <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">

@@ -10,7 +10,7 @@ logger = get_logger('jdc')
 
 
 class Jdc(Provider):
-    provider_prefix = 'jdc'
+    provider_code = 'jdc'
     provider_name = 'jdc.ch'
     provider_url = 'http://meteo.jdc.ch'
 

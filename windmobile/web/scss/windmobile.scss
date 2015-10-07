@@ -328,20 +328,21 @@ $humidity-color: #3b71a0;
 
 .wdm-map-legend {
     background: white;
-    padding: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
     @media (max-height: 400px) {
         display: none;
     }
 
     td {
-        width: 55px;
+        width: 50px;
         @media (min-height: 600px) {
             padding-top: 2px;
             padding-bottom: 2px;
         }
         @media (max-height: 500px) {
-            padding-top: 0px;
-            padding-bottom: 0px;
+            padding-top: 0;
+            padding-bottom: 0;
         }
         padding-top: 1px;
         padding-bottom: 1px;
@@ -349,7 +350,7 @@ $humidity-color: #3b71a0;
         font-weight: 900;
     }
     .wdm-map-hideable {
-        @media (max-height: 500px) {
+        @media (max-height: 700px) {
             display: none;
         }
     }

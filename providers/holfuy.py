@@ -15,7 +15,7 @@ logger = get_logger('holfuy')
 
 
 class Holfuy(Provider):
-    provider_prefix = 'holfuy'
+    provider_code = 'holfuy'
     provider_name = 'holfuy.hu'
     provider_url = 'http://holfuy.hu'
 

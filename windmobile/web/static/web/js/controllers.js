@@ -10,11 +10,14 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
             function search(position) {
                 var params = {
-                    proj: ['short', 'loc', 'status', 'prov', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max']
+                    proj: ['short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max']
                 };
                 if (position) {
                     params['near-lat'] = position.coords.latitude;
                     params['near-lon'] = position.coords.longitude;
+                }
+                if (self.tenant) {
+                    params.provider = self.tenant
                 }
                 params.search = self.search;
                 params.limit = 12;
@@ -107,6 +110,10 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
             $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
 
+            var domains = $location.host().split('.');
+            if (domains.length === 2) {
+                this.tenant = domains[0];
+            }
             this.search = $location.search().search;
             this.doSearch();
         }])
@@ -210,7 +217,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
                                     infoBox = new InfoBox({
                                         content: $compile($templateCache.get('_infobox.html'))($scope)[0],
-                                        closeBoxURL: ''
+                                        closeBoxURL: '',
+                                        infoBoxClearance: new google.maps.Size(50, 0)
                                     });
                                     infoBox.open(self.map, marker);
                                 }, 300);
@@ -229,7 +237,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             function search(bounds) {
                 var params = {
                     proj: [
-                        'short', 'loc', 'status', 'prov', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max',
+                        'short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max',
                         'peak'
                     ]
                 };
@@ -238,6 +246,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     params['within-pt1-lon'] = bounds.getNorthEast().lng();
                     params['within-pt2-lat'] = bounds.getSouthWest().lat();
                     params['within-pt2-lon'] = bounds.getSouthWest().lng();
+                }
+                if (self.tenant) {
+                    params.provider = self.tenant
                 }
                 params.search = self.search;
                 params.limit = 100;
@@ -362,6 +373,10 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
             $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
 
+            var domains = $location.host().split('.');
+            if (domains.length === 2) {
+                this.tenant = domains[0];
+            }
             this.search = $location.search().search;
             this.centerMap();
         }])

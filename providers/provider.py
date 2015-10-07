@@ -3,10 +3,10 @@ import os
 import logging
 import logging.handlers
 import math
-from pymongo import uri_parser, MongoClient, GEOSPHERE
-from pymongo.errors import CollectionInvalid
 
 # Modules
+from pymongo import uri_parser, MongoClient, GEOSPHERE
+from pymongo.errors import CollectionInvalid
 import requests
 import arrow
 import dateutil
@@ -97,6 +97,7 @@ class Provider(object):
 
     def stations_collection(self):
         collection = self.mongo_db.stations
+        collection.create_index('pv-code')
         collection.create_index('short')
         collection.create_index('name')
         collection.create_index([('loc', GEOSPHERE)])
@@ -109,30 +110,32 @@ class Provider(object):
             return self.mongo_db[station_id]
 
     def get_station_id(self, id):
-        return self.provider_prefix + "-" + str(id)
+        return self.provider_code + "-" + str(id)
 
     def __create_station(self, short_name, name, latitude, longitude, altitude, is_peak, status, tz, url=None):
 
         if any((not short_name, not name, altitude is None, latitude is None, longitude is None, not status, not tz)):
             raise ProviderException("A mandatory value is null!")
 
-        station = {'prov': self.provider_name,
-                   'url': url or self.provider_url,
-                   'short': short_name,
-                   'name': name,
-                   'alt': to_int(altitude),
-                   'peak': to_bool(is_peak),
-                   'loc': {
-                       'type': 'Point',
-                       'coordinates': [
-                           to_float(longitude, 6),
-                           to_float(latitude, 6)
-                       ]
-                   },
-                   'status': status,
-                   'tz': tz,
-                   'seen': arrow.utcnow().timestamp
-                   }
+        station = {
+            'pv-code': self.provider_code,
+            'pv-name': self.provider_name,
+            'url': url or self.provider_url,
+            'short': short_name,
+            'name': name,
+            'alt': to_int(altitude),
+            'peak': to_bool(is_peak),
+            'loc': {
+                'type': 'Point',
+                'coordinates': [
+                    to_float(longitude, 6),
+                    to_float(latitude, 6)
+                ]
+            },
+            'status': status,
+            'tz': tz,
+            'seen': arrow.utcnow().timestamp
+        }
         return station
 
     def compute_elevation(self, lat, lon):
@@ -233,11 +236,12 @@ class Provider(object):
             raise ProviderException("All mandatory values are null!")
 
         # Mandatory keys: json 'null' if not present
-        measure = {'_id': _id,
-                   'w-dir': to_int(wind_direction, mandatory=True),
-                   'w-avg': to_float(wind_average, 1, mandatory=True),
-                   'w-max': to_float(wind_maximum, 1, mandatory=True)
-                   }
+        measure = {
+            '_id': _id,
+            'w-dir': to_int(wind_direction, mandatory=True),
+            'w-avg': to_float(wind_average, 1, mandatory=True),
+            'w-max': to_float(wind_maximum, 1, mandatory=True)
+        }
 
         # Optional keys
         if temperature is not None:

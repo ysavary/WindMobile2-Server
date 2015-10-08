@@ -287,7 +287,10 @@ $humidity-color: #3b71a0;
 
 .wdm-card-map {
     background-color: rgba(0, 0, 0, 0.9);
-    max-width: 220px;
+    @media (max-width: 400px) {
+        max-width: 200px;
+    }
+    max-width: 230px;
 }
 
 .wdm-card-list {

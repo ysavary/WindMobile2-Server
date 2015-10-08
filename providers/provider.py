@@ -5,7 +5,7 @@ import logging.handlers
 import math
 
 # Modules
-from pymongo import uri_parser, MongoClient, GEOSPHERE
+from pymongo import uri_parser, MongoClient, GEOSPHERE, ASCENDING
 from pymongo.errors import CollectionInvalid
 import requests
 import arrow
@@ -97,10 +97,8 @@ class Provider(object):
 
     def stations_collection(self):
         collection = self.mongo_db.stations
-        collection.create_index('pv-code')
-        collection.create_index('short')
-        collection.create_index('name')
-        collection.create_index([('loc', GEOSPHERE)])
+        collection.create_index([('loc', GEOSPHERE), ('status', ASCENDING), ('pv-code', ASCENDING),
+                                 ('short', ASCENDING), ('name', ASCENDING)])
         return collection
 
     def measures_collection(self, station_id):

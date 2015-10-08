@@ -17,46 +17,8 @@ angular.module('windmobile', [require('angular-ui-router'), require('angular-tra
 
             $translateProvider
                 .useSanitizeValueStrategy('escape')
-                .translations('en', {
-                    "Center": "Center",
-                    "List": "List",
-                    "Map": "Map",
-                    "Help": "Help",
-                    "Wind": "Wind",
-                    "Temperature": "Temperature",
-                    "Humidity": "Humidity",
-                    "Pressure": "Pressure",
-                    "Rain": "Rain",
-                    "Summary": "Summary",
-                    "last hour": "last hour",
-                    "Minimum": "Minimum",
-                    "Mean": "Mean",
-                    "Maximum": "Maximum",
-                    "Summit": "Summit",
-                    "Plain": "Plain",
-                    "no recent data": "no recent data",
-                    "meters": "meters"
-                })
-                .translations('fr', {
-                    "Center": "Centrer",
-                    "List": "Liste",
-                    "Map": "Carte",
-                    "Help": "Aide",
-                    "Wind": "Vent",
-                    "Temperature": "Température",
-                    "Humidity": "Humidité",
-                    "Pressure": "Pression",
-                    "Rain": "Pluie",
-                    "Summary": "Résumé",
-                    "last hour": "dernière heure",
-                    "Minimum": "Minimum",
-                    "Mean": "Moyenne",
-                    "Maximum": "Maximum",
-                    "Summit": "Sommet",
-                    "Plain": "Plaine",
-                    "no recent data": "pas de donnée récente",
-                    "meters": "mètres"
-                })
+                .translations('en', require('../locale/en.js'))
+                .translations('fr', require('../locale/fr.js'))
                 .registerAvailableLanguageKeys(['en', 'fr'], {
                     'en_*': 'en',
                     'fr_*': 'fr'

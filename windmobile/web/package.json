@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "dependencies": {
     "angular": "~1.4.7",
+    "angular-translate": "^2.8.1",
     "angular-ui-router": "~0.2.15",
     "bootstrap-sass": "^3.3.5",
     "browserify": "^11.0.1",

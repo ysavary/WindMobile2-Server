@@ -3,13 +3,67 @@ require('bootstrap-sass/assets/javascripts/bootstrap/tab.js');
 
 var angular = require('angular');
 var Snap = require('snapsvg');
+var moment = require('moment');
+require('moment/locale/fr.js');
+require('moment/locale/de.js');
 
-angular.module('windmobile', [require('angular-ui-router'), require('oclazyload'), 'windmobile.services', 'windmobile.controllers'])
-    .config(['$ocLazyLoadProvider', '$locationProvider', '$stateProvider', '$urlRouterProvider',
-        function ($ocLazyLoadProvider, $locationProvider, $stateProvider, $urlRouterProvider) {
+angular.module('windmobile', [require('angular-ui-router'), require('angular-translate'), require('oclazyload'),
+    'windmobile.services', 'windmobile.controllers'])
+    .config(['$ocLazyLoadProvider', '$translateProvider', '$locationProvider', '$stateProvider', '$urlRouterProvider',
+        function ($ocLazyLoadProvider, $translateProvider, $locationProvider, $stateProvider, $urlRouterProvider) {
             $ocLazyLoadProvider.config({
                 events: true
             });
+
+            $translateProvider
+                .useSanitizeValueStrategy('escape')
+                .translations('en', {
+                    "Center": "Center",
+                    "List": "List",
+                    "Map": "Map",
+                    "Help": "Help",
+                    "Wind": "Wind",
+                    "Temperature": "Temperature",
+                    "Humidity": "Humidity",
+                    "Pressure": "Pressure",
+                    "Rain": "Rain",
+                    "Summary": "Summary",
+                    "last hour": "last hour",
+                    "Minimum": "Minimum",
+                    "Mean": "Mean",
+                    "Maximum": "Maximum",
+                    "Summit": "Summit",
+                    "Plain": "Plain",
+                    "no recent data": "no recent data",
+                    "meters": "meters"
+                })
+                .translations('fr', {
+                    "Center": "Centrer",
+                    "List": "Liste",
+                    "Map": "Carte",
+                    "Help": "Aide",
+                    "Wind": "Vent",
+                    "Temperature": "Température",
+                    "Humidity": "Humidité",
+                    "Pressure": "Pression",
+                    "Rain": "Pluie",
+                    "Summary": "Résumé",
+                    "last hour": "dernière heure",
+                    "Minimum": "Minimum",
+                    "Mean": "Moyenne",
+                    "Maximum": "Maximum",
+                    "Summit": "Sommet",
+                    "Plain": "Plaine",
+                    "no recent data": "pas de donnée récente",
+                    "meters": "mètres"
+                })
+                .registerAvailableLanguageKeys(['en', 'fr'], {
+                    'en_*': 'en',
+                    'fr_*': 'fr'
+                })
+                .fallbackLanguage('en')
+                .determinePreferredLanguage();
+            moment.locale($translateProvider.preferredLanguage());
 
             $locationProvider.html5Mode(true);
             $stateProvider

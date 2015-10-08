@@ -20,10 +20,10 @@
         <div class="navbar-right">
             <ul class="nav navbar-nav">
                 <li><a ui-sref="map"><span class="fa fa-lg fa-map"></span>
-                    <span class="hidden-xs">Map</span></a>
+                    <span class="hidden-xs">{{ 'Map'|translate }}</span></a>
                 </li>
                 <li><a href="https://plus.google.com/+WindsMobi_fr" target="_blank"><span class="fa fa-lg fa-life-ring"></span>
-                    <span class="hidden-xs">Help</span></a>
+                    <span class="hidden-xs">{{ 'Help'|translate }}</span></a>
                 </li>
             </ul>
         </div>
@@ -37,10 +37,10 @@
             <div class="wdm-last-update" style="float:right;" ng-class="station.fromNowClass">{{ station.fromNow }}</div>
             <div class="wdm-provider" style="clear:right;float:right;">{{ station['pv-name'] }}</div>
         </div>
-        <div class="wdm-altitude" style="clear:left;float:left;">{{ station.alt }} meters</div>
+        <div class="wdm-altitude" style="clear:left;float:left;">{{ station.alt }} {{ 'meters'|translate }}</div>
         <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">
             <div class="wdm-wind-avg">{{ station.last['w-avg'].toFixed(1) }}</div>
-            <div class="wdm-wind-max">{{ station.last['w-max'].toFixed(1) }}<span class="wdm-unit">km/h</span></div>
+            <div class="wdm-wind-max">{{ station.last['w-max'].toFixed(1) }}<span class="wdm-unit">{{ 'km/h'|translate }}</span></div>
             <svg class="wdm-wind-mini-chart" style="width:100%;max-width:85px;" viewBox="0 0 100 40" data-scope-watch="station.historic"></svg>
         </div>
         <svg class="wdm-wind-direction" style="float:right;width: 50%;max-width:85px;" viewBox="0 0 100 100" data-scope-watch="station.historic"></svg>

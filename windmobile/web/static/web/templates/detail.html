@@ -7,34 +7,34 @@
                 <div class="wdm-last-update" style="float:right;" ng-class="detail.station.fromNowClass">{{ detail.station.fromNow }}</div>
                 <a class="wdm-provider" style="clear:right;float:right;" href="{{ detail.station.url }}" target="_blank">{{ detail.station['pv-name'] }}</a>
             </div>
-            <div class="wdm-altitude" style="clear:left;float:left;">{{ detail.station.alt }} meters</div>
+            <div class="wdm-altitude" style="clear:left;float:left;">{{ detail.station.alt }} {{ 'meters'|translate }}</div>
         </div>
         <ul class="nav nav-tabs wdm-nav-tabs">
-            <li class="active"><a data-target="#tab1" data-toggle="tab" style="cursor: pointer;">Summary</a></li>
-            <li><a class="wdm-wind-color" data-target="#tab2" data-toggle="tab" style="cursor: pointer;">Wind</a></li>
-            <li><a class="wdm-air-color" data-target="#tab3" data-toggle="tab" style="cursor: pointer;">Air</a></li>
+            <li class="active"><a data-target="#tab1" data-toggle="tab" style="cursor: pointer;">{{ 'Summary'|translate }}</a></li>
+            <li><a class="wdm-wind-color" data-target="#tab2" data-toggle="tab" style="cursor: pointer;">{{ 'Wind'|translate }}</a></li>
+            <li><a class="wdm-air-color" data-target="#tab3" data-toggle="tab" style="cursor: pointer;">{{ 'Air'|translate }}</a></li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="tab1">
                 <div class="wdm-detail-layout" style="padding-left: 10px; margin-top: 5px; width: 280px">
-                    <div class="wdm-title wdm-wind-color">Wind</div>
+                    <div class="wdm-title wdm-wind-color">{{ 'Wind'|translate }}</div>
                     <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">
                         <div class="wdm-wind-avg">{{ detail.station.last['w-avg'].toFixed(1) }}<span class="wdm-unit">km/h</span></div>
-                        <div class="wdm-wind-max"><span class="wdm-label">Gust </span>{{ detail.station.last['w-max'].toFixed(1) }}<span class="wdm-unit">km/h</span></div>
+                        <div class="wdm-wind-max"><span class="wdm-label">Gust </span>{{ detail.station.last['w-max'].toFixed(1) }}<span class="wdm-unit">{{ 'km/h'|translate }}</span></div>
                     </div>
                     <svg class="wdm-wind-direction" style="float:right;width:90px;height:90px;" viewBox="0 0 100 100" data-scope-watch="detail.stationHistoric"></svg>
-                    <div class="wdm-title wdm-wind-text-color">Wind - last hour</div>
+                    <div class="wdm-title wdm-wind-text-color">{{ 'Wind'|translate }} - {{ 'last hour'|translate }}</div>
                     <div class="wdm-wind-hour" style="clear:left;">
-                        <div><span class="wdm-label">Minimum </span><span class="wdm-wind-hour-value" style="clear:both;float:right;">{{ detail.stationHistoric.lastHour.min.toFixed(1) }}<span class="wdm-unit">km/h</span></span></div>
-                        <div><span class="wdm-label">Mean </span><span class="wdm-wind-hour-value" style="clear:both;float:right;">{{ detail.stationHistoric.lastHour.mean.toFixed(1) }}<span class="wdm-unit">km/h</span></span></div>
-                        <div><span class="wdm-label">Maximum </span><span class="wdm-wind-hour-value" style="clear:both;float:right;">{{ detail.stationHistoric.lastHour.max.toFixed(1) }}<span class="wdm-unit">km/h</span></span></div>
+                        <div><span class="wdm-label">{{ 'Minimum'|translate }} </span><span class="wdm-wind-hour-value" style="clear:both;float:right;">{{ detail.stationHistoric.lastHour.min.toFixed(1) }}<span class="wdm-unit">{{ 'km/h'|translate }}</span></span></div>
+                        <div><span class="wdm-label">{{ 'Mean'|translate }} </span><span class="wdm-wind-hour-value" style="clear:both;float:right;">{{ detail.stationHistoric.lastHour.mean.toFixed(1) }}<span class="wdm-unit">{{ 'km/h'|translate }}</span></span></div>
+                        <div><span class="wdm-label">{{ 'Maximum'|translate }} </span><span class="wdm-wind-hour-value" style="clear:both;float:right;">{{ detail.stationHistoric.lastHour.max.toFixed(1) }}<span class="wdm-unit">{{ 'km/h'|translate }}</span></span></div>
                     </div>
-                    <div class="wdm-title wdm-air-text-color">Air</div>
+                    <div class="wdm-title wdm-air-text-color">{{ 'Air'|translate }}</div>
                     <div class="wdm-air" style="clear:left;">
-                        <div><span class="wdm-label">Temperature </span><span class="wdm-wind-hour-value" style="clear:both;float:right;">{{ detail.station.last.temp.toFixed(1) }}<span class="wdm-unit">°C</span></span></div>
-                        <div><span class="wdm-label">Humidity </span><span class="wdm-wind-hour-value" style="clear:both;float:right;">{{ detail.station.last.hum.toFixed(1) }}<span class="wdm-unit">% rel</span></span></div>
-                        <div><span class="wdm-label">Pressure </span><span class="wdm-wind-hour-value" style="clear:both;float:right;">{{ detail.station.last.pres.toFixed(1) }}<span class="wdm-unit">hPa</span></span></div>
-                        <div><span class="wdm-label">Rain </span><span class="wdm-wind-hour-value" style="clear:both;float:right;">{{ detail.station.last.rain.toFixed(1) }}<span class="wdm-unit">l/m²</span></span></div>
+                        <div><span class="wdm-label">{{ 'Temperature'|translate }} </span><span class="wdm-wind-hour-value" style="clear:both;float:right;">{{ detail.station.last.temp.toFixed(1) }}<span class="wdm-unit">{{ '°C'|translate }}</span></span></div>
+                        <div><span class="wdm-label">{{ 'Humidity'|translate }} </span><span class="wdm-wind-hour-value" style="clear:both;float:right;">{{ detail.station.last.hum.toFixed(1) }}<span class="wdm-unit">{{ '% rel'|translate }}</span></span></div>
+                        <div><span class="wdm-label">{{ 'Pressure'|translate }} </span><span class="wdm-wind-hour-value" style="clear:both;float:right;">{{ detail.station.last.pres.toFixed(1) }}<span class="wdm-unit">{{ 'hPa'|translate }}</span></span></div>
+                        <div><span class="wdm-label">{{ 'Rain'|translate }} </span><span class="wdm-wind-hour-value" style="clear:both;float:right;">{{ detail.station.last.rain.toFixed(1) }}<span class="wdm-unit">{{ 'l/m²'|translate }}</span></span></div>
                     </div>
                 </div>
             </div>

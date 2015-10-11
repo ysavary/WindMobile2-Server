@@ -302,7 +302,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                         $('#center-map').removeClass('wdm-navbar-button-active');
                     }, function (positionError) {
                         $('#center-map').removeClass('wdm-navbar-button-active');
-                        if (positionError > 1) {
+                        if (positionError.code > 1) {
                             $translate('Unable to find your location').then(function (text) {
                                 ngToast.create({
                                     className: 'alert alert-danger',

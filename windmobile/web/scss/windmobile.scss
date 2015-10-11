@@ -132,10 +132,11 @@ a.navbar-text {
     // Fix firefox dotted outline border issue
     outline-width: 0;
 
-    &:active, &:focus, &:visited {
+    // On a mobile device, tapped elements are "hover" until the user tap something else
+    &:hover, &:focus, &:visited {
         color: #888;
     }
-    &:hover {
+    &:active {
         color: #333;
     }
 }

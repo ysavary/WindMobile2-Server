@@ -1,8 +1,9 @@
 var angular = require('angular');
 var moment = require('moment');
 var InfoBox = require('google-maps-infobox');
+require('ng-toast');
 
-angular.module('windmobile.controllers', ['windmobile.services'])
+angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
 
     .controller('ListController', ['$scope', '$state', '$http', '$interval', '$location', 'utils',
         function ($scope, $state, $http, $interval, $location, utils) {
@@ -60,11 +61,13 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             };
             this.doSearch = function () {
                 if (navigator.geolocation) {
+                    // If the user does not answer the geolocation request, the error handler will never be called even
+                    // with a timeout option
                     var locationTimeout = setTimeout(search, 1000);
                     navigator.geolocation.getCurrentPosition(function (position) {
                         clearTimeout(locationTimeout);
                         search(position);
-                    }, function (error) {
+                    }, function (positionError) {
                         clearTimeout(locationTimeout);
                         search();
                     }, {
@@ -115,11 +118,12 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.doSearch();
         }])
 
-    .controller('MapController', ['$scope', '$state', '$http', '$compile', '$templateCache', '$interval', '$location', 'utils',
-        function ($scope, $state, $http, $compile, $templateCache, $interval, $location, utils) {
-            var infoBox;
-
+    .controller('MapController', ['$scope', '$state', '$http', '$compile', '$translate', '$templateCache', '$interval', '$location', 'ngToast', 'utils',
+        function ($scope, $state, $http, $compile, $translate, $templateCache, $interval, $location, ngToast, utils) {
             var self = this;
+
+            ngToast.settings.maxNumber = 1;
+            var infoBox;
 
             var markersArray = [];
             function getMarker(id) {
@@ -289,14 +293,27 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             };
             this.centerMap = function () {
                 if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function(position) {
+                    $('#center-map').addClass('wdm-navbar-button-active');
+                    navigator.geolocation.getCurrentPosition(function (position) {
                         var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                         self.map.panTo(currentPosition);
                         self.map.setZoom(8);
                         //search(currentPosition);
-                    }, null, {
+                        $('#center-map').removeClass('wdm-navbar-button-active');
+                    }, function (positionError) {
+                        $('#center-map').removeClass('wdm-navbar-button-active');
+                        if (positionError > 1) {
+                            $translate('Unable to find your location').then(function (text) {
+                                ngToast.create({
+                                    className: 'alert alert-danger',
+                                    content: text
+                                });
+                            });
+                        }
+                    }, {
                         enableHighAccuracy: true,
-                        maximumAge: 300000
+                        maximumAge: 300000,
+                        timeout: 20000
                     });
                 }
             };

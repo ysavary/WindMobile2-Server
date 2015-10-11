@@ -17,7 +17,8 @@
         "Summit": "Sommet",
         "Plain": "Plaine",
         "no recent data": "pas de donnée récente",
-        "meters": "mètres"
+        "meters": "mètres",
+        "Unable to find your location": "Votre position n’a pu être déterminée"
     };
 
     // Node: Export function

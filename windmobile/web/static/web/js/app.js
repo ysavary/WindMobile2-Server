@@ -7,7 +7,7 @@ var moment = require('moment');
 require('moment/locale/fr.js');
 require('moment/locale/de.js');
 
-angular.module('windmobile', [require('angular-ui-router'), require('angular-translate'), require('oclazyload'),
+angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-router'), require('angular-translate'), require('oclazyload'),
     'windmobile.services', 'windmobile.controllers'])
     .config(['$ocLazyLoadProvider', '$translateProvider', '$locationProvider', '$stateProvider', '$urlRouterProvider',
         function ($ocLazyLoadProvider, $translateProvider, $locationProvider, $stateProvider, $urlRouterProvider) {

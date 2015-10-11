@@ -41,7 +41,7 @@ gulp.task('sass', function () {
     gulp.src('scss/*.*')
         .pipe(sourcemaps.init())
         .pipe(sass({
-            includePaths: 'node_modules/bootstrap-sass/assets/stylesheets',
+            includePaths: ['node_modules/bootstrap-sass/assets/stylesheets', 'node_modules/ng-toast/src/styles/sass'],
             outputStyle: 'compressed'
         }).on('error', sass.logError))
         .pipe(sourcemaps.write('./'))

@@ -17,7 +17,8 @@
         "Summit": "Summit",
         "Plain": "Plain",
         "no recent data": "no recent data",
-        "meters": "meters"
+        "meters": "meters",
+        "Unable to find your location": "Unable to find your location"
     };
 
     // Node: Export function

@@ -186,10 +186,19 @@ class Provider(object):
                 if result.json()['status'] == 'OVER_QUERY_LIMIT':
                     raise ProviderException("googleapis usage limits exceeded")
                 try:
-                    result = result.json()['results'][0]
+                    address_short_name = None
+                    address_long_name = None
+                    for result in result.json()['results']:
+                        for component in result['address_components']:
+                            if 'postal_code' not in component['types']:
+                                address_short_name = component['short_name']
+                                address_long_name = component['long_name']
+                                break
+                    if not address_short_name or not address_long_name:
+                        raise Exception("No valid address name found")
                     pipe = self.redis.pipeline()
-                    pipe.hset(address_key, 'short', result['address_components'][0]['short_name'])
-                    pipe.hset(address_key, 'name', result['address_components'][0]['long_name'])
+                    pipe.hset(address_key, 'short', address_short_name)
+                    pipe.hset(address_key, 'name', address_long_name)
                     pipe.expire(address_key, 3*24*3600)
                     pipe.execute()
                 except Exception:

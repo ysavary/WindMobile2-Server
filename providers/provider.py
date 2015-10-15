@@ -155,7 +155,7 @@ class Provider(object):
             .format(path=path, key=self.google_api_key),
             timeout=(self.connect_timeout, self.read_timeout))
         if result.json()['status'] == 'OVER_QUERY_LIMIT':
-            raise ProviderException('maps.googleapis.com/maps/api/elevation: usage limits exceeded')
+            raise ProviderException("googleapis usage limits exceeded")
         try:
             elevation = float(result.json()['results'][0]['elevation'])
             is_peak = False
@@ -173,6 +173,31 @@ class Provider(object):
             lat = to_float(latitude, 6)
             lon = to_float(longitude, 6)
 
+            if not lat and not lon:
+                raise ProviderException("No location provided")
+
+            address_key = "address/{lat},{lon}".format(lat=lat, lon=lon)
+            if (not short_name or not name) and not self.redis.exists(address_key):
+                result = requests.get(
+                    "https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lon}"
+                    "&result_type=colloquial_area|locality|natural_feature|point_of_interest|neighborhood&key={key}"
+                    .format(lat=lat, lon=lon, key=self.google_api_key),
+                    timeout=(self.connect_timeout, self.read_timeout))
+                if result.json()['status'] == 'OVER_QUERY_LIMIT':
+                    raise ProviderException("googleapis usage limits exceeded")
+                try:
+                    result = result.json()['results'][0]
+                    pipe = self.redis.pipeline()
+                    pipe.hset(address_key, 'short', result['address_components'][0]['short_name'])
+                    pipe.hset(address_key, 'name', result['address_components'][0]['long_name'])
+                    pipe.expire(address_key, 3*24*3600)
+                    pipe.execute()
+                except Exception:
+                    pipe = self.redis.pipeline()
+                    pipe.hset(address_key, 'status', 'error')
+                    pipe.expire(address_key, 3*24*3600)
+                    pipe.execute()
+
             alt_key = "alt/{lat},{lon}".format(lat=lat, lon=lon)
             if not self.redis.exists(alt_key):
                 try:
@@ -180,12 +205,12 @@ class Provider(object):
                     pipe = self.redis.pipeline()
                     pipe.hset(alt_key, 'alt', elevation)
                     pipe.hset(alt_key, 'is_peak', is_peak)
-                    pipe.expire(alt_key, 24*3600)
+                    pipe.expire(alt_key, 3*24*3600)
                     pipe.execute()
                 except ProviderException:
                     pipe = self.redis.pipeline()
                     pipe.hset(alt_key, 'status', 'error')
-                    pipe.expire(alt_key, 24*3600)
+                    pipe.expire(alt_key, 3*24*3600)
                     pipe.execute()
 
             tz_key = "tz/{lat},{lon}".format(lat=lat, lon=lon)
@@ -195,7 +220,7 @@ class Provider(object):
                     .format(lat=lat, lon=lon, utc=arrow.utcnow().timestamp, key=self.google_api_key),
                     timeout=(self.connect_timeout, self.read_timeout))
                 if result.json()['status'] == 'OVER_QUERY_LIMIT':
-                    raise ProviderException('maps.googleapis.com/maps/api/timezone: usage limits exceeded')
+                    raise ProviderException("googleapis usage limits exceeded")
                 try:
                     tz = result.json()['timeZoneId']
                     dateutil.tz.gettz(tz)
@@ -203,18 +228,28 @@ class Provider(object):
                 except Exception:
                     self.redis.setex(tz_key, 12*3600, 'error')
 
+            if not short_name:
+                if self.redis.hget(address_key, 'status') == 'error' or not self.redis.hexists(address_key, 'short'):
+                    raise ProviderException("Unable to determine station 'short' value")
+                short_name = self.redis.hget(address_key, 'short')
+
+            if not name:
+                if self.redis.hget(alt_key, 'status') == 'error' or not self.redis.hexists(address_key, 'name'):
+                    raise ProviderException("Unable to determine station 'name' value")
+                name = self.redis.hget(address_key, 'name')
+
             if not altitude:
                 if self.redis.hget(alt_key, 'status') == 'error' or not self.redis.hexists(alt_key, 'alt'):
-                    raise ProviderException("Unable to compute 'altitude'")
+                    raise ProviderException("Unable to determine station 'alt' value")
                 altitude = self.redis.hget(alt_key, 'alt')
 
             if self.redis.hget(alt_key, 'status') == 'error' or not self.redis.hexists(alt_key, 'is_peak'):
-                raise ProviderException("Unable to compute 'is_peak'")
+                raise ProviderException("Unable to determine station 'peak' value")
             is_peak = self.redis.hget(alt_key, 'is_peak')
 
             if not tz:
                 if self.redis.get(tz_key) == 'error' or not self.redis.exists(tz_key):
-                    raise ProviderException("Unable to compute 'timezone'")
+                    raise ProviderException("Unable to determine station 'tz' value")
                 tz = self.redis.get(tz_key)
 
             station = self.__create_station(short_name, name, latitude, longitude, altitude, is_peak, status, tz, url)

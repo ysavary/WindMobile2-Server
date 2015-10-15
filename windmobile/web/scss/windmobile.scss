@@ -54,7 +54,6 @@ $grid-float-breakpoint: 0px;
     @include responsive-invisibility('.hidden-xxs');
 }
 
-$ngt-vertical-spacing: 60px;
 @import "ngToast";
 
 $header-height: 50px;
@@ -376,4 +375,8 @@ $humidity-color: #3b71a0;
             display: none;
         }
     }
+}
+
+.ng-toast {
+    margin-top: 55px;
 }

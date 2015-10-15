@@ -219,7 +219,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                                     infoBox = new InfoBox({
                                         content: $compile($templateCache.get('_infobox.html'))($scope)[0],
                                         closeBoxURL: '',
-                                        infoBoxClearance: new google.maps.Size(50, 0)
+                                        infoBoxClearance: (window.matchMedia('(min-width: 400px)').matches ?
+                                            new google.maps.Size(60, 0) : new google.maps.Size(50, 0))
                                     });
                                     infoBox.open(self.map, marker);
                                 }, 300);

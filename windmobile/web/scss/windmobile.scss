@@ -348,11 +348,17 @@ $humidity-color: #3b71a0;
 }
 
 .wdm-map-legend {
+    @media (max-height: 400px) {
+        display: none;
+    }
+
     background: white;
     padding-top: 2px;
     padding-bottom: 2px;
-    @media (max-height: 400px) {
-        display: none;
+    border-radius: 2px;
+    box-shadow: rgba(0, 0, 0, 0.3) 0 1px 4px -1px;
+    @media (min-width: 400px) {
+        margin-right: 10px;
     }
 
     td {

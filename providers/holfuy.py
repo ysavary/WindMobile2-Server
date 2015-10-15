@@ -34,10 +34,11 @@ class Holfuy(Provider):
                     try:
                         holfuy_id = holfuy_station['@station'][1:]
                         station_id = self.get_station_id(holfuy_id)
+                        name = holfuy_station['@place']
                         station = self.save_station(
                             station_id,
-                            holfuy_station['@s_name'],
-                            holfuy_station['@place'],
+                            name,
+                            name,
                             holfuy_station['@lat'],
                             holfuy_station['@lng'],
                             Status.GREEN,

@@ -219,6 +219,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                                     infoBox = new InfoBox({
                                         content: $compile($templateCache.get('_infobox.html'))($scope)[0],
                                         closeBoxURL: '',
+                                        /* same media query as right-margin in windmobile.scss */
                                         infoBoxClearance: (window.matchMedia('(min-width: 400px)').matches ?
                                             new google.maps.Size(60, 0) : new google.maps.Size(50, 0))
                                     });
@@ -253,7 +254,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     params.provider = self.tenant
                 }
                 params.search = self.search;
-                params.limit = 100;
+                // 1000*1000 px windows should have a limit ~= 100
+                params.limit = Math.round($(window).width() * $(window).height() / (1000 * 1000 / 100));
 
                 $http({
                     method: 'GET',

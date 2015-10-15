@@ -3,13 +3,29 @@ require('bootstrap-sass/assets/javascripts/bootstrap/tab.js');
 
 var angular = require('angular');
 var Snap = require('snapsvg');
+var moment = require('moment');
+require('moment/locale/fr.js');
+require('moment/locale/de.js');
 
-angular.module('windmobile', [require('angular-ui-router'), require('oclazyload'), 'windmobile.services', 'windmobile.controllers'])
-    .config(['$ocLazyLoadProvider', '$locationProvider', '$stateProvider', '$urlRouterProvider',
-        function ($ocLazyLoadProvider, $locationProvider, $stateProvider, $urlRouterProvider) {
+angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-router'), require('angular-translate'), require('oclazyload'),
+    'windmobile.services', 'windmobile.controllers'])
+    .config(['$ocLazyLoadProvider', '$translateProvider', '$locationProvider', '$stateProvider', '$urlRouterProvider',
+        function ($ocLazyLoadProvider, $translateProvider, $locationProvider, $stateProvider, $urlRouterProvider) {
             $ocLazyLoadProvider.config({
                 events: true
             });
+
+            $translateProvider
+                .useSanitizeValueStrategy('escape')
+                .translations('en', require('../locale/en.js'))
+                .translations('fr', require('../locale/fr.js'))
+                .registerAvailableLanguageKeys(['en', 'fr'], {
+                    'en_*': 'en',
+                    'fr_*': 'fr'
+                })
+                .fallbackLanguage('en')
+                .determinePreferredLanguage();
+            moment.locale($translateProvider.preferredLanguage());
 
             $locationProvider.html5Mode(true);
             $stateProvider
@@ -53,7 +69,7 @@ angular.module('windmobile', [require('angular-ui-router'), require('oclazyload'
                 });
             $urlRouterProvider.otherwise("/map");
         }])
-    .run(['$rootScope', function ($rootScope) {
+    .run(['$rootScope', '$location', '$window', function ($rootScope, $location, $window) {
         $rootScope.$on('ocLazyLoad.fileLoaded', function (event, file) {
             Highcharts.setOptions({
                 global: {
@@ -122,6 +138,9 @@ angular.module('windmobile', [require('angular-ui-router'), require('oclazyload'
         });
         $rootScope.$on('$stateChangeSuccess',
             function (event, toState, toParams, fromState, fromParams) {
+                if ($window.ga) {
+                    $window.ga('send', 'pageview', {page: $location.path()});
+                }
                 $rootScope.controller = toState.name.split('.')[0];
             });
     }])

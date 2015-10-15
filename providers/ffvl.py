@@ -12,7 +12,7 @@ logger = get_logger('ffvl')
 
 
 class Ffvl(Provider):
-    provider_prefix = 'ffvl'
+    provider_code = 'ffvl'
     provider_name = 'ffvl.fr'
     provider_url = 'http://www.balisemeteo.com'
 

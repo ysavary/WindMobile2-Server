@@ -11,7 +11,7 @@ logger = get_logger('jdc')
 
 
 class Pioupiou(Provider):
-    provider_prefix = 'pioupiou'
+    provider_code = 'pioupiou'
     provider_name = 'pioupiou.fr'
     provider_url = 'http://pioupiou.fr'
 
@@ -40,8 +40,8 @@ class Pioupiou(Provider):
 
                     station = self.save_station(
                         station_id,
-                        piou_station['meta']['name'],
-                        piou_station['meta']['name'],
+                        None,
+                        None,
                         piou_station['location']['latitude'],
                         piou_station['location']['longitude'],
                         self.get_status(piou_station['status']['state']),

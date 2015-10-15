@@ -56,13 +56,12 @@ def stations(request):
     query = {'status': {'$ne': 'hidden'}}
 
     if provider:
-        query['prov'] = provider
+        query['pv-code'] = provider
 
     if search:
         regexp_query = diacritics.create_regexp(diacritics.normalize(search))
         query['$or'] = [{'name': {'$regex': regexp_query, '$options': 'i'}},
-                        {'short': {'$regex': regexp_query, '$options': 'i'}},
-                        {'prov': {'$eq': search}}]
+                        {'short': {'$regex': regexp_query, '$options': 'i'}}]
 
     if near_latitude and near_longitude:
         if near_distance:

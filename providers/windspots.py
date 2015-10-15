@@ -10,7 +10,7 @@ logger = get_logger('windspots')
 
 
 class Windspots(Provider):
-    provider_prefix = 'windspots'
+    provider_code = 'windspots'
     provider_name = 'windspots.com'
     provider_url = 'http://www.windspots.com/spots'
 

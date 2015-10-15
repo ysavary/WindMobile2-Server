@@ -1,8 +1,9 @@
 var angular = require('angular');
 var moment = require('moment');
 var InfoBox = require('google-maps-infobox');
+require('ng-toast');
 
-angular.module('windmobile.controllers', ['windmobile.services'])
+angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
 
     .controller('ListController', ['$scope', '$state', '$http', '$interval', '$location', 'utils', 'visibilityBroadcaster',
         function ($scope, $state, $http, $interval, $location, utils, visibilityBroadcaster) {
@@ -10,11 +11,14 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
             function search(position) {
                 var params = {
-                    proj: ['short', 'loc', 'status', 'prov', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max']
+                    proj: ['short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max']
                 };
                 if (position) {
                     params['near-lat'] = position.coords.latitude;
                     params['near-lon'] = position.coords.longitude;
+                }
+                if (self.tenant) {
+                    params.provider = self.tenant
                 }
                 params.search = self.search;
                 params.limit = 12;
@@ -27,10 +31,12 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     self.stations = data;
                     for (var i = 0; i < self.stations.length; i++) {
                         var station = self.stations[i];
-                        station.fromNow = moment.unix(station.last._id).fromNow();
-                        var status = utils.getStationStatus(station);
-                        station.fromNowClass = utils.getStatusClass(status);
-                        self.getHistoric(station);
+                        if (station.last) {
+                            station.fromNow = moment.unix(station.last._id).fromNow();
+                            var status = utils.getStationStatus(station);
+                            station.fromNowClass = utils.getStatusClass(status);
+                            self.getHistoric(station);
+                        }
                     }
                 });
             }
@@ -55,11 +61,13 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             };
             this.doSearch = function () {
                 if (navigator.geolocation) {
+                    // If the user does not answer the geolocation request, the error handler will never be called even
+                    // with a timeout option
                     var locationTimeout = setTimeout(search, 1000);
                     navigator.geolocation.getCurrentPosition(function (position) {
                         clearTimeout(locationTimeout);
                         search(position);
-                    }, function (error) {
+                    }, function (positionError) {
                         clearTimeout(locationTimeout);
                         search();
                     }, {
@@ -80,9 +88,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 console.info(moment().format() + "--> [ListController] onFromNowInterval");
                 for (var i = 0; i < self.stations.length; i++) {
                     var station = self.stations[i];
-                    station.fromNow = moment.unix(station.last._id).fromNow();
-                    var status = utils.getStationStatus(station);
-                    station.fromNowClass = utils.getStatusClass(status);
+                    if (station.last) {
+                        station.fromNow = moment.unix(station.last._id).fromNow();
+                        var status = utils.getStationStatus(station);
+                        station.fromNowClass = utils.getStatusClass(status);
+                    }
                 }
             };
             this.onRefreshInterval = function () {
@@ -114,16 +124,17 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.fromNowInterval = $interval(this.onFromNowInterval, utils.fromNowInterval);
             this.refreshInterval = $interval(this.onRefreshInterval, utils.refreshInterval);
 
+            this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
             this.doSearch();
         }])
 
-    .controller('MapController', ['$scope', '$state', '$http', '$compile', '$templateCache', '$interval', '$location', 'utils', 'visibilityBroadcaster',
-        function ($scope, $state, $http, $compile, $templateCache, $interval, $location, utils, visibilityBroadcaster) {
-            var infoBox;
-            var inboBoxContent = $compile($templateCache.get('_infobox.html'))($scope);
-
+    .controller('MapController', ['$scope', '$state', '$http', '$compile', '$translate', '$templateCache', '$interval', '$location', 'ngToast', 'utils', 'visibilityBroadcaster',
+        function ($scope, $state, $http, $compile, $translate, $templateCache, $interval, $location, ngToast, utils, visibilityBroadcaster) {
             var self = this;
+
+            ngToast.settings.maxNumber = 1;
+            var infoBox;
 
             var markersArray = [];
             function getMarker(id) {
@@ -162,10 +173,12 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
                     if (self.selectedStation && self.selectedStation._id === station._id) {
                         self.selectedStation = station;
-                        self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
-                        var status = utils.getStationStatus(self.selectedStation);
-                        self.selectedStation.fromNowClass = utils.getStatusClass(status);
-                        self.getHistoric();
+                        if (self.selectedStation.last) {
+                            self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
+                            var status = utils.getStationStatus(self.selectedStation);
+                            self.selectedStation.fromNowClass = utils.getStatusClass(status);
+                            self.getHistoric();
+                        }
                     }
 
                     var color;
@@ -188,7 +201,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
                     if (!marker) {
                         marker = new google.maps.Marker({
-                            title: station["short"],
+                            title: station['short'],
                             position: new google.maps.LatLng(station.loc.coordinates[1], station.loc.coordinates[0]),
                             icon: icon,
                             map: self.map
@@ -207,14 +220,19 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                                     }
 
                                     self.selectedStation = marker.station;
-                                    self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
-                                    var status = utils.getStationStatus(self.selectedStation);
-                                    self.selectedStation.fromNowClass = utils.getStatusClass(status);
-                                    self.getHistoric();
+                                    if (self.selectedStation.last) {
+                                        self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
+                                        var status = utils.getStationStatus(self.selectedStation);
+                                        self.selectedStation.fromNowClass = utils.getStatusClass(status);
+                                        self.getHistoric();
+                                    }
 
                                     infoBox = new InfoBox({
-                                        content: inboBoxContent[0],
-                                        closeBoxURL: ''
+                                        content: $compile($templateCache.get('_infobox.html'))($scope)[0],
+                                        closeBoxURL: '',
+                                        /* same media query as right-margin in windmobile.scss */
+                                        infoBoxClearance: (window.matchMedia('(min-width: 400px)').matches ?
+                                            new google.maps.Size(60, 0) : new google.maps.Size(50, 0))
                                     });
                                     infoBox.open(self.map, marker);
                                 }, 300);
@@ -233,7 +251,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             function search(bounds) {
                 var params = {
                     proj: [
-                        'short', 'loc', 'status', 'prov', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max',
+                        'short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max',
                         'peak'
                     ]
                 };
@@ -243,8 +261,12 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     params['within-pt2-lat'] = bounds.getSouthWest().lat();
                     params['within-pt2-lon'] = bounds.getSouthWest().lng();
                 }
+                if (self.tenant) {
+                    params.provider = self.tenant
+                }
                 params.search = self.search;
-                params.limit = 100;
+                // 1000*1000 px windows should have a limit ~= 100
+                params.limit = Math.round($(window).width() * $(window).height() / (1000 * 1000 / 100));
 
                 $http({
                     method: 'GET',
@@ -285,14 +307,27 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             };
             this.centerMap = function () {
                 if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function(position) {
+                    $('#center-map').addClass('wdm-navbar-button-active');
+                    navigator.geolocation.getCurrentPosition(function (position) {
                         var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                         self.map.panTo(currentPosition);
                         self.map.setZoom(8);
                         //search(currentPosition);
-                    }, null, {
+                        $('#center-map').removeClass('wdm-navbar-button-active');
+                    }, function (positionError) {
+                        $('#center-map').removeClass('wdm-navbar-button-active');
+                        if (positionError.code > 1) {
+                            $translate('Unable to find your location').then(function (text) {
+                                ngToast.create({
+                                    className: 'alert alert-danger',
+                                    content: text
+                                });
+                            });
+                        }
+                    }, {
                         enableHighAccuracy: true,
-                        maximumAge: 300000
+                        maximumAge: 300000,
+                        timeout: 20000
                     });
                 }
             };
@@ -338,9 +373,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.onFromNowInterval = function() {
                 console.info(moment().format() + "--> [MapController] onFromNowInterval");
                 if (self.selectedStation) {
-                    self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
-                    var status = utils.getStationStatus(self.selectedStation);
-                    self.selectedStation.fromNowClass = utils.getStatusClass(status);
+                    if (self.selectedStation.last) {
+                        self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
+                        var status = utils.getStationStatus(self.selectedStation);
+                        self.selectedStation.fromNowClass = utils.getStatusClass(status);
+                    }
                 }
             };
             this.onRefreshInterval = function() {
@@ -378,6 +415,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.fromNowInterval = $interval(this.onFromNowInterval, utils.fromNowInterval);
             this.refreshInterval = $interval(this.onRefreshInterval, utils.refreshInterval);
 
+
+            this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
             this.centerMap();
         }])
@@ -427,9 +466,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     url: '/api/2/stations/' + $stateParams.stationId
                 }).success(function (data) {
                     self.station = data;
-                    self.station.fromNow = moment.unix(self.station.last._id).fromNow();
-                    var status = utils.getStationStatus(self.station);
-                    self.station.fromNowClass = utils.getStatusClass(status);
+                    if (self.station.last) {
+                        self.station.fromNow = moment.unix(self.station.last._id).fromNow();
+                        var status = utils.getStationStatus(self.station);
+                        self.station.fromNowClass = utils.getStatusClass(status);
+                    }
                 });
             };
             this.getStationHistoric = function () {
@@ -464,12 +505,13 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 this.getStation();
                 this.getStationHistoric();
             };
-
-            this.onFromNowInterval = function() {
+            $scope.onFromNowInterval = function() {
                 console.info(moment().format() + "--> [DetailController] onFromNowInterval");
-                self.station.fromNow = moment.unix(self.station.last._id).fromNow();
-                var status = utils.getStationStatus(self.station);
-                self.station.fromNowClass = utils.getStatusClass(status);
+                if (self.station.last) {
+                    self.station.fromNow = moment.unix(self.station.last._id).fromNow();
+                    var status = utils.getStationStatus(self.station);
+                    self.station.fromNowClass = utils.getStatusClass(status);
+                }
             };
             this.onRefreshInterval = function() {
                 console.info(moment().format() + "--> [DetailController] onRefreshInterval");

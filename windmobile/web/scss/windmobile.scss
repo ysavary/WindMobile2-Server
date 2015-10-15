@@ -31,7 +31,7 @@ $grid-float-breakpoint: 0px;
 //@import "bootstrap/badges";
 //@import "bootstrap/jumbotron";
 //@import "bootstrap/thumbnails";
-//@import "bootstrap/alerts";
+@import "bootstrap/alerts";
 //@import "bootstrap/progress-bars";
 //@import "bootstrap/media";
 //@import "bootstrap/list-group";
@@ -53,6 +53,8 @@ $grid-float-breakpoint: 0px;
 @media (max-width: 500px) {
     @include responsive-invisibility('.hidden-xxs');
 }
+
+@import "ngToast";
 
 $header-height: 50px;
 
@@ -122,9 +124,24 @@ a.navbar-text {
     font-size: 1.2em;
 }
 
-.navbar-nav > li > a {
+.navbar-default .navbar-nav > li > a {
     padding-left: 8px;
     padding-right: 8px;
+
+    // Fix firefox dotted outline border issue
+    outline-width: 0;
+
+    // On a mobile device, tapped elements are "hover" until the user tap something else
+    &:hover, &:focus, &:visited {
+        color: #888;
+    }
+    &:active {
+        color: #333;
+    }
+}
+
+.wdm-navbar-button-active {
+    color: #333 !important;
 }
 
 #map-header {
@@ -181,7 +198,7 @@ $font-size: 15px;
     .wdm-name {
         overflow: hidden;
         color: $highlight-text-color;
-        font-size: 18px;
+        font-size: 17px;
     }
     .wdm-last-update {
         font-size: $small-font-size;
@@ -287,6 +304,10 @@ $humidity-color: #3b71a0;
 
 .wdm-card-map {
     background-color: rgba(0, 0, 0, 0.9);
+    @media (max-width: 400px) {
+        max-width: 200px;
+    }
+    max-width: 230px;
 }
 
 .wdm-card-list {
@@ -327,21 +348,28 @@ $humidity-color: #3b71a0;
 }
 
 .wdm-map-legend {
-    background: white;
-    padding: 2px;
     @media (max-height: 400px) {
         display: none;
     }
 
+    background: white;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-radius: 2px;
+    box-shadow: rgba(0, 0, 0, 0.3) 0 1px 4px -1px;
+    @media (min-width: 400px) {
+        margin-right: 10px;
+    }
+
     td {
-        width: 55px;
+        width: 50px;
         @media (min-height: 600px) {
             padding-top: 2px;
             padding-bottom: 2px;
         }
         @media (max-height: 500px) {
-            padding-top: 0px;
-            padding-bottom: 0px;
+            padding-top: 0;
+            padding-bottom: 0;
         }
         padding-top: 1px;
         padding-bottom: 1px;
@@ -349,8 +377,12 @@ $humidity-color: #3b71a0;
         font-weight: 900;
     }
     .wdm-map-hideable {
-        @media (max-height: 500px) {
+        @media (max-height: 700px) {
             display: none;
         }
     }
+}
+
+.ng-toast {
+    margin-top: 55px;
 }

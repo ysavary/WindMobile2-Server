@@ -66,6 +66,11 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                             return $ocLazyLoad.load('/static/web/lib/highstock.js');
                         }]
                     }
+                })
+                .state('help', {
+                    url: '/help',
+                    templateUrl: '/static/web/templates/help.html',
+                    controller: 'HelpController as help'
                 });
             $urlRouterProvider.otherwise("/map");
         }])

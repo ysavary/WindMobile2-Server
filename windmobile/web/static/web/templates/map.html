@@ -8,10 +8,10 @@
             <div class="wdm-last-update" style="float:right;" ng-class="main.selectedStation.fromNowClass">{{ main.selectedStation.fromNow }}</div>
             <div class="wdm-provider" style="clear:right;float:right;">{{ main.selectedStation['pv-name'] }}</div>
         </div>
-        <div class="wdm-altitude" style="clear:left;float:left;">{{ main.selectedStation.alt }} {{ 'meters'|translate }}</div>
+        <div class="wdm-altitude" style="clear:left;float:left;">{{ main.selectedStation.alt }} <span translate>meters</span></div>
         <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">
             <div class="wdm-wind-avg">{{ main.selectedStation.last['w-avg'].toFixed(1) }}</div>
-            <div class="wdm-wind-max">{{ main.selectedStation.last['w-max'].toFixed(1) }}<span class="wdm-unit">{{ 'km/h'|translate }}</span></div>
+            <div class="wdm-wind-max">{{ main.selectedStation.last['w-max'].toFixed(1) }}<span class="wdm-unit" translate>km/h</span></div>
             <svg class="wdm-wind-mini-chart" style="width:100%;max-width:70px;" viewBox="0 0 100 40" data-scope-watch="main.selectedStation.historic"></svg>
         </div>
         <svg class="wdm-wind-direction" style="float:right;width:70px;height:70px;" viewBox="0 0 100 100" data-scope-watch="main.selectedStation.historic"></svg>
@@ -21,10 +21,10 @@
 <script type="text/ng-template" id="_legend.html">
     <div class="wdm-map-legend">
         <table>
-            <tr><td style="font-weight: normal; color: DarkGray;"><img style="width:30px; height:auto;" src="/static/web/img/arrow-triangle-right.svg">{{ 'Summit'|translate }}</td></tr>
-            <tr><td style="font-weight: normal; color: DarkGray;"><img style="width:30px; height:auto;" src="/static/web/img/arrow-round-right.svg">{{ 'Plain'|translate }}</td></tr>
+            <tr><td style="font-weight: normal; color: DarkGray;"><img style="width:30px; height:auto;" src="/static/web/img/arrow-triangle-right.svg"><span translate>Summit</span></td></tr>
+            <tr><td style="font-weight: normal; color: DarkGray;"><img style="width:30px; height:auto;" src="/static/web/img/arrow-round-right.svg"><span translate>Plain</span></td></tr>
             <tr><td><div style="height: 1px; margin-left: 5px; margin-right:5px; background-color: #E6E6E6;"></div></td></tr>
-            <tr><td style="color: {{ main.getLegendColor(-1) }};">{{ 'no recent data'|translate }}</td></tr>
+            <tr><td style="color: {{ main.getLegendColor(-1) }};" translate>no recent data</td></tr>
             <tr><td style="color: {{ main.getLegendColor(5) }};" class="wdm-map-hideable"><5 km/h</td></tr>
             <tr><td style="color: {{ main.getLegendColor(10) }};">10 km/h</td></tr>
             <tr><td style="color: {{ main.getLegendColor(15) }};" class="wdm-map-hideable">15 km/h</td></tr>
@@ -56,14 +56,14 @@
         </form>
         <div class="navbar-right">
             <ul class="nav navbar-nav">
-                <li><a id="center-map" href="#" ng-click="main.centerMap()"><span class="fa fa-lg fa-location-arrow"></span>
-                    <span class="hidden-xs">{{ 'Center'|translate }}</span></a>
+                <li><a id="center-map" href="#" ng-click="main.centerMap()"><span class="fa fa-lg fa-bullseye"></span>
+                    <span class="hidden-xs" translate>Center</span></a>
                 </li>
                 <li><a ui-sref="list"><span class="fa fa-lg fa-th-large"></span>
-                    <span class="hidden-xs">{{ 'List'|translate }}</span></a>
+                    <span class="hidden-xs" translate>List</span></a>
                 </li>
-                <li><a href="https://plus.google.com/+WindsMobi_fr" target="_blank"><span class="fa fa-lg fa-life-ring"></span>
-                    <span class="hidden-xs">{{ 'Help'|translate }}</span></a>
+                <li><a ui-sref="help"><span class="fa fa-lg"><b>?</b></span>
+                    <span class="hidden-xs" translate>Help</span></a>
                 </li>
             </ul>
         </div>

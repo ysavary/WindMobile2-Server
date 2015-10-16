@@ -34,6 +34,8 @@
         'HELP_STATION_SUMMARY_TEXT_3': "Tendance: historique du vent moyen durant la dernière heure",
         'HELP_STATION_SUMMARY_TEXT_4': "Historique de la direction du vent: du centre du cercle (il y a 1 heure) " +
         "vers l'extéreur (dernière mesure)",
+        'HELP_MAP_COLORS_TITLE': "Couleurs des balises en mode carte",
+        'HELP_MAP_COLORS_TEXT': "Rafale [km/h]",
         'HELP_PROVIDERS_TITLE': "Liste des fournisseurs de données",
         'HELP_COMPATIBILITY_TITLE': "Compatibilité",
         'HELP_COMPATIBILITY_TEXT': "winds.mobi fonctionne sur les dernières versions des principaux navigateurs web (mobile ou bureau)",

@@ -507,8 +507,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
             this.doDetail();
         }])
 
-    .controller('HelpController', [
-        function () {
+    .controller('HelpController', ['utils',
+        function (utils) {
             this.example = {
                 data: [{
                     "_id": 1444993200,
@@ -552,5 +552,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     "w-max": 13.2
                 }
                 ]
+            };
+            this.getLegendColor = function(value) {
+                return utils.getColorInRange(value, 50);
             };
         }]);

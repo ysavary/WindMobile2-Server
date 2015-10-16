@@ -34,6 +34,8 @@
         'HELP_STATION_SUMMARY_TEXT_3': "Last hour mean wind historic",
         'HELP_STATION_SUMMARY_TEXT_4': "Wind direction historic: from center the circle (1 hour ago) " +
         "to outside (last measure)",
+        'HELP_MAP_COLORS_TITLE': "Station colors in map mode",
+        'HELP_MAP_COLORS_TEXT': "Wind gust [km/h]",
         'HELP_PROVIDERS_TITLE': "Data providers list",
         'HELP_COMPATIBILITY_TITLE': "Compatibility",
         'HELP_COMPATIBILITY_TEXT': "winds.mobi runs on the latest versions of the major browsers (mobile or desktop)",

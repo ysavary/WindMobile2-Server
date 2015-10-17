@@ -27,12 +27,12 @@
         'HELP_LAST_UPDATE': "Date and measure validity",
         'HELP_PROVIDER': "Data provider name",
         'HELP_STATION_SUMMARY_TEXT_1_RED_DATE': "Red date: ",
-        'HELP_STATION_SUMMARY_TEXT_1_RED': ": measures are older than 2 hours or the station is not operational",
+        'HELP_STATION_SUMMARY_TEXT_1_RED': "measures are older than 2 hours or the station is not operational",
         'HELP_STATION_SUMMARY_TEXT_1_ORANGE_DATE': "Orange date: ",
         'HELP_STATION_SUMMARY_TEXT_1_ORANGE': "measures are between 1 and 2 hours old or the station is not accurate",
         'HELP_STATION_SUMMARY_TEXT_2': "Last mean wind and gust wind measure",
-        'HELP_STATION_SUMMARY_TEXT_3': "Last hour mean wind historic",
-        'HELP_STATION_SUMMARY_TEXT_4': "Wind direction historic: from center the circle (1 hour ago) " +
+        'HELP_STATION_SUMMARY_TEXT_3': "Trend: last hour mean wind historic",
+        'HELP_STATION_SUMMARY_TEXT_4': "Wind direction historic: from circle center (1 hour ago) " +
         "to outside (last measure)",
         'HELP_MAP_COLORS_TITLE': "Station colors in map mode",
         'HELP_MAP_COLORS_TEXT': "Wind gust [km/h]",

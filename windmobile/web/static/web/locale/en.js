@@ -34,7 +34,7 @@
         'HELP_STATION_SUMMARY_TEXT_3': "Trend: last hour mean wind historic",
         'HELP_STATION_SUMMARY_TEXT_4': "Wind direction historic: from circle center (1 hour ago) " +
         "to outside (last measure)",
-        'HELP_MAP_COLORS_TITLE': "Station colors in map mode",
+        'HELP_MAP_COLORS_TITLE': "Station colors in map view",
         'HELP_MAP_COLORS_TEXT': "Wind gust [km/h]",
         'HELP_PROVIDERS_TITLE': "Data providers list",
         'HELP_COMPATIBILITY_TITLE': "Compatibility",

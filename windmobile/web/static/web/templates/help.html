@@ -22,25 +22,23 @@
     <div class="wdm-help">
         <h1 translate>Help</h1>
         <h2 translate>HELP_STATION_SUMMARY_TITLE</h2>
-        <div style="text-align: center;">
-            <div class="wdm-card-border wdm-card-layout wdm-card-help">
-                <div class="wdm-name" style="float:left;" translate>HELP_STATION_NAME</div>
-                <div class="wdm-info" style="float:right;">
-                    <div class="wdm-last-update wdm-status-red" style="float:right;" translate>HELP_LAST_UPDATE</div>
-                    <div class="wdm-provider" style="clear:right;float:right;" translate>HELP_PROVIDER</div>
-                </div>
-                <div class="wdm-altitude" style="clear:left;float:left;"><span translate>HELP_ALTITUDE</span></div>
-                <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">
-                    <div class="wdm-wind-avg">{{ help.example.data[0]['w-avg'].toFixed(1) }}</div>
-                    <div class="wdm-wind-max">{{ help.example.data[0]['w-max'].toFixed(1) }}<span class="wdm-unit" translate>km/h</span></div>
-                    <svg class="wdm-wind-mini-chart" style="width:100%;max-width:85px;" viewBox="0 0 100 40" data-scope-watch="help.example"></svg>
-                </div>
-                <svg class="wdm-wind-direction" style="float:right;width: 50%;max-width:85px;" viewBox="0 0 100 100" data-scope-watch="help.example"></svg>
-                <div class="wdm-help-note" style="right: 160px; top:2px">1.</div>
-                <div class="wdm-help-note" style="left: 80px; top:65px">2.</div>
-                <div class="wdm-help-note" style="left: 100px; top:110px">3.</div>
-                <div class="wdm-help-note" style="right: 100px; top:75px">4.</div>
+        <div class="wdm-card-border wdm-card-layout wdm-card-help">
+            <div class="wdm-name" style="float:left;" translate>HELP_STATION_NAME</div>
+            <div class="wdm-info" style="float:right;">
+                <div class="wdm-last-update wdm-status-red" style="float:right;" translate>HELP_LAST_UPDATE</div>
+                <div class="wdm-provider" style="clear:right;float:right;" translate>HELP_PROVIDER</div>
             </div>
+            <div class="wdm-altitude" style="clear:left;float:left;"><span translate>HELP_ALTITUDE</span></div>
+            <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">
+                <div class="wdm-wind-avg">{{ help.example.data[0]['w-avg'].toFixed(1) }}</div>
+                <div class="wdm-wind-max">{{ help.example.data[0]['w-max'].toFixed(1) }}<span class="wdm-unit" translate>km/h</span></div>
+                <svg class="wdm-wind-mini-chart" style="width:100%;max-width:85px;" viewBox="0 0 100 40" data-scope-watch="help.example"></svg>
+            </div>
+            <svg class="wdm-wind-direction" style="float:right;width: 50%;max-width:85px;" viewBox="0 0 100 100" data-scope-watch="help.example"></svg>
+            <div class="wdm-help-note" style="right: 160px; top:2px">1.</div>
+            <div class="wdm-help-note" style="left: 80px; top:65px">2.</div>
+            <div class="wdm-help-note" style="left: 100px; top:110px">3.</div>
+            <div class="wdm-help-note" style="right: 100px; top:75px">4.</div>
         </div>
         <ol>
             <li>

@@ -1,5 +1,4 @@
 import os
-import subprocess
 from urllib.parse import urlparse
 from datetime import datetime, timedelta
 
@@ -22,6 +21,21 @@ class Windline(Provider):
     provider_code = 'windline'
     provider_name = 'windline.ch'
     provider_url = 'http://www.windline.ch'
+
+    # status_property_id = get_property_id('status')
+    status_property_id = 13
+    # altitude_property_id = get_property_id('altitude')
+    altitude_property_id = 9
+    # longitude_property_id = get_property_id('longitude')
+    longitude_property_id = 16
+    # latitude_property_id = get_property_id('latitude')
+    latitude_property_id = 17
+
+    wind_average_type = 16402
+    wind_maximum_type = 16410
+    wind_direction_type = 16404
+    temperature_type = 16400
+    humidity_type = 16401
 
     def __init__(self, mongo_url, google_api_key, windline_url):
         super().__init__(mongo_url, google_api_key)
@@ -66,7 +80,7 @@ class Windline(Provider):
     def get_measure_correction(self, cursor, station_no, data_id):
         try:
             cursor.execute(
-                """SELECT calibratevalue FROM tblcalibrate WHERE tblstationno=%s AND tbldatatypeno=("""
+                """SELECT onlyvalue FROM tblcalibrate WHERE tblstationno=%s AND tbldatatypeno=("""
                 """    SELECT tbldatatypeno FROM tbldatatype WHERE dataid=%s"""
                 """)""", (station_no, data_id))
             return cursor.fetchone()[0]
@@ -74,11 +88,12 @@ class Windline(Provider):
             return None
 
     def get_corrected_value(self, cursor, value, station_no, data_id):
-        php_correction = self.get_measure_correction(cursor, station_no, data_id)
-        if php_correction:
-            php_cmd = "php -r '$_data={value}; $_data={php_correction}; echo \"$_data\";'".format(
-                value=value, php_correction=php_correction)
-            return float(subprocess.check_output(php_cmd, shell=True))
+        correction = self.get_measure_correction(cursor, station_no, data_id)
+        if correction:
+            if data_id == self.wind_direction_type:
+                return (value + correction) % 360
+            else:
+                return value + correction
         return value
 
     def get_measure_value(self, rows, start_date, end_date):
@@ -109,21 +124,6 @@ class Windline(Provider):
             # mysql_connection is buffered by default so we can use the same cursor with fetchall
             mysql_cursor = mysql_connection.cursor()
 
-            # status_property_id = get_property_id('status')
-            status_property_id = 13
-            # altitude_property_id = get_property_id('altitude')
-            altitude_property_id = 9
-            # longitude_property_id = get_property_id('longitude')
-            longitude_property_id = 16
-            # latitude_property_id = get_property_id('latitude')
-            latitude_property_id = 17
-
-            wind_average_type = 16402
-            wind_maximum_type = 16410
-            wind_direction_type = 16404
-            temperature_type = 16400
-            humidity_type = 16401
-
             start_date = datetime.utcnow() - timedelta(days=2)
 
             # Fetch only stations that have a status (property_id=13)
@@ -131,7 +131,7 @@ class Windline(Provider):
                 FROM tblstation
                 INNER JOIN tblstationproperty
                 ON tblstation.tblstationno = tblstationproperty.tblstationno
-                WHERE tblstationpropertylistno=%s""", (status_property_id,))
+                WHERE tblstationpropertylistno=%s""", (self.status_property_id,))
             for row in mysql_cursor.fetchall():
                 station_no = row[0]
                 windline_id = row[1]
@@ -144,25 +144,25 @@ class Windline(Provider):
                         station_id,
                         short_name,
                         name,
-                        wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no, latitude_property_id)),
-                        wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no, longitude_property_id)),
+                        wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no, self.latitude_property_id)),
+                        wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no, self.longitude_property_id)),
                         self.get_status(status),
-                        altitude=self.get_property_value(mysql_cursor, station_no, altitude_property_id))
+                        altitude=self.get_property_value(mysql_cursor, station_no, self.altitude_property_id))
 
                     try:
                         measures_collection = self.measures_collection(station_id)
                         new_measures = []
 
                         wind_average_rows = self.get_measures(
-                            mysql_cursor, windline_id, wind_average_type, start_date)
+                            mysql_cursor, windline_id, self.wind_average_type, start_date)
                         wind_maximum_rows = self.get_measures(
-                            mysql_cursor, windline_id, wind_maximum_type, start_date)
+                            mysql_cursor, windline_id, self.wind_maximum_type, start_date)
                         wind_direction_rows = self.get_measures(
-                            mysql_cursor, windline_id, wind_direction_type, start_date)
+                            mysql_cursor, windline_id, self.wind_direction_type, start_date)
                         temperature_rows = self.get_measures(
-                            mysql_cursor, windline_id, temperature_type, start_date)
+                            mysql_cursor, windline_id, self.temperature_type, start_date)
                         humidity_rows = self.get_measures(
-                            mysql_cursor, windline_id, humidity_type, start_date)
+                            mysql_cursor, windline_id, self.humidity_type, start_date)
 
                         # The wind average measure is the time reference for a measure
                         for row in wind_average_rows:
@@ -182,7 +182,7 @@ class Windline(Provider):
                                         wind_direction_rows,
                                         measure_date - timedelta(seconds=10), measure_date + timedelta(seconds=10))
                                     wind_direction = self.get_corrected_value(mysql_cursor, wind_direction, station_no,
-                                                                              wind_direction_type)
+                                                                              self.wind_direction_type)
 
                                     temperature = self.get_last_measure_value(
                                         temperature_rows,

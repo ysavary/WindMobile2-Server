@@ -56,11 +56,14 @@ $grid-float-breakpoint: 0px;
 
 @import "ngToast";
 
+// Take care of bootstrap navbar height with wdm-{controller} class
 $header-height: 50px;
-
 body.wdm-list {
     background-color: #191919;
     padding-top: 70px;
+}
+body.wdm-help {
+    padding-top: $header-height;
 }
 
 body.modal-open .wdm-list-content {
@@ -69,6 +72,13 @@ body.modal-open .wdm-list-content {
     -o-filter: blur(2px);
     -ms-filter: blur(2px);
     filter: blur(2px);
+}
+
+.navbar-default {
+    background: linear-gradient(#f8f8f8, #ececec);
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid #cbcbcb;
 }
 
 .navbar-brand {
@@ -381,6 +391,57 @@ $humidity-color: #3b71a0;
             display: none;
         }
     }
+}
+
+.wdm-help {
+    @media (max-width: 550px) {
+        width: 350px;
+    }
+    width: 500px;
+    margin: auto;
+    padding: 0 2px 10px 2px;
+
+    h1, h2, p, ol, li, td {
+        color: $text-color;
+    }
+    h1 {
+        font-size: 23px;
+        color: #333;
+    }
+    h2 {
+        font-size: 19px;
+    }
+    p {
+        margin: 10px 0 10px 0;
+    }
+    ol {
+        margin-top: 10px;
+    }
+}
+
+.wdm-help-legend {
+    td {
+        width: 30px;
+        height: 30px;
+        text-align: center;
+    }
+}
+
+.wdm-card-help {
+    width: 330px;
+    background-color: #222;
+    position: relative;
+}
+
+.wdm-help-note {
+    position: absolute;
+    color: $highlight-text-color;
+    font-size: 14px;
+    text-align: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: solid 1px $text-color;
 }
 
 .ng-toast {

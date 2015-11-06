@@ -1,4 +1,5 @@
 import os
+import urllib.parse
 
 # Modules
 import requests
@@ -12,7 +13,7 @@ logger = get_logger('windspots')
 class Windspots(Provider):
     provider_code = 'windspots'
     provider_name = 'windspots.com'
-    provider_url = 'http://www.windspots.com/spots'
+    provider_url = 'http://www.windspots.com'
 
     def process_data(self):
         try:
@@ -31,7 +32,8 @@ class Windspots(Provider):
                         windspots_station['@wgs84Latitude'],
                         windspots_station['@wgs84Longitude'],
                         windspots_station['@maintenanceStatus'],
-                        altitude=windspots_station['@altitude'])
+                        altitude=windspots_station['@altitude'],
+                        url=urllib.parse.urljoin(self.provider_url, "/spots"))
 
                     try:
                         # Asking 2 days of data

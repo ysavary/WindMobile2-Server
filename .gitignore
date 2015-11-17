@@ -5,3 +5,4 @@ node_modules/
 envdir/
 windmobile/static
 logfile.txt
+.python-version

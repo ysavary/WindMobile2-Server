@@ -74,7 +74,9 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 });
             $urlRouterProvider.otherwise("/map");
         }])
-    .run(['$rootScope', '$location', '$window', function ($rootScope, $location, $window) {
+    .run(['$rootScope', '$location', '$window', '$interval', 'visibilityBroadcaster', function ($rootScope, $location, $window, $interval) {
+        var self = this;
+
         $rootScope.$on('ocLazyLoad.fileLoaded', function (event, file) {
             Highcharts.setOptions({
                 global: {
@@ -141,6 +143,19 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 }
             });
         });
+        $rootScope.$on('visibilityChange', function(event, isHidden) {
+            self.isHidden = isHidden;
+        });
+        $interval(function () {
+            if (!self.isHidden) {
+                $rootScope.$broadcast('onFromNowInterval');
+            }
+        }, 30000);
+        $interval(function () {
+            if (!self.isHidden) {
+                $rootScope.$broadcast('onRefreshInterval');
+            }
+        }, 120000);
         $rootScope.$on('$stateChangeSuccess',
             function (event, toState, toParams, fromState, fromParams) {
                 if ($window.ga) {

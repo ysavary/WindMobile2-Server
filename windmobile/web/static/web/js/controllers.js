@@ -5,8 +5,8 @@ require('ng-toast');
 
 angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
 
-    .controller('ListController', ['$scope', '$state', '$http', '$interval', '$location', 'utils',
-        function ($scope, $state, $http, $interval, $location, utils) {
+    .controller('ListController', ['$scope', '$state', '$http', '$location', 'utils',
+        function ($scope, $state, $http, $location, utils) {
             var self = this;
 
             function search(position) {
@@ -32,9 +32,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     for (var i = 0; i < self.stations.length; i++) {
                         var station = self.stations[i];
                         if (station.last) {
-                            station.fromNow = moment.unix(station.last._id).fromNow();
-                            var status = utils.getStationStatus(station);
-                            station.fromNowClass = utils.getStatusClass(status);
+                            self.updateFromNow(station);
                             self.getHistoric(station);
                         }
                     }
@@ -83,43 +81,43 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                 $location.search('search', null);
                 this.doSearch();
             };
-
-            $scope.onFromNowInterval = function () {
-                for (var i = 0; i < self.stations.length; i++) {
-                    var station = self.stations[i];
-                    if (station.last) {
-                        station.fromNow = moment.unix(station.last._id).fromNow();
-                        var status = utils.getStationStatus(station);
-                        station.fromNowClass = utils.getStatusClass(status);
-                    }
+            this.updateFromNow = function(station) {
+                if (station.last) {
+                    station.fromNow = moment.unix(station.last._id).fromNow();
+                    var status = utils.getStationStatus(station);
+                    station.fromNowClass = utils.getStatusClass(status);
                 }
             };
-            $scope.onRefreshInterval = function () {
+
+            $scope.$on('onFromNowInterval', function () {
+                for (var i = 0; i < self.stations.length; i++) {
+                    self.updateFromNow(self.stations[i]);
+                }
+            });
+            $scope.$on('onRefreshInterval', function () {
+                console.info(moment().format() + " --> [ListController] onRefreshInterval");
                 self.doSearch();
-            };
+            });
 
             $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
-                if (toState.name === 'list') {
-                    $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-                    $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
-                } else if (fromState.name === 'list') {
-                    $interval.cancel($scope.fromNowInterval);
-                    $interval.cancel($scope.refreshInterval);
-                }
+                console.info(moment().format() + " --> [ListController] $stateChangeStart: fromState=" + fromState.name);
                 // Force modal to close on browser back
                 $('#detailModal').modal('hide');
             });
-
-            $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-            $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
+            $scope.$on('visibilityChange', function(event, isHidden) {
+                if (!isHidden) {
+                    console.info(moment().format() + " --> [ListController] visibilityChange: isHidden=" + isHidden);
+                    self.doSearch();
+                }
+            });
 
             this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
             this.doSearch();
         }])
 
-    .controller('MapController', ['$scope', '$state', '$http', '$compile', '$translate', '$templateCache', '$interval', '$location', 'ngToast', 'utils',
-        function ($scope, $state, $http, $compile, $translate, $templateCache, $interval, $location, ngToast, utils) {
+    .controller('MapController', ['$rootScope', '$scope', '$state', '$http', '$compile', '$translate', '$templateCache', '$location', 'ngToast', 'utils',
+        function ($rootScope, $scope, $state, $http, $compile, $translate, $templateCache, $location, ngToast, utils) {
             var self = this;
 
             ngToast.settings.maxNumber = 1;
@@ -163,9 +161,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     if (self.selectedStation && self.selectedStation._id === station._id) {
                         self.selectedStation = station;
                         if (self.selectedStation.last) {
-                            self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
-                            var status = utils.getStationStatus(self.selectedStation);
-                            self.selectedStation.fromNowClass = utils.getStatusClass(status);
+                            self.updateFromNow();
                             self.getHistoric();
                         }
                     }
@@ -210,9 +206,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
 
                                     self.selectedStation = marker.station;
                                     if (self.selectedStation.last) {
-                                        self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
-                                        var status = utils.getStationStatus(self.selectedStation);
-                                        self.selectedStation.fromNowClass = utils.getStatusClass(status);
+                                        self.updateFromNow();
                                         self.getHistoric();
                                     }
 
@@ -358,46 +352,48 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     }, 500);
                 }
             }()));
-
-            $scope.onFromNowInterval = function() {
-                if (self.selectedStation) {
-                    if (self.selectedStation.last) {
-                        self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
-                        var status = utils.getStationStatus(self.selectedStation);
-                        self.selectedStation.fromNowClass = utils.getStatusClass(status);
-                    }
+            this.updateFromNow = function() {
+                if (self.selectedStation && self.selectedStation.last) {
+                    self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
+                    var status = utils.getStationStatus(self.selectedStation);
+                    self.selectedStation.fromNowClass = utils.getStatusClass(status);
                 }
             };
-            $scope.onRefreshInterval = function() {
+
+            $scope.$on('onFromNowInterval', function() {
+                self.updateFromNow();
+            });
+            $scope.$on('onRefreshInterval', function() {
+                console.info(moment().format() + " --> [MapController] onRefreshInterval");
                 self.doSearch();
                 if (self.selectedStation) {
                     self.getHistoric();
                 }
-            };
+            });
 
-            $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
-                if (toState.name === 'map') {
-                    $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-                    $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
-                } else if (fromState.name === 'map') {
-                    $interval.cancel($scope.fromNowInterval);
-                    $interval.cancel($scope.refreshInterval);
-                }
+            $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+                console.info(moment().format() + " --> [MapController] $stateChangeStart: fromState="
+                    + fromState.name + ", toState=" + toState.name);
                 // Force modal to close on browser back
                 $('#detailModal').modal('hide');
             });
-
-            $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-            $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
-
+            $scope.$on('visibilityChange', function(event, isHidden) {
+                if (!isHidden) {
+                    console.info(moment().format() + " --> [MapController] visibilityChange: isHidden=" + isHidden);
+                    self.doSearch();
+                    if (self.selectedStation) {
+                        self.getHistoric();
+                    }
+                }
+            });
 
             this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
             this.centerMap();
         }])
 
-    .controller('DetailController', ['$scope', '$state', '$stateParams', '$http', '$interval', 'utils',
-        function ($scope, $state, $stateParams, $http, $interval, utils) {
+    .controller('DetailController', ['$rootScope', '$scope', '$state', '$stateParams', '$http', 'utils',
+        function ($rootScope, $scope, $state, $stateParams, $http, utils) {
             var self = this;
 
             $('#detailModal').modal().on('hidden.bs.modal', function (e) {
@@ -441,11 +437,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     url: '/api/2/stations/' + $stateParams.stationId
                 }).success(function (data) {
                     self.station = data;
-                    if (self.station.last) {
-                        self.station.fromNow = moment.unix(self.station.last._id).fromNow();
-                        var status = utils.getStationStatus(self.station);
-                        self.station.fromNowClass = utils.getStatusClass(status);
-                    }
+                    self.updateFromNow();
                 });
             };
             this.getStationHistoric = function () {
@@ -480,30 +472,29 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                 this.getStation();
                 this.getStationHistoric();
             };
-
-            $scope.onFromNowInterval = function() {
+            this.updateFromNow = function() {
                 if (self.station.last) {
                     self.station.fromNow = moment.unix(self.station.last._id).fromNow();
                     var status = utils.getStationStatus(self.station);
                     self.station.fromNowClass = utils.getStatusClass(status);
                 }
             };
-            $scope.onRefreshInterval = function() {
-                self.doDetail();
-            };
 
-            $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
-                if (toState.name.indexOf('detail') > -1) {
-                    $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-                    $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
-                } else if (fromState.name.indexOf('detail') > -1) {
-                    $interval.cancel($scope.fromNowInterval);
-                    $interval.cancel($scope.refreshInterval);
+            $scope.$on('onFromNowInterval', function() {
+                self.updateFromNow();
+            });
+            $scope.$on('onRefreshInterval', function() {
+                console.info(moment().format() + " --> [DetailController] onRefreshInterval");
+                self.doDetail();
+            });
+
+            $scope.$on('visibilityChange', function(event, isHidden) {
+                if (!isHidden) {
+                    console.info(moment().format() + " --> [DetailController] visibilityChange: isHidden=" + isHidden);
+                    self.doDetail();
                 }
             });
 
-            $scope.fromNowInterval = $interval($scope.onFromNowInterval, utils.fromNowInterval);
-            $scope.refreshInterval = $interval($scope.onRefreshInterval, utils.refreshInterval);
             this.doDetail();
         }])
 

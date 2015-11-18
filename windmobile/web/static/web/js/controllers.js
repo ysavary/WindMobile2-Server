@@ -88,6 +88,13 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     station.fromNowClass = utils.getStatusClass(status);
                 }
             };
+            this.clickOnNavBar = function() {
+                if (!utils.inIframe()) {
+                    self.clearSearch();
+                } else {
+                    window.open('http://winds.mobi');
+                }
+            };
 
             $scope.$on('onFromNowInterval', function () {
                 for (var i = 0; i < self.stations.length; i++) {
@@ -314,6 +321,13 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     });
                 }
             };
+            this.clickOnNavBar = function() {
+                if (!utils.inIframe()) {
+                    self.clearSearch();
+                } else {
+                    window.open('http://winds.mobi');
+                }
+            };
 
             // Initialize Google Maps
             var mapOptions = {
@@ -498,8 +512,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
             this.doDetail();
         }])
 
-    .controller('HelpController', ['utils',
-        function (utils) {
+    .controller('HelpController', ['$state', 'utils',
+        function ($state, utils) {
             this.example = {
                 data: [{
                     "_id": 1444993200,
@@ -546,5 +560,12 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
             };
             this.getLegendColor = function(value) {
                 return utils.getColorInRange(value, 50);
+            };
+            this.clickOnNavBar = function () {
+                if (!utils.inIframe()) {
+                    $state.go('map');
+                } else {
+                    window.open('http://winds.mobi');
+                }
             };
         }]);

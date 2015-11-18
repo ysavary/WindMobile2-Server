@@ -88,8 +88,16 @@ angular.module('windmobile.services', [])
                 if ((domains.length === 2) && (domains[1] === "localhost" )) {
                     return domains[0];
                 }
+            },
+
+            inIframe: function () {
+                try {
+                    return window.self !== window.top;
+                } catch (e) {
+                    return true;
+                }
             }
-        };
+        }
     })
     .factory('visibilityBroadcaster', ['$rootScope', '$document', function ($rootScope, $document) {
         var document = $document[0];

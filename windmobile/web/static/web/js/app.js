@@ -328,17 +328,9 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                                 return null;
                             }
                             // Display a label only if this current point is the highest value of its neighbors
-                            var maxNumberOfLabels = 50;
-                            var peakVectorSize = Math.max(
-                                // Round to the near odd number
-                                Math.round((this.series.data.length / maxNumberOfLabels) / 2) * 2 - 1,
-                                3);
-
-
-                            for (var key in this.series.data) {
-                                var obj = this.series.data[key];
-                                if (obj.x === this.x) {
-                                    var index = obj.index;
+                            for (var i = 0; i < this.series.xData.length; i++) {
+                                if (this.series.xData[i] === this.x) {
+                                    var index = i;
                                     break;
                                 }
                             }
@@ -349,11 +341,11 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                             var isPeak = function (values) {
                                 try {
                                     var middleIndex = Math.floor(values.length / 2);
-                                    var middleValue = values[middleIndex].y;
+                                    var middleValue = values[middleIndex];
                                     var maxIndex = 0, maxValue = 0;
 
                                     for (var i = 0; i < values.length; i++) {
-                                        var currentValue = values[i].y;
+                                        var currentValue = values[i];
                                         if (currentValue > middleValue) {
                                             return false;
                                         }
@@ -364,16 +356,20 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                                             maxIndex = i;
                                         }
                                     }
-                                    return (maxIndex == middleIndex);
+                                    return (maxIndex === middleIndex);
                                 }
                                 catch (e) {
                                     return false;
                                 }
                             };
 
+                            var peakVectorSize = Math.max(
+                                // Round to the near odd number
+                                Math.round((this.series.xData.length / 100 /* max labels */) / 2) * 2 - 1,
+                                3);
                             var begin = index - ((peakVectorSize - 1) / 2);
                             var end = index + ((peakVectorSize - 1) / 2) + 1;
-                            if (!isPeak(this.series.data.slice(begin, end))) {
+                            if (!isPeak(this.series.yData.slice(begin, end))) {
                                 return null;
                             }
 

@@ -230,7 +230,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
             }
         };
     })
-    .directive('wdmWindDirection', function () {
+    .directive('wdmWindDirection', ['$translate', function ($translate) {
         return {
             restrict: "C",
             link: function (scope, element, attrs) {
@@ -256,7 +256,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     var x = width / 2 - Math.cos(angleRadian) * labelRadius;
                     var y = height / 2 - Math.sin(angleRadian) * labelRadius;
 
-                    var text = paper.text(x, y, labels[i]);
+                    var text = paper.text(x, y, $translate.instant(labels[i]));
                     text = text.attr({
                         fill: "#8D8D8D",
                         'font-size': fontSize,
@@ -297,7 +297,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 });
             }
         }
-    })
+    }])
     .directive('wdmWindChart', ['utils', function (utils) {
         return {
             restrict: "C",
@@ -305,7 +305,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 var windAvgSerie = {
                     name: 'windAvg',
                     type: 'areaspline',
-                    lineWidth: 1,
+                    lineWidth: 1.5,
                     lineColor: '#676700',
                     color: '#333',
                     marker: {
@@ -317,16 +317,69 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     name: 'windMax',
                     type: 'spline',
                     color: '#676700',
-                    lineWidth: 1,
+                    lineWidth: 1.5,
                     marker: {
                         enabled: false
                     },
                     dataLabels: {
                         enabled: true,
                         formatter: function () {
+                            if (!this.y) {
+                                return null;
+                            }
+                            // Display a label only if this current point is the highest value of its neighbors
+                            var maxNumberOfLabels = 50;
+                            var peakVectorSize = Math.max(
+                                // Round to the near odd number
+                                Math.round((this.series.data.length / maxNumberOfLabels) / 2) * 2 - 1,
+                                3);
+
+
+                            for (var key in this.series.data) {
+                                var obj = this.series.data[key];
+                                if (obj.x === this.x) {
+                                    var index = obj.index;
+                                    break;
+                                }
+                            }
+                            if (!index) {
+                                return null;
+                            }
+
+                            var isPeak = function (values) {
+                                try {
+                                    var middleIndex = Math.floor(values.length / 2);
+                                    var middleValue = values[middleIndex].y;
+                                    var maxIndex = 0, maxValue = 0;
+
+                                    for (var i = 0; i < values.length; i++) {
+                                        var currentValue = values[i].y;
+                                        if (currentValue > middleValue) {
+                                            return false;
+                                        }
+
+                                        // Mark the 1st value only if the vector contains a "flat"
+                                        if (currentValue > maxValue) {
+                                            maxValue = currentValue;
+                                            maxIndex = i;
+                                        }
+                                    }
+                                    return (maxIndex == middleIndex);
+                                }
+                                catch (e) {
+                                    return false;
+                                }
+                            };
+
+                            var begin = index - ((peakVectorSize - 1) / 2);
+                            var end = index + ((peakVectorSize - 1) / 2) + 1;
+                            if (!isPeak(this.series.data.slice(begin, end))) {
+                                return null;
+                            }
+
                             return utils.getWindDirectionLabel(
                                 ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
-                                windDir[this.key]
+                                windDir[this.x]
                             );
                         },
                         color: '#666',
@@ -346,7 +399,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     },
                     xAxis: {
                         type: 'datetime',
-                        lineColor: '#8d8d8d'
+                        lineColor: '#666'
                     },
                     yAxis: {
                         opposite: false,
@@ -355,7 +408,9 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         labels: {
                             format: '{value} km/h',
                             style: {color: "#7d7d00", fontSize: '8.5px'}
-                        }
+                        },
+                        minRange: 10,
+                        floor: 0
                     },
                     series: [windAvgSerie, windMaxSerie]
                 });
@@ -375,8 +430,6 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         }
                         chart.series[0].setData(serie0, false);
                         chart.series[1].setData(serie1, false);
-                        // Workaround for https://github.com/highslide-software/highcharts.com/issues/4452
-                        chart.xAxis[0].isDirtyExtremes = true;
                         chart.redraw(false);
                     }
                 });
@@ -402,7 +455,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     name: 'temperature',
                     type: 'spline',
                     color: '#891f30',
-                    lineWidth: 1,
+                    lineWidth: 1.5,
                     marker: {
                         enabled: false
                     }
@@ -411,7 +464,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     name: 'humidity',
                     type: 'spline',
                     color: '#264a68',
-                    lineWidth: 1,
+                    lineWidth: 1.5,
                     marker: {
                         enabled: false
                     },
@@ -430,7 +483,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     },
                     xAxis: {
                         type: 'datetime',
-                        lineColor: '#8d8d8d'
+                        lineColor: '#666'
                     },
                     yAxis: [{
                         opposite: false,
@@ -471,8 +524,6 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         chart.series[0].setData(serie0, false);
                         chart.series[1].setData(serie1, false);
                         chart.series[2].setData(serie2, false);
-                        // Workaround for https://github.com/highslide-software/highcharts.com/issues/4452
-                        chart.xAxis[0].isDirtyExtremes = true;
                         chart.redraw(false);
                     }
                 });

@@ -40,7 +40,16 @@
         'HELP_COMPATIBILITY_TITLE': "Compatibilité",
         'HELP_COMPATIBILITY_TEXT': "winds.mobi fonctionne sur les dernières versions des principaux navigateurs web (mobile ou bureau)",
         'HELP_CONTACT_TITLE': "À propos",
-        'HELP_CONTACT_TEXT': "Des questions, problèmes ou idées d'amélioration ? Contactez-moi !"
+        'HELP_CONTACT_TEXT': "Des questions, problèmes ou idées d'amélioration ? Contactez-moi !",
+
+        'N': "N",
+        'NE': "NE",
+        'E': "E",
+        'SE': "SE",
+        'S': "S",
+        'SW': "SO",
+        'W': "O",
+        'NW': "NO"
     };
 
     // Node: Export function

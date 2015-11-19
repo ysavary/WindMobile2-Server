@@ -40,7 +40,16 @@
         'HELP_COMPATIBILITY_TITLE': "Compatibility",
         'HELP_COMPATIBILITY_TEXT': "winds.mobi runs on the latest versions of the major browsers (mobile or desktop)",
         'HELP_CONTACT_TITLE': "About",
-        'HELP_CONTACT_TEXT': "Questions, issues or improvement ideas ? Please contact me !"
+        'HELP_CONTACT_TEXT': "Questions, issues or improvement ideas ? Please contact me !",
+
+        'N': "N",
+        'NE': "NE",
+        'E': "E",
+        'SE': "SE",
+        'S': "S",
+        'SW': "SW",
+        'W': "W",
+        'NW': "NW"
     };
 
     // Node: Export function

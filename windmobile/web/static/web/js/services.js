@@ -3,7 +3,7 @@ var moment = require('moment');
 var tinycolor = require('tinycolor2');
 
 angular.module('windmobile.services', [])
-    .factory('utils', function () {
+    .factory('utils', ['$translate', function ($translate) {
         return {
             getStationStatus: function (station) {
                 // status: 0=red, 1=orange, 2=green
@@ -69,11 +69,11 @@ angular.module('windmobile.services', [])
                     if (i == 0) {
                         // Looking for the north "half sector" from 337.5 to 360
                         if ((direction >= 360 + min) && (direction <= 360)) {
-                            return labels[0];
+                            return $translate.instant(labels[0]);
                         }
                     }
                     if ((direction >= min) && (direction < max)) {
-                        return labels[i];
+                        return  $translate.instant(labels[i]);
                     }
                     angle += sectors;
                 }
@@ -98,7 +98,7 @@ angular.module('windmobile.services', [])
                 }
             }
         }
-    })
+    }])
     .factory('visibilityBroadcaster', ['$rootScope', '$document', function ($rootScope, $document) {
         var document = $document[0];
         var detectedFeature;

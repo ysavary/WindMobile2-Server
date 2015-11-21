@@ -12,40 +12,79 @@ from windmobile.api import diacritics
 
 
 class Stations(APIView):
+    """
+    Search stations queries
+
+    Examples:
+
+    - Get 5 stations from jdc.ch: [/api/2/stations/?limit=5&provider=jdc](/api/2/stations/?limit=5&provider=jdc)
+    - Search (ignore accents): [/api/2/stations/?search=dole](/api/2/stations/?search=dole)
+    - Search for 3 stations around Yverdon: [/api/2/stations/?near-lat=46.78&near-lon=6.63&limit=3](/api/2/stations/?near-lat=46.78&near-lon=6.63&limit=3)
+    - Search 20 km around Yverdon: [/api/2/stations/?near-lat=46.78&near-lon=6.63&near-distance=20000](/api/2/stations/?near-lat=46.78&near-lon=6.63&near-distance=20000)
+    """
     def get(self, request):
         """
-        Search stations queries
-
-        Examples:
-        - Get 5 stations from jdc.ch: <a href=/api/2/stations/?limit=5&provider=jdc.ch>/api/2/stations/?limit=5&provider=jdc.ch</a>
-        - Search (ignore accents): <a href=/api/2/stations/?search=dole>/api/2/stations/?search=dole</a>
-        - Search for 3 stations around Yverdon: <a href=/api/2/stations/?lat=46.78&lon=6.63&limit=3>/api/2/stations/?lat=46.78&lon=6.63&limit=3</a>
-        - Search 20 km around Yverdon: <a href=/api/2/stations/?lat=46.78&lon=6.63&distance=20000>/api/2/stations/?lat=46.78&lon=6.63&distance=20000</a>
-
-        Query parameters:
-        limit          -- Nb stations to return (default=20)
-        provider       -- Return only stations of the given provider
-        search         -- String to search (ignoring accent)
-        near-lat       -- Geo search near: latitude ie 46.78
-        near-lon       -- Geo search near: longitude ie 6.63
-        near-distance  -- Geo search near: distance from lat, lon
-        within-pt1-lat -- Geo search within rectangle: pt1 latitude
-        within-pt1-lon -- Geo search within rectangle: pt1 longitude
-        within-pt2-lat -- Geo search within rectangle: pt2 latitude
-        within-pt2-lon -- Geo search within rectangle: pt2 longitude
+        ---
+        parameters:
+            - name: limit
+              description: "Nb stations to return (default=20)"
+              type: integer
+              defaultValue: 20
+              paramType: query
+            - name: provider
+              description: "Returns only stations of the given provider"
+              type: string
+              paramType: query
+            - name: search
+              description: "String to search (ignoring accent)"
+              type: string
+              paramType: query
+            - name: near-lat
+              description: "Geo search near: latitude ie 46.78"
+              type: float
+              paramType: query
+            - name: near-lon
+              description: "Geo search near: longitude ie 6.63"
+              type: float
+              paramType: query
+            - name: near-distance
+              description: "Geo search near: distance from lat,lon [meters]"
+              type: integer
+              paramType: query
+            - name: within-pt1-lat
+              description: "Geo search within rectangle: pt1 latitude"
+              type: float
+              paramType: query
+            - name: within-pt1-lon
+              description: "Geo search within rectangle: pt1 longitude"
+              type: float
+              paramType: query
+            - name: within-pt2-lat
+              description: "Geo search within rectangle: pt2 latitude"
+              type: float
+              paramType: query
+            - name: within-pt2-lon
+              description: "Geo search within rectangle: pt2 longitude"
+              type: float
+              paramType: query
+            - name: keys
+              description: "List of keys to return"
+              type: string
+              allowMultiple: true
+              paramType: query
         """
-        limit = int(request.QUERY_PARAMS.get('limit', 20))
-        provider = request.QUERY_PARAMS.get('provider')
-        search = request.QUERY_PARAMS.get('search')
-        near_latitude = request.QUERY_PARAMS.get('near-lat')
-        near_longitude = request.QUERY_PARAMS.get('near-lon')
-        near_distance = request.QUERY_PARAMS.get('near-distance')
-        within_pt1_latitude = request.QUERY_PARAMS.get('within-pt1-lat')
-        within_pt1_longitude = request.QUERY_PARAMS.get('within-pt1-lon')
-        within_pt2_latitude = request.QUERY_PARAMS.get('within-pt2-lat')
-        within_pt2_longitude = request.QUERY_PARAMS.get('within-pt2-lon')
+        limit = int(request.query_params.get('limit', 20))
+        provider = request.query_params.get('provider')
+        search = request.query_params.get('search')
+        near_latitude = request.query_params.get('near-lat')
+        near_longitude = request.query_params.get('near-lon')
+        near_distance = request.query_params.get('near-distance')
+        within_pt1_latitude = request.query_params.get('within-pt1-lat')
+        within_pt1_longitude = request.query_params.get('within-pt1-lon')
+        within_pt2_latitude = request.query_params.get('within-pt2-lat')
+        within_pt2_longitude = request.query_params.get('within-pt2-lon')
 
-        projections = request.QUERY_PARAMS.getlist('proj', None)
+        projections = request.query_params.getlist('keys', None)
         if projections:
             projection_dict = {}
             for key in projections:
@@ -137,21 +176,22 @@ class Stations(APIView):
 
 
 class Doc(APIView):
+    """
+    [JSON station data documentation](/api/2/stations/station_json_doc)
+    """
     def get(self, request):
-        """
-        JSON station data documentation
-
-        """
         return Response({
             "_id": "[string] unique ID {providerCode}-{providerId} (jdc-1010)",
-            "prov": "[string] provider name (jdc.ch)",
+            "pv-code": "[string] provider code (jdc)",
+            "pv-name": "[string] provider name (jdc.ch)",
 
             "short": "[string] short name",
             "name": "[string] name",
             "alt": "[integer] altitude [m]",
+            "peak": "[boolean] is the station on a peak",
 
             "status": "green|orange|red",
-            "timezone": "[string]: (+01:00)",
+            "tz": "[string]: (Europe/Zurich)",
 
             "loc": {
                 'type': 'Point',
@@ -173,15 +213,24 @@ class Doc(APIView):
 
 
 class Station(APIView):
+    """
+    Get station data
+
+    [JSON station data documentation](/api/2/stations/station_json_doc)
+
+    Example:
+
+    - Mauborget: [/api/2/stations/jdc-1001](/api/2/stations/jdc-1001)
+    """
     def get(self, request, station_id):
         """
-        Get station data
-
-        <a href=/api/2/stations/station_json_doc>JSON station data documentation</a>
-
-        Example:
-        - Mauborget: <a href=/api/2/stations/jdc-1001>/api/2/stations/jdc-1001</a>
-
+        ---
+        parameters:
+            - name: station_id
+              description: "The station ID to request"
+              type: string
+              required: true
+              paramType: path
         """
         station = mongo_db.stations.find_one(station_id)
         if not station:
@@ -191,17 +240,37 @@ class Station(APIView):
 
 
 class Historic(APIView):
+    """
+    Get data history of a station since at least duration
+
+    Example:
+
+    - Historic Mauborget (1 hour): [/api/2/stations/jdc-1001/historic/?duration=3600](/api/2/stations/jdc-1001/historic/?duration=3600)
+
+    """
     def get(self, request, station_id):
         """
-        Get data history of a station since at least duration
-
-        Example:
-        - Historic Mauborget (1 hour): <a href=/api/2/stations/jdc-1001/historic/?duration=3600>/api/2/stations/jdc-1001/historic/?duration=3600</a>
-
+        ---
+        parameters:
+            - name: station_id
+              description: "The station ID to request"
+              type: string
+              required: true
+              paramType: path
+            - name: duration
+              description: "Historic duration"
+              type: integer
+              defaultValue: 3600
+              paramType: query
+            - name: keys
+              description: "List of keys to return"
+              type: string
+              allowMultiple: true
+              paramType: query
         """
-        duration = int(request.QUERY_PARAMS.get('duration', 3600))
+        duration = int(request.query_params.get('duration', 3600))
 
-        projections = request.QUERY_PARAMS.getlist('proj', None)
+        projections = request.query_params.getlist('keys', None)
         if projections:
             projection_dict = {}
             for key in projections:

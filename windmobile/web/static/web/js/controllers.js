@@ -11,7 +11,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
 
             function search(position) {
                 var params = {
-                    proj: ['short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max']
+                    keys: ['short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max']
                 };
                 if (position) {
                     params['near-lat'] = position.coords.latitude;
@@ -41,7 +41,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
             this.getHistoric = function (station) {
                 var params = {
                     duration: 3600,
-                    proj: ['w-dir', 'w-avg']
+                    keys: ['w-dir', 'w-avg']
                 };
                 $http({
                     method: 'GET',
@@ -240,7 +240,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
             }
             function search(bounds) {
                 var params = {
-                    proj: [
+                    keys: [
                         'short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max',
                         'peak'
                     ]
@@ -268,7 +268,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
             this.getHistoric = function () {
                 var params = {
                     duration: 3600,
-                    proj: ['w-dir', 'w-avg']
+                    keys: ['w-dir', 'w-avg']
                 };
                 $http({
                     method: 'GET',
@@ -419,7 +419,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                 $('.wdm-wind-chart').highcharts().reflow();
                 var params = {
                     duration: 432000,
-                    proj: ['w-dir', 'w-avg', 'w-max']
+                    keys: ['w-dir', 'w-avg', 'w-max']
                 };
                 $http({
                     method: 'GET',
@@ -434,7 +434,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                 $('.wdm-air-chart').highcharts().reflow();
                 var params = {
                     duration: 432000,
-                    proj: ['temp', 'hum', 'rain']
+                    keys: ['temp', 'hum', 'rain']
                 };
                 $http({
                     method: 'GET',
@@ -457,7 +457,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
             this.getStationHistoric = function () {
                 var params = {
                     duration: 3600,
-                    proj: ['w-dir', 'w-avg', 'w-max']
+                    keys: ['w-dir', 'w-avg', 'w-max']
                 };
                 $http({
                     method: 'GET',

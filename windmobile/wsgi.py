@@ -10,12 +10,13 @@ https://docs.djangoproject.com/en/1.8/howto/deployment/wsgi/
 import os
 
 from django.core.wsgi import get_wsgi_application
-from django.conf import settings
 
-if not settings.DEBUG:
+try:
     import newrelic.agent
     here = os.path.dirname(__file__)
     newrelic.agent.initialize(os.path.join(here, 'newrelic.ini'))
+except:
+    pass
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "windmobile.settings")
 

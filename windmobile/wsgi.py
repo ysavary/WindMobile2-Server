@@ -11,6 +11,10 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
+import newrelic.agent
+here = os.path.dirname(__file__)
+newrelic.agent.initialize(os.path.join(here, 'newrelic.ini'))
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "windmobile.settings")
 
 

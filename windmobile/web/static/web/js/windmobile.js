@@ -54600,7 +54600,9 @@ angular.module('windmobile.controllers', [require('angular-cookies'), 'ngToast',
                 $state.go('my-list.detail', {stationId: station._id});
             };
             this.doSearch = function () {
-                search(self.favorites);
+                if (self.favorites && self.favorites.length > 0) {
+                    search(self.favorites);
+                }
             };
             this.clearSearch = function () {
                 this.search = null;

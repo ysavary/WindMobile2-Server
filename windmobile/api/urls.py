@@ -16,5 +16,6 @@ urlpatterns = patterns(
     url(r'^stations/(?P<station_id>.+)/$', Station.as_view(), name='api.station'),
 
     url(r'^users/login', auth_rest_views.obtain_auth_token, name='api.user_login'),
-    url(r'^users/profile/$', UserProfile.as_view(), name='api.user_profile')
+    url(r'^users/profile/$', UserProfile.as_view(), name='api.user_profile'),
+    url(r'^users/profile/favorites/$', UserProfileFavorite.as_view(), name='api.user_profile_favorites')
 )

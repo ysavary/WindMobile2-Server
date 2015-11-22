@@ -327,11 +327,40 @@ class StationHistoricJsonDoc(APIView):
 
 
 class UserProfile(APIView):
+    """
+    Get profile of authenticated user
+    """
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        return Response(mongo_db.users.find_one(request.user.username))
+        profile = mongo_db.users.find_one(request.user.username)
+        if profile:
+            return Response(profile)
+        else:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserProfileFavorite(APIView):
+    """
+    Manage favorites stations list
+    """
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        station_id = request.data['station_id']
+        mongo_db.users.update_one({'_id': request.user.username},
+                                  {'$addToSet': {'favorites': station_id}},
+                                  upsert=True)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request):
+        station_id = request.data['station_id']
+        mongo_db.users.update_one({'_id': request.user.username},
+                                  {'$pull': {'favorites': station_id}},
+                                  upsert=True)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 mongo_url = os.environ['WINDMOBILE_MONGO_URL']

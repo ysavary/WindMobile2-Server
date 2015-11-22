@@ -39,7 +39,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'corsheaders',
+
     'rest_framework',
+    'rest_framework.authtoken',
+
     'windmobile.api',
 
     'rest_framework_swagger',
@@ -118,10 +121,6 @@ STATICFILES_DIRS = (
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-SWAGGER_SETTINGS = {
-    "api_version": '2.0'
-}
-
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
@@ -129,4 +128,6 @@ REST_FRAMEWORK = {
     )
 }
 
-MONGODB_URL = os.environ['WINDMOBILE_MONGO_URL']
+SWAGGER_SETTINGS = {
+    "api_version": '2.0'
+}

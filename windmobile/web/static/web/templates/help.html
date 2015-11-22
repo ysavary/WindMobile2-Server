@@ -2,8 +2,8 @@
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#" ng-click="help.clickOnNavBar()"><img src="/static/web/img/windmobile.png"></a>
-            <a class="navbar-text hidden-xxs" href="#" ng-click="help.clickOnNavBar()"><span>winds</span>.mobi</a>
+            <a class="navbar-brand" href="#" ng-click="main.clickOnNavBar()"><img src="/static/web/img/windmobile.png"></a>
+            <a class="navbar-text hidden-xxs" href="#" ng-click="main.clickOnNavBar()"><span>winds</span>.mobi</a>
         </div>
         <div class="navbar-right">
             <ul class="nav navbar-nav">
@@ -30,11 +30,11 @@
             </div>
             <div class="wdm-altitude" style="clear:left;float:left;"><span translate>HELP_ALTITUDE</span></div>
             <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">
-                <div class="wdm-wind-avg">{{ help.example.data[0]['w-avg'].toFixed(1) }}</div>
-                <div class="wdm-wind-max">{{ help.example.data[0]['w-max'].toFixed(1) }}<span class="wdm-unit" translate>km/h</span></div>
-                <svg class="wdm-wind-mini-chart" style="width:100%;max-width:85px;" viewBox="0 0 100 40" data-scope-watch="help.example"></svg>
+                <div class="wdm-wind-avg">{{ main.example.data[0]['w-avg'].toFixed(1) }}</div>
+                <div class="wdm-wind-max">{{ main.example.data[0]['w-max'].toFixed(1) }}<span class="wdm-unit" translate>km/h</span></div>
+                <svg class="wdm-wind-mini-chart" style="width:100%;max-width:85px;" viewBox="0 0 100 40" data-scope-watch="main.example"></svg>
             </div>
-            <svg class="wdm-wind-direction" style="float:right;width: 50%;max-width:85px;" viewBox="0 0 100 100" data-scope-watch="help.example"></svg>
+            <svg class="wdm-wind-direction" style="float:right;width: 50%;max-width:85px;" viewBox="0 0 100 100" data-scope-watch="main.example"></svg>
             <div class="wdm-help-note" style="right: 160px; top:2px">1.</div>
             <div class="wdm-help-note" style="left: 80px; top:65px">2.</div>
             <div class="wdm-help-note" style="left: 100px; top:110px">3.</div>
@@ -54,16 +54,16 @@
         <p translate>HELP_MAP_COLORS_TEXT</p>
         <table class="wdm-help-legend">
             <tr>
-                <td style="background: {{ help.getLegendColor(5) }};"></td>
-                <td style="background: {{ help.getLegendColor(10) }};"></td>
-                <td style="background: {{ help.getLegendColor(15) }};"></td>
-                <td style="background: {{ help.getLegendColor(20) }};"></td>
-                <td style="background: {{ help.getLegendColor(25) }};"></td>
-                <td style="background: {{ help.getLegendColor(30) }};"></td>
-                <td style="background: {{ help.getLegendColor(35) }};"></td>
-                <td style="background: {{ help.getLegendColor(40) }};"></td>
-                <td style="background: {{ help.getLegendColor(45) }};"></td>
-                <td style="background: {{ help.getLegendColor(50) }};"></td>
+                <td style="background: {{ main.getLegendColor(5) }};"></td>
+                <td style="background: {{ main.getLegendColor(10) }};"></td>
+                <td style="background: {{ main.getLegendColor(15) }};"></td>
+                <td style="background: {{ main.getLegendColor(20) }};"></td>
+                <td style="background: {{ main.getLegendColor(25) }};"></td>
+                <td style="background: {{ main.getLegendColor(30) }};"></td>
+                <td style="background: {{ main.getLegendColor(35) }};"></td>
+                <td style="background: {{ main.getLegendColor(40) }};"></td>
+                <td style="background: {{ main.getLegendColor(45) }};"></td>
+                <td style="background: {{ main.getLegendColor(50) }};"></td>
             </tr>
             <tr>
                 <td><5</td>

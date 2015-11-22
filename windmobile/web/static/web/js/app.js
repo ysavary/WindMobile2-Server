@@ -67,10 +67,34 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         }]
                     }
                 })
+                .state('my-list', {
+                    url: '/my-list',
+                    templateUrl: '/static/web/templates/my-list.html',
+                    controller: 'MyListController as main'
+                })
+                .state('my-list.detail', {
+                    url: '/:stationId',
+                    views: {
+                        "detailView": {
+                            templateUrl: '/static/web/templates/detail.html',
+                            controller: 'DetailController as detail'
+                        }
+                    },
+                    resolve: {
+                        loadMyCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load('/static/web/lib/highstock.js');
+                        }]
+                    }
+                })
                 .state('help', {
                     url: '/help',
                     templateUrl: '/static/web/templates/help.html',
-                    controller: 'HelpController as help'
+                    controller: 'HelpController as main'
+                })
+                .state('login', {
+                    url: '/login',
+                    templateUrl: '/static/web/templates/login.html',
+                    controller: 'LoginController as main'
                 });
             $urlRouterProvider.otherwise("/map");
         }])

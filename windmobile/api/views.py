@@ -2,6 +2,8 @@
 import os
 
 from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
@@ -13,7 +15,9 @@ from windmobile.api import diacritics
 
 class Stations(APIView):
     """
-    Search stations queries
+    Search for stations
+
+    Returns Array of [JSON](/api/2/stations/json-doc)
 
     Examples:
 
@@ -21,6 +25,7 @@ class Stations(APIView):
     - Search (ignore accents): [/api/2/stations/?search=dole](/api/2/stations/?search=dole)
     - Search for 3 stations around Yverdon: [/api/2/stations/?near-lat=46.78&near-lon=6.63&limit=3](/api/2/stations/?near-lat=46.78&near-lon=6.63&limit=3)
     - Search 20 km around Yverdon: [/api/2/stations/?near-lat=46.78&near-lon=6.63&near-distance=20000](/api/2/stations/?near-lat=46.78&near-lon=6.63&near-distance=20000)
+    - Return jdc-1001 and jdc-1002: [/api/2/stations/?ids=jdc-1001&ids=jdc-1002](/api/2/stations/?ids=jdc-1001&ids=jdc-1002)
     """
     def get(self, request):
         """
@@ -67,6 +72,10 @@ class Stations(APIView):
               description: "Geo search within rectangle: pt2 longitude"
               type: float
               paramType: query
+            - name: ids
+              description: "Returns stations by ids"
+              type: string
+              allowMultiple: true
             - name: keys
               description: "List of keys to return"
               type: string
@@ -83,6 +92,7 @@ class Stations(APIView):
         within_pt1_longitude = request.query_params.get('within-pt1-lon')
         within_pt2_latitude = request.query_params.get('within-pt2-lat')
         within_pt2_longitude = request.query_params.get('within-pt2-lon')
+        ids = request.query_params.getlist('ids', None)
 
         projections = request.query_params.getlist('keys', None)
         if projections:
@@ -169,15 +179,45 @@ class Stations(APIView):
                 float(within_pt2_latitude))
             return Response(result)
 
+        if ids:
+            query['_id'] = {'$in': ids}
+
         try:
             return Response(list(mongo_db.stations.find(query, projection_dict).limit(limit)))
         except OperationFailure as e:
             raise ParseError(e.details)
 
 
-class Doc(APIView):
+class Station(APIView):
     """
-    [JSON station data documentation](/api/2/stations/station_json_doc)
+    Get a station
+
+    Returns [JSON](/api/2/stations/json-doc)
+
+    Example:
+
+    - Mauborget: [/api/2/stations/jdc-1001](/api/2/stations/jdc-1001)
+    """
+    def get(self, request, station_id):
+        """
+        ---
+        parameters:
+            - name: station_id
+              description: "The station ID to request"
+              type: string
+              required: true
+              paramType: path
+        """
+        station = mongo_db.stations.find_one(station_id)
+        if not station:
+            return Response({'detail': "No station with id '{0}'".format(station_id)}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response(station)
+
+
+class StationJsonDoc(APIView):
+    """
+    [Station JSON documentation](/api/2/stations/json-doc)
     """
     def get(self, request):
         return Response({
@@ -212,36 +252,11 @@ class Doc(APIView):
         })
 
 
-class Station(APIView):
+class StationHistoric(APIView):
     """
-    Get station data
+    Get historic data for a station since a duration
 
-    [JSON station data documentation](/api/2/stations/station_json_doc)
-
-    Example:
-
-    - Mauborget: [/api/2/stations/jdc-1001](/api/2/stations/jdc-1001)
-    """
-    def get(self, request, station_id):
-        """
-        ---
-        parameters:
-            - name: station_id
-              description: "The station ID to request"
-              type: string
-              required: true
-              paramType: path
-        """
-        station = mongo_db.stations.find_one(station_id)
-        if not station:
-            return Response({'detail': "No station with id '{0}'".format(station_id)}, status=status.HTTP_404_NOT_FOUND)
-
-        return Response(station)
-
-
-class Historic(APIView):
-    """
-    Get data history of a station since at least duration
+    Returns Array of [JSON](/api/2/stations/historic/json-doc)
 
     Example:
 
@@ -292,6 +307,31 @@ class Historic(APIView):
         start_time = last_time - duration
         nb_data = mongo_db[station_id].find({'_id': {'$gte': start_time}}).count() + 1
         return Response(list(mongo_db[station_id].find({}, projection_dict, sort=(('_id', -1),)).limit(nb_data)))
+
+
+class StationHistoricJsonDoc(APIView):
+    """
+    [Station historic JSON documentation](/api/2/stations/historic/json-doc)
+    """
+    def get(self, request):
+        return Response({
+            "_id": "[integer] unix time",
+            "w-dir": "[integer] wind direction [°](0-359)",
+            "w-avg": "[integer] wind speed [km/h]",
+            "w-max": "[integer] wind speed max [km/h]",
+            "temp": "[integer] temperature [°C]",
+            "hum": "[integer] air humidity [%rH]",
+            "rain": "[integer] rain [l/m²]",
+            "pres": "[integer] air pressure [hPa]"
+        })
+
+
+class UserProfile(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        return Response(mongo_db.users.find_one(request.user.username))
 
 
 mongo_url = os.environ['WINDMOBILE_MONGO_URL']

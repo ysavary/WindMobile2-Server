@@ -58,7 +58,7 @@ $grid-float-breakpoint: 0px;
 
 // Take care of bootstrap navbar height with wdm-{controller} class
 $header-height: 50px;
-body.wdm-list {
+body.wdm-list, body.wdm-my-list {
     background-color: #191919;
     padding-top: 70px;
 }

@@ -3,7 +3,7 @@ var moment = require('moment');
 var InfoBox = require('google-maps-infobox');
 require('ng-toast');
 
-angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
+angular.module('windmobile.controllers', [require('angular-cookies'), 'ngToast', 'windmobile.services'])
 
     .controller('ListController', ['$scope', '$state', '$http', '$location', 'utils',
         function ($scope, $state, $http, $location, utils) {
@@ -105,7 +105,6 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                 console.info(moment().format() + " --> [ListController] onRefreshInterval");
                 self.doSearch();
             });
-
             $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
                 console.info(moment().format() + " --> [ListController] $stateChangeStart: fromState=" + fromState.name);
                 // Force modal to close on browser back
@@ -384,7 +383,6 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     self.getHistoric();
                 }
             });
-
             $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
                 console.info(moment().format() + " --> [MapController] $stateChangeStart: fromState="
                     + fromState.name + ", toState=" + toState.name);
@@ -501,7 +499,6 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                 console.info(moment().format() + " --> [DetailController] onRefreshInterval");
                 self.doDetail();
             });
-
             $scope.$on('visibilityChange', function(event, isHidden) {
                 if (!isHidden) {
                     console.info(moment().format() + " --> [DetailController] visibilityChange: isHidden=" + isHidden);
@@ -568,4 +565,129 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     window.open('http://winds.mobi');
                 }
             };
-        }]);
+        }])
+
+    .controller('MyListController', ['$scope', '$state', '$http', '$cookies', '$location', 'utils',
+        function ($scope, $state, $http, $cookies, $location, utils) {
+            var self = this;
+
+            function search(favorites) {
+                var params = {
+                    keys: ['short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max']
+                };
+                if (self.tenant) {
+                    params.provider = self.tenant
+                }
+                params.ids = favorites;
+                params.search = self.search;
+                params.limit = 12;
+
+                $http({
+                    method: 'GET',
+                    url: '/api/2/stations/',
+                    params: params
+                }).success(function (data) {
+                    self.stations = data;
+                    for (var i = 0; i < self.stations.length; i++) {
+                        var station = self.stations[i];
+                        if (station.last) {
+                            self.updateFromNow(station);
+                            self.getHistoric(station);
+                        }
+                    }
+                });
+            }
+            this.getHistoric = function (station) {
+                var params = {
+                    duration: 3600,
+                    keys: ['w-dir', 'w-avg']
+                };
+                $http({
+                    method: 'GET',
+                    url: '/api/2/stations/' + station._id + '/historic',
+                    params: params
+                }).success(function (data) {
+                    var historic = {
+                        data: data
+                    };
+                    station.historic = historic;
+                });
+            };
+            this.selectStation = function (station) {
+                $state.go('my-list.detail', {stationId: station._id});
+            };
+            this.doSearch = function () {
+                search(self.favorites);
+            };
+            this.clearSearch = function () {
+                this.search = null;
+                $location.search('search', null);
+                this.doSearch();
+            };
+            this.updateFromNow = function(station) {
+                if (station.last) {
+                    station.fromNow = moment.unix(station.last._id).fromNow();
+                    var status = utils.getStationStatus(station);
+                    station.fromNowClass = utils.getStatusClass(status);
+                }
+            };
+            this.clickOnNavBar = function() {
+                if (!utils.inIframe()) {
+                    self.clearSearch();
+                } else {
+                    window.open('http://winds.mobi');
+                }
+            };
+
+            $scope.$on('onFromNowInterval', function () {
+                for (var i = 0; i < self.stations.length; i++) {
+                    self.updateFromNow(self.stations[i]);
+                }
+            });
+            $scope.$on('onRefreshInterval', function () {
+                console.info(moment().format() + " --> [ListController] onRefreshInterval");
+                self.doSearch();
+            });
+            $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+                console.info(moment().format() + " --> [ListController] $stateChangeStart: fromState=" + fromState.name);
+                // Force modal to close on browser back
+                $('#detailModal').modal('hide');
+            });
+            $scope.$on('visibilityChange', function(event, isHidden) {
+                if (!isHidden) {
+                    console.info(moment().format() + " --> [ListController] visibilityChange: isHidden=" + isHidden);
+                    self.doSearch();
+                }
+            });
+
+            this.tenant = utils.getTenant($location.host());
+            this.search = $location.search().search;
+            $http({
+                method: 'GET',
+                url: '/api/2/users/profile/',
+                headers: {'Authorization': 'Token ' + $cookies.get('token')}
+            }).success(function (profile) {
+                self.favorites = profile.favorites;
+                self.doSearch();
+            })
+        }])
+
+    .controller('LoginController', ['$http', '$state', '$cookies',
+    function ($http, $state, $cookies) {
+        var self = this;
+        this.login = function() {
+            $http({
+                method: 'POST',
+                url: '/api/2/users/login/',
+                data: {
+                    username: self.username,
+                    password: self.password
+                }
+            }).success(function (data) {
+                $cookies.put('token', data.token);
+                $state.go('my-list');
+            }).error (function (data) {
+                console.log(data);
+            })
+        }
+    }]);

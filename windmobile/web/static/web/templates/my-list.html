@@ -1,0 +1,48 @@
+<div class="modal" id="detailModal" ui-view="detailView" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+</div>
+
+<!-- Fixed navbar -->
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#" ng-click="main.clickOnNavBar()"><img src="/static/web/img/windmobile.png"></a>
+            <a class="navbar-text hidden-xxs" href="#" ng-click="main.clickOnNavBar()"><span>winds</span>.mobi</a>
+        </div>
+        <form class="navbar-form navbar-left" role="search">
+            <div class="input-group">
+                <input type="text" class="form-control" ng-model="main.search" ng-change="main.doSearch()">
+                <span class="input-group-clear fa fa-times-circle-o" ng-click="main.clearSearch()" ng-show="main.search"></span>
+                <span class="input-group-addon">
+                    <i class="fa fa-search"></i>
+                </span>
+            </div>
+        </form>
+        <div class="navbar-right">
+            <ul class="nav navbar-nav">
+                <li><a ui-sref="map"><span class="fa fa-lg fa-map"></span>
+                    <span class="hidden-xs" translate>Map</span></a>
+                </li>
+                <li><a ui-sref="help"><span class="fa fa-lg"><b>?</b></span>
+                    <span class="hidden-xs" translate>Help</span></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="wdm-list-content" style="text-align: center;">
+    <div class="wdm-card-border wdm-card-layout wdm-card-list" ng-repeat="station in main.stations" ng-click="main.selectStation(station)">
+        <div class="wdm-name" style="float:left;">{{ station.short }}</div>
+        <div class="wdm-info" style="float:right;">
+            <div class="wdm-last-update" style="float:right;" ng-class="station.fromNowClass">{{ station.fromNow }}</div>
+            <div class="wdm-provider" style="clear:right;float:right;">{{ station['pv-name'] }}</div>
+        </div>
+        <div class="wdm-altitude" style="clear:left;float:left;">{{ station.alt }} <span translate>meters</span></div>
+        <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">
+            <div class="wdm-wind-avg">{{ station.last['w-avg'].toFixed(1) }}</div>
+            <div class="wdm-wind-max">{{ station.last['w-max'].toFixed(1) }}<span class="wdm-unit" translate>km/h</span></div>
+            <svg class="wdm-wind-mini-chart" style="width:100%;max-width:85px;" viewBox="0 0 100 40" data-scope-watch="station.historic"></svg>
+        </div>
+        <svg class="wdm-wind-direction" style="float:right;width: 50%;max-width:85px;" viewBox="0 0 100 100" data-scope-watch="station.historic"></svg>
+    </div>
+</div>

@@ -3,7 +3,7 @@ var moment = require('moment');
 var InfoBox = require('google-maps-infobox');
 require('ng-toast');
 
-angular.module('windmobile.controllers', [require('angular-cookies'), 'ngToast', 'windmobile.services'])
+angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
 
     .controller('ListController', ['$scope', '$state', '$http', '$location', 'utils',
         function ($scope, $state, $http, $location, utils) {
@@ -567,8 +567,8 @@ angular.module('windmobile.controllers', [require('angular-cookies'), 'ngToast',
             };
         }])
 
-    .controller('MyListController', ['$scope', '$state', '$http', '$cookies', '$location', 'utils',
-        function ($scope, $state, $http, $cookies, $location, utils) {
+    .controller('MyListController', ['$scope', '$state', '$http', '$location', '$window', 'utils',
+        function ($scope, $state, $http, $location, $window, utils) {
             var self = this;
 
             function search(favorites) {
@@ -667,29 +667,29 @@ angular.module('windmobile.controllers', [require('angular-cookies'), 'ngToast',
             $http({
                 method: 'GET',
                 url: '/api/2/users/profile/',
-                headers: {'Authorization': 'Token ' + $cookies.get('token')}
+                headers: {'Authorization': 'JWT ' + $window.localStorage.token}
             }).success(function (profile) {
                 self.favorites = profile.favorites;
                 self.doSearch();
             })
         }])
 
-    .controller('LoginController', ['$http', '$state', '$cookies',
-    function ($http, $state, $cookies) {
-        var self = this;
-        this.login = function() {
-            $http({
-                method: 'POST',
-                url: '/api/2/users/login/',
-                data: {
-                    username: self.username,
-                    password: self.password
-                }
-            }).success(function (data) {
-                $cookies.put('token', data.token);
-                $state.go('my-list');
-            }).error (function (data) {
-                console.log(data);
-            })
-        }
-    }]);
+    .controller('LoginController', ['$http', '$state', '$window',
+        function ($http, $state, $window) {
+            var self = this;
+            this.login = function () {
+                $http({
+                    method: 'POST',
+                    url: '/api/2/users/login/',
+                    data: {
+                        username: self.username,
+                        password: self.password
+                    }
+                }).success(function (data) {
+                    $window.localStorage.token = data.token;
+                    $state.go('my-list');
+                }).error (function (data) {
+                    console.log(data);
+                })
+            }
+        }]);

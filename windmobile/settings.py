@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import datetime
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -41,7 +42,6 @@ INSTALLED_APPS = (
     'corsheaders',
 
     'rest_framework',
-    'rest_framework.authtoken',
 
     'windmobile.api',
 
@@ -126,6 +126,11 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     )
+}
+
+JWT_AUTH = {
+    'JWT_PAYLOAD_HANDLER': 'windmobile.api.utils.jwt_payload_handler',
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=5),
 }
 
 SWAGGER_SETTINGS = {

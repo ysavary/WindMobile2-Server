@@ -1,14 +1,13 @@
-# coding=utf-8
 import os
 
-from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-from rest_framework.exceptions import ParseError
-from rest_framework.response import Response
 from pymongo import MongoClient, uri_parser
 from pymongo.errors import OperationFailure
+from rest_framework import status
+from rest_framework.exceptions import ParseError
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from windmobile.api import diacritics
 
@@ -330,7 +329,7 @@ class UserProfile(APIView):
     """
     Get profile of authenticated user
     """
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (JSONWebTokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
@@ -345,7 +344,7 @@ class UserProfileFavorite(APIView):
     """
     Manage favorites stations list
     """
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (JSONWebTokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):

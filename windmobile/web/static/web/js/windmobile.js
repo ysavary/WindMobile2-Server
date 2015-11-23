@@ -6,333 +6,6 @@
  */
 (function(window, angular, undefined) {'use strict';
 
-/**
- * @ngdoc module
- * @name ngCookies
- * @description
- *
- * # ngCookies
- *
- * The `ngCookies` module provides a convenient wrapper for reading and writing browser cookies.
- *
- *
- * <div doc-module-components="ngCookies"></div>
- *
- * See {@link ngCookies.$cookies `$cookies`} for usage.
- */
-
-
-angular.module('ngCookies', ['ng']).
-  /**
-   * @ngdoc provider
-   * @name $cookiesProvider
-   * @description
-   * Use `$cookiesProvider` to change the default behavior of the {@link ngCookies.$cookies $cookies} service.
-   * */
-   provider('$cookies', [function $CookiesProvider() {
-    /**
-     * @ngdoc property
-     * @name $cookiesProvider#defaults
-     * @description
-     *
-     * Object containing default options to pass when setting cookies.
-     *
-     * The object may have following properties:
-     *
-     * - **path** - `{string}` - The cookie will be available only for this path and its
-     *   sub-paths. By default, this would be the URL that appears in your base tag.
-     * - **domain** - `{string}` - The cookie will be available only for this domain and
-     *   its sub-domains. For obvious security reasons the user agent will not accept the
-     *   cookie if the current domain is not a sub domain or equals to the requested domain.
-     * - **expires** - `{string|Date}` - String of the form "Wdy, DD Mon YYYY HH:MM:SS GMT"
-     *   or a Date object indicating the exact date/time this cookie will expire.
-     * - **secure** - `{boolean}` - The cookie will be available only in secured connection.
-     *
-     * Note: by default the address that appears in your `<base>` tag will be used as path.
-     * This is important so that cookies will be visible for all routes in case html5mode is enabled
-     *
-     **/
-    var defaults = this.defaults = {};
-
-    function calcOptions(options) {
-      return options ? angular.extend({}, defaults, options) : defaults;
-    }
-
-    /**
-     * @ngdoc service
-     * @name $cookies
-     *
-     * @description
-     * Provides read/write access to browser's cookies.
-     *
-     * <div class="alert alert-info">
-     * Up until Angular 1.3, `$cookies` exposed properties that represented the
-     * current browser cookie values. In version 1.4, this behavior has changed, and
-     * `$cookies` now provides a standard api of getters, setters etc.
-     * </div>
-     *
-     * Requires the {@link ngCookies `ngCookies`} module to be installed.
-     *
-     * @example
-     *
-     * ```js
-     * angular.module('cookiesExample', ['ngCookies'])
-     *   .controller('ExampleController', ['$cookies', function($cookies) {
-     *     // Retrieving a cookie
-     *     var favoriteCookie = $cookies.get('myFavorite');
-     *     // Setting a cookie
-     *     $cookies.put('myFavorite', 'oatmeal');
-     *   }]);
-     * ```
-     */
-    this.$get = ['$$cookieReader', '$$cookieWriter', function($$cookieReader, $$cookieWriter) {
-      return {
-        /**
-         * @ngdoc method
-         * @name $cookies#get
-         *
-         * @description
-         * Returns the value of given cookie key
-         *
-         * @param {string} key Id to use for lookup.
-         * @returns {string} Raw cookie value.
-         */
-        get: function(key) {
-          return $$cookieReader()[key];
-        },
-
-        /**
-         * @ngdoc method
-         * @name $cookies#getObject
-         *
-         * @description
-         * Returns the deserialized value of given cookie key
-         *
-         * @param {string} key Id to use for lookup.
-         * @returns {Object} Deserialized cookie value.
-         */
-        getObject: function(key) {
-          var value = this.get(key);
-          return value ? angular.fromJson(value) : value;
-        },
-
-        /**
-         * @ngdoc method
-         * @name $cookies#getAll
-         *
-         * @description
-         * Returns a key value object with all the cookies
-         *
-         * @returns {Object} All cookies
-         */
-        getAll: function() {
-          return $$cookieReader();
-        },
-
-        /**
-         * @ngdoc method
-         * @name $cookies#put
-         *
-         * @description
-         * Sets a value for given cookie key
-         *
-         * @param {string} key Id for the `value`.
-         * @param {string} value Raw value to be stored.
-         * @param {Object=} options Options object.
-         *    See {@link ngCookies.$cookiesProvider#defaults $cookiesProvider.defaults}
-         */
-        put: function(key, value, options) {
-          $$cookieWriter(key, value, calcOptions(options));
-        },
-
-        /**
-         * @ngdoc method
-         * @name $cookies#putObject
-         *
-         * @description
-         * Serializes and sets a value for given cookie key
-         *
-         * @param {string} key Id for the `value`.
-         * @param {Object} value Value to be stored.
-         * @param {Object=} options Options object.
-         *    See {@link ngCookies.$cookiesProvider#defaults $cookiesProvider.defaults}
-         */
-        putObject: function(key, value, options) {
-          this.put(key, angular.toJson(value), options);
-        },
-
-        /**
-         * @ngdoc method
-         * @name $cookies#remove
-         *
-         * @description
-         * Remove given cookie
-         *
-         * @param {string} key Id of the key-value pair to delete.
-         * @param {Object=} options Options object.
-         *    See {@link ngCookies.$cookiesProvider#defaults $cookiesProvider.defaults}
-         */
-        remove: function(key, options) {
-          $$cookieWriter(key, undefined, calcOptions(options));
-        }
-      };
-    }];
-  }]);
-
-angular.module('ngCookies').
-/**
- * @ngdoc service
- * @name $cookieStore
- * @deprecated
- * @requires $cookies
- *
- * @description
- * Provides a key-value (string-object) storage, that is backed by session cookies.
- * Objects put or retrieved from this storage are automatically serialized or
- * deserialized by angular's toJson/fromJson.
- *
- * Requires the {@link ngCookies `ngCookies`} module to be installed.
- *
- * <div class="alert alert-danger">
- * **Note:** The $cookieStore service is **deprecated**.
- * Please use the {@link ngCookies.$cookies `$cookies`} service instead.
- * </div>
- *
- * @example
- *
- * ```js
- * angular.module('cookieStoreExample', ['ngCookies'])
- *   .controller('ExampleController', ['$cookieStore', function($cookieStore) {
- *     // Put cookie
- *     $cookieStore.put('myFavorite','oatmeal');
- *     // Get cookie
- *     var favoriteCookie = $cookieStore.get('myFavorite');
- *     // Removing a cookie
- *     $cookieStore.remove('myFavorite');
- *   }]);
- * ```
- */
- factory('$cookieStore', ['$cookies', function($cookies) {
-
-    return {
-      /**
-       * @ngdoc method
-       * @name $cookieStore#get
-       *
-       * @description
-       * Returns the value of given cookie key
-       *
-       * @param {string} key Id to use for lookup.
-       * @returns {Object} Deserialized cookie value, undefined if the cookie does not exist.
-       */
-      get: function(key) {
-        return $cookies.getObject(key);
-      },
-
-      /**
-       * @ngdoc method
-       * @name $cookieStore#put
-       *
-       * @description
-       * Sets a value for given cookie key
-       *
-       * @param {string} key Id for the `value`.
-       * @param {Object} value Value to be stored.
-       */
-      put: function(key, value) {
-        $cookies.putObject(key, value);
-      },
-
-      /**
-       * @ngdoc method
-       * @name $cookieStore#remove
-       *
-       * @description
-       * Remove given cookie
-       *
-       * @param {string} key Id of the key-value pair to delete.
-       */
-      remove: function(key) {
-        $cookies.remove(key);
-      }
-    };
-
-  }]);
-
-/**
- * @name $$cookieWriter
- * @requires $document
- *
- * @description
- * This is a private service for writing cookies
- *
- * @param {string} name Cookie name
- * @param {string=} value Cookie value (if undefined, cookie will be deleted)
- * @param {Object=} options Object with options that need to be stored for the cookie.
- */
-function $$CookieWriter($document, $log, $browser) {
-  var cookiePath = $browser.baseHref();
-  var rawDocument = $document[0];
-
-  function buildCookieString(name, value, options) {
-    var path, expires;
-    options = options || {};
-    expires = options.expires;
-    path = angular.isDefined(options.path) ? options.path : cookiePath;
-    if (angular.isUndefined(value)) {
-      expires = 'Thu, 01 Jan 1970 00:00:00 GMT';
-      value = '';
-    }
-    if (angular.isString(expires)) {
-      expires = new Date(expires);
-    }
-
-    var str = encodeURIComponent(name) + '=' + encodeURIComponent(value);
-    str += path ? ';path=' + path : '';
-    str += options.domain ? ';domain=' + options.domain : '';
-    str += expires ? ';expires=' + expires.toUTCString() : '';
-    str += options.secure ? ';secure' : '';
-
-    // per http://www.ietf.org/rfc/rfc2109.txt browser must allow at minimum:
-    // - 300 cookies
-    // - 20 cookies per unique domain
-    // - 4096 bytes per cookie
-    var cookieLength = str.length + 1;
-    if (cookieLength > 4096) {
-      $log.warn("Cookie '" + name +
-        "' possibly not set or overflowed because it was too large (" +
-        cookieLength + " > 4096 bytes)!");
-    }
-
-    return str;
-  }
-
-  return function(name, value, options) {
-    rawDocument.cookie = buildCookieString(name, value, options);
-  };
-}
-
-$$CookieWriter.$inject = ['$document', '$log', '$browser'];
-
-angular.module('ngCookies').provider('$$cookieWriter', function $$CookieWriterProvider() {
-  this.$get = $$CookieWriter;
-});
-
-
-})(window, window.angular);
-
-},{}],2:[function(require,module,exports){
-require('./angular-cookies');
-module.exports = 'ngCookies';
-
-},{"./angular-cookies":1}],3:[function(require,module,exports){
-/**
- * @license AngularJS v1.4.7
- * (c) 2010-2015 Google, Inc. http://angularjs.org
- * License: MIT
- */
-(function(window, angular, undefined) {'use strict';
-
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *     Any commits to this file should be reviewed with security in mind.  *
  *   Changes to this file can potentially create security vulnerabilities. *
@@ -1010,11 +683,11 @@ angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
 
 })(window, window.angular);
 
-},{}],4:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 require('./angular-sanitize');
 module.exports = 'ngSanitize';
 
-},{"./angular-sanitize":3}],5:[function(require,module,exports){
+},{"./angular-sanitize":1}],3:[function(require,module,exports){
 /*!
  * angular-translate - v2.8.1 - 2015-10-01
  * 
@@ -4154,7 +3827,7 @@ return 'pascalprecht.translate';
 
 }));
 
-},{}],6:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /**
  * State-based routing for AngularJS
  * @version v0.2.15
@@ -8525,7 +8198,7 @@ angular.module('ui.router.state')
   .filter('isState', $IsStateFilter)
   .filter('includedByState', $IncludedByStateFilter);
 })(window, window.angular);
-},{}],7:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /**
  * @license AngularJS v1.4.7
  * (c) 2010-2015 Google, Inc. http://angularjs.org
@@ -37430,11 +37103,11 @@ $provide.value("$locale", {
 })(window, document);
 
 !window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
-},{}],8:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 require('./angular');
 module.exports = angular;
 
-},{"./angular":7}],9:[function(require,module,exports){
+},{"./angular":5}],7:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: modal.js v3.3.5
  * http://getbootstrap.com/javascript/#modals
@@ -37773,7 +37446,7 @@ module.exports = angular;
 
 }(jQuery);
 
-},{}],10:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tab.js v3.3.5
  * http://getbootstrap.com/javascript/#tabs
@@ -37930,7 +37603,7 @@ module.exports = angular;
 
 }(jQuery);
 
-},{}],11:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /**
  * @name InfoBox
  * @version 1.1.13 [March 19, 2014]
@@ -38752,7 +38425,7 @@ InfoBox.prototype.close = function () {
 
 module.exports = InfoBox;
 
-},{}],12:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 //! moment.js locale configuration
 //! locale : german (de)
 //! author : lluchs : https://github.com/lluchs
@@ -38827,7 +38500,7 @@ module.exports = InfoBox;
     return de;
 
 }));
-},{"../moment":14}],13:[function(require,module,exports){
+},{"../moment":12}],11:[function(require,module,exports){
 //! moment.js locale configuration
 //! locale : french (fr)
 //! author : John Fischer : https://github.com/jfroffice
@@ -38889,7 +38562,7 @@ module.exports = InfoBox;
     return fr;
 
 }));
-},{"../moment":14}],14:[function(require,module,exports){
+},{"../moment":12}],12:[function(require,module,exports){
 //! moment.js
 //! version : 2.10.6
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -42085,7 +41758,7 @@ module.exports = InfoBox;
     return _moment;
 
 }));
-},{}],15:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*!
  * ngToast v1.5.6 (http://tameraydin.github.io/ngToast)
  * Copyright 2015 Tamer Aydin (http://tamerayd.in)
@@ -42365,7 +42038,7 @@ module.exports = InfoBox;
 
 })(window, window.angular);
 
-},{}],16:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /**
  * oclazyload - Load modules on demand (lazy load) with angularJS
  * @version v1.0.6
@@ -43685,7 +43358,7 @@ if (!Array.prototype.indexOf) {
         return -1;
     };
 }
-},{}],17:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 // Snap.svg 0.4.0
 // 
 // Copyright (c) 2013 – 2015 Adobe Systems Incorporated. All rights reserved.
@@ -51857,7 +51530,7 @@ Snap.plugin(function (Snap, Element, Paper, glob, Fragment) {
 
 return Snap;
 }));
-},{"eve":18}],18:[function(require,module,exports){
+},{"eve":16}],16:[function(require,module,exports){
 // Copyright (c) 2013 Adobe Systems Incorporated. All rights reserved.
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -52262,7 +51935,7 @@ return Snap;
     (typeof module != "undefined" && module.exports) ? (module.exports = eve) : (typeof define === "function" && define.amd ? (define("eve", [], function() { return eve; })) : (glob.eve = eve));
 })(this);
 
-},{}],19:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 // TinyColor v1.1.2
 // https://github.com/bgrins/TinyColor
 // Brian Grinstead, MIT License
@@ -53427,7 +53100,7 @@ else {
 
 })();
 
-},{}],20:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 require('bootstrap-sass/assets/javascripts/bootstrap/modal.js');
 require('bootstrap-sass/assets/javascripts/bootstrap/tab.js');
 
@@ -53980,13 +53653,13 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
             }
         }
     });
-},{"../locale/en.js":23,"../locale/fr.js":24,"angular":8,"angular-sanitize":4,"angular-translate":5,"angular-ui-router":6,"bootstrap-sass/assets/javascripts/bootstrap/modal.js":9,"bootstrap-sass/assets/javascripts/bootstrap/tab.js":10,"moment":14,"moment/locale/de.js":12,"moment/locale/fr.js":13,"oclazyload":16,"snapsvg":17}],21:[function(require,module,exports){
+},{"../locale/en.js":21,"../locale/fr.js":22,"angular":6,"angular-sanitize":2,"angular-translate":3,"angular-ui-router":4,"bootstrap-sass/assets/javascripts/bootstrap/modal.js":7,"bootstrap-sass/assets/javascripts/bootstrap/tab.js":8,"moment":12,"moment/locale/de.js":10,"moment/locale/fr.js":11,"oclazyload":14,"snapsvg":15}],19:[function(require,module,exports){
 var angular = require('angular');
 var moment = require('moment');
 var InfoBox = require('google-maps-infobox');
 require('ng-toast');
 
-angular.module('windmobile.controllers', [require('angular-cookies'), 'ngToast', 'windmobile.services'])
+angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
 
     .controller('ListController', ['$scope', '$state', '$http', '$location', 'utils',
         function ($scope, $state, $http, $location, utils) {
@@ -54550,8 +54223,8 @@ angular.module('windmobile.controllers', [require('angular-cookies'), 'ngToast',
             };
         }])
 
-    .controller('MyListController', ['$scope', '$state', '$http', '$cookies', '$location', 'utils',
-        function ($scope, $state, $http, $cookies, $location, utils) {
+    .controller('MyListController', ['$scope', '$state', '$http', '$location', '$window', 'utils',
+        function ($scope, $state, $http, $location, $window, utils) {
             var self = this;
 
             function search(favorites) {
@@ -54650,34 +54323,34 @@ angular.module('windmobile.controllers', [require('angular-cookies'), 'ngToast',
             $http({
                 method: 'GET',
                 url: '/api/2/users/profile/',
-                headers: {'Authorization': 'Token ' + $cookies.get('token')}
+                headers: {'Authorization': 'JWT ' + $window.localStorage.token}
             }).success(function (profile) {
                 self.favorites = profile.favorites;
                 self.doSearch();
             })
         }])
 
-    .controller('LoginController', ['$http', '$state', '$cookies',
-    function ($http, $state, $cookies) {
-        var self = this;
-        this.login = function() {
-            $http({
-                method: 'POST',
-                url: '/api/2/users/login/',
-                data: {
-                    username: self.username,
-                    password: self.password
-                }
-            }).success(function (data) {
-                $cookies.put('token', data.token);
-                $state.go('my-list');
-            }).error (function (data) {
-                console.log(data);
-            })
-        }
-    }]);
+    .controller('LoginController', ['$http', '$state', '$window',
+        function ($http, $state, $window) {
+            var self = this;
+            this.login = function () {
+                $http({
+                    method: 'POST',
+                    url: '/api/2/users/login/',
+                    data: {
+                        username: self.username,
+                        password: self.password
+                    }
+                }).success(function (data) {
+                    $window.localStorage.token = data.token;
+                    $state.go('my-list');
+                }).error (function (data) {
+                    console.log(data);
+                })
+            }
+        }]);
 
-},{"angular":8,"angular-cookies":2,"google-maps-infobox":11,"moment":14,"ng-toast":15}],22:[function(require,module,exports){
+},{"angular":6,"google-maps-infobox":9,"moment":12,"ng-toast":13}],20:[function(require,module,exports){
 var angular = require('angular');
 var moment = require('moment');
 var tinycolor = require('tinycolor2');
@@ -54825,7 +54498,7 @@ angular.module('windmobile.services', [])
         }
     }]);
 
-},{"angular":8,"moment":14,"tinycolor2":19}],23:[function(require,module,exports){
+},{"angular":6,"moment":12,"tinycolor2":17}],21:[function(require,module,exports){
 (function () {
     en = {
         'Center': "Center",
@@ -54893,7 +54566,7 @@ angular.module('windmobile.services', [])
         window.en = en;
     }
 })();
-},{}],24:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 (function () {
     fr = {
         'Center': "Centrer",
@@ -54961,7 +54634,7 @@ angular.module('windmobile.services', [])
         window.fr = fr;
     }
 })();
-},{}]},{},[20,21,22])
+},{}]},{},[18,19,20])
 
 
 //# sourceMappingURL=windmobile.js.map

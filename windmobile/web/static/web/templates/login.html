@@ -1,3 +1,12 @@
-<input type="text" ng-model="main.username">
-<input type="text" ng-model="main.password">
-<button type="button" ng-click="main.login()">Login</button>
+<div class="modal-dialog">
+    <div class="modal-body" style="background-color: white">
+        <div>
+            <input type="text" ng-model="login.username">
+            <input type="text" ng-model="login.password">
+            <button type="button" ng-click="login.login()">Login</button>
+        </div>
+        <div>
+            <a href="/auth/google/oauth2callback/">Sign with Google</a>
+        </div>
+    </div>
+</div>

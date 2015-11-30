@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Login successful</h2>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+    $.ajax({
+        method: "POST",
+        url: "/api/2/auth/login/",
+        data: {
+            ott: "{{ ott }}"
+        },
+        success : function(data) {
+            window.localStorage.token = data.token;
+        }
+    });
+});
+</script>
+
+</body>
+</html>

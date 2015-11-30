@@ -1,6 +1,5 @@
 from django.conf.urls import patterns, url
 from django.views.generic import RedirectView
-from rest_framework_jwt.views import ObtainJSONWebToken
 
 from .views import *
 
@@ -14,7 +13,8 @@ urlpatterns = patterns(
     url(r'^stations/(?P<station_id>.+)/historic/$', StationHistoric.as_view(), name='api.station_historic'),
     url(r'^stations/(?P<station_id>.+)/$', Station.as_view(), name='api.station'),
 
-    url(r'^users/login/$', ObtainJSONWebToken.as_view(), name='api.user_login'),
+    url(r'^auth/login/$', AuthenticationLogin.as_view(), name='api.auth_login'),
+
     url(r'^users/profile/$', UserProfile.as_view(), name='api.user_profile'),
     url(r'^users/profile/favorites/$', UserProfileFavorite.as_view(), name='api.user_profile_favorites')
 )

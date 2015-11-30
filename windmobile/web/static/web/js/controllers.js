@@ -664,32 +664,45 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
 
             this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
-            $http({
-                method: 'GET',
-                url: '/api/2/users/profile/',
-                headers: {'Authorization': 'JWT ' + $window.localStorage.token}
-            }).success(function (profile) {
-                self.favorites = profile.favorites;
-                self.doSearch();
-            })
+
+            var token = $window.localStorage.token;
+            if (token) {
+                $http({
+                    method: 'GET',
+                    url: '/api/2/users/profile/',
+                    headers: {'Authorization': 'JWT ' + token}
+                }).then(function (response) {
+                    self.favorites = response.data.favorites;
+                    self.doSearch();
+                }, function () {
+                    $state.go('my-list.login');
+                });
+            } else {
+                $state.go('my-list.login');
+            }
         }])
 
     .controller('LoginController', ['$http', '$state', '$window',
         function ($http, $state, $window) {
             var self = this;
+
+            $('#loginModal').modal().on('hidden.bs.modal', function (e) {
+                $state.go('^');
+            });
+
             this.login = function () {
                 $http({
                     method: 'POST',
-                    url: '/api/2/users/login/',
+                    url: '/api/2/auth/login/',
                     data: {
                         username: self.username,
                         password: self.password
                     }
-                }).success(function (data) {
-                    $window.localStorage.token = data.token;
+                }).then(function (response) {
+                    $window.localStorage.token = response.data.token;
                     $state.go('my-list');
-                }).error (function (data) {
-                    console.log(data);
+                }, function (response) {
+                    console.log(response.data);
                 })
             }
         }]);

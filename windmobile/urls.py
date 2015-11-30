@@ -12,6 +12,7 @@ urlpatterns = patterns(
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/$', RedirectView.as_view(url='2/', permanent=True)),
     url(r'^api/2/', include('windmobile.api.urls')),
+    url(r'^auth/', include('windmobile.authentication.urls')),
     url(r'^doc/', include('rest_framework_swagger.urls'))
 )
 

@@ -3,8 +3,9 @@ Django==1.8.6
 django-cors-headers==1.1.0
 django-rest-swagger==0.3.4
 djangorestframework==3.3.1
-djangorestframework-jwt==1.7.2
 envdir==0.7
+google-api-python-client==1.4.2
 Markdown==2.6.4
 psycopg2==2.6.1
+PyJWT==1.4.0
 pymongo==3.0.3

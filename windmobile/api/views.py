@@ -1,15 +1,21 @@
+import logging
 import os
 
+import jwt
+from django.conf import settings
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from pymongo import MongoClient, uri_parser
 from pymongo.errors import OperationFailure
 from rest_framework import status
-from rest_framework.exceptions import ParseError
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ParseError, NotAuthenticated, AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
-from windmobile.api import diacritics
+from . import diacritics
+from .authentication import JWTAuthentication, IsJWTAuthenticated
+
+log = logging.getLogger(__name__)
 
 
 class Stations(APIView):
@@ -26,6 +32,7 @@ class Stations(APIView):
     - Search 20 km around Yverdon: [/api/2/stations/?near-lat=46.78&near-lon=6.63&near-distance=20000](/api/2/stations/?near-lat=46.78&near-lon=6.63&near-distance=20000)
     - Return jdc-1001 and jdc-1002: [/api/2/stations/?ids=jdc-1001&ids=jdc-1002](/api/2/stations/?ids=jdc-1001&ids=jdc-1002)
     """
+
     def get(self, request):
         """
         ---
@@ -197,6 +204,7 @@ class Station(APIView):
 
     - Mauborget: [/api/2/stations/jdc-1001](/api/2/stations/jdc-1001)
     """
+
     def get(self, request, station_id):
         """
         ---
@@ -218,6 +226,7 @@ class StationJsonDoc(APIView):
     """
     [Station JSON documentation](/api/2/stations/json-doc)
     """
+
     def get(self, request):
         return Response({
             "_id": "[string] unique ID {providerCode}-{providerId} (jdc-1010)",
@@ -262,6 +271,7 @@ class StationHistoric(APIView):
     - Historic Mauborget (1 hour): [/api/2/stations/jdc-1001/historic/?duration=3600](/api/2/stations/jdc-1001/historic/?duration=3600)
 
     """
+
     def get(self, request, station_id):
         """
         ---
@@ -312,6 +322,7 @@ class StationHistoricJsonDoc(APIView):
     """
     [Station historic JSON documentation](/api/2/stations/historic/json-doc)
     """
+
     def get(self, request):
         return Response({
             "_id": "[integer] unix time",
@@ -325,15 +336,54 @@ class StationHistoricJsonDoc(APIView):
         })
 
 
+class AuthenticationLogin(APIView):
+    """
+    Login into API with a One Time Token or a Django username/password
+    """
+
+    def post(self, request):
+        ott = request.data.get('ott')
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        if ott:
+            ott_doc = mongo_db.login_ott.find_one_and_delete({'_id': ott})
+            if not ott_doc:
+                log.warn("Unable to find One Time Token")
+                raise AuthenticationFailed()
+            username = ott_doc['username']
+            try:
+                User.objects.get(username=username)
+            except User.DoesNotExist:
+                log.warn("Unable to get One Time Token's user")
+                raise AuthenticationFailed()
+            token = jwt.encode({'username': username}, settings.SECRET_KEY)
+            return Response({'token': token.decode('utf-8')})
+        elif username and password:
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                if user.is_active:
+                    token = jwt.encode({'username': username}, settings.SECRET_KEY)
+                    return Response({'token': token.decode('utf-8')})
+                else:
+                    log.warn("The password is valid, but the account has been disabled")
+                    raise AuthenticationFailed()
+            else:
+                log.warn("The username and password were incorrect")
+                raise AuthenticationFailed()
+        else:
+            raise NotAuthenticated()
+
+
 class UserProfile(APIView):
     """
     Get profile of authenticated user
     """
-    authentication_classes = (JSONWebTokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsJWTAuthenticated,)
 
     def get(self, request):
-        profile = mongo_db.users.find_one(request.user.username)
+        profile = mongo_db.users.find_one(request.user)
         if profile:
             return Response(profile)
         else:
@@ -344,19 +394,19 @@ class UserProfileFavorite(APIView):
     """
     Manage favorites stations list
     """
-    authentication_classes = (JSONWebTokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsJWTAuthenticated,)
 
     def post(self, request):
         station_id = request.data['station_id']
-        mongo_db.users.update_one({'_id': request.user.username},
+        mongo_db.users.update_one({'_id': request.username},
                                   {'$addToSet': {'favorites': station_id}},
                                   upsert=True)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request):
         station_id = request.data['station_id']
-        mongo_db.users.update_one({'_id': request.user.username},
+        mongo_db.users.update_one({'_id': request.username},
                                   {'$pull': {'favorites': station_id}},
                                   upsert=True)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -364,5 +414,5 @@ class UserProfileFavorite(APIView):
 
 mongo_url = os.environ['WINDMOBILE_MONGO_URL']
 uri = uri_parser.parse_uri(mongo_url)
-client = MongoClient(uri['nodelist'][0][0], uri['nodelist'][0][1])
-mongo_db = client[uri['database']]
+mongo_client = MongoClient(uri['nodelist'][0][0], uri['nodelist'][0][1])
+mongo_db = mongo_client[uri['database']]

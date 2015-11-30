@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'rest_framework',
 
     'windmobile.api',
+    'windmobile.authentication',
 
     'rest_framework_swagger',
 )

@@ -72,6 +72,15 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     templateUrl: '/static/web/templates/my-list.html',
                     controller: 'MyListController as main'
                 })
+                .state('my-list.login', {
+                    url: '/login',
+                    views: {
+                        "loginView": {
+                            templateUrl: '/static/web/templates/login.html',
+                            controller: 'LoginController as login'
+                        }
+                    }
+                })
                 .state('my-list.detail', {
                     url: '/:stationId',
                     views: {
@@ -90,11 +99,6 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     url: '/help',
                     templateUrl: '/static/web/templates/help.html',
                     controller: 'HelpController as main'
-                })
-                .state('login', {
-                    url: '/login',
-                    templateUrl: '/static/web/templates/login.html',
-                    controller: 'LoginController as main'
                 });
             $urlRouterProvider.otherwise("/map");
         }])

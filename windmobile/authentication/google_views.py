@@ -27,6 +27,7 @@ class GoogleOauth2Callback(Oauth2Callback):
             ott, user_info = self.save_user(username, email, user_info)
             context = {
                 'ott': ott,
-                'user_info': user_info
+                'user_info': user_info,
+                'redirect_url': '/stations/my-list'
             }
             return self.render_to_response(context)

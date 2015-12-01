@@ -67,19 +67,15 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         }]
                     }
                 })
+                .state('sign-up', {
+                    url: '/sign-up',
+                    templateUrl: '/static/web/templates/sign-up.html',
+                    controller: 'SignUpController as main'
+                })
                 .state('my-list', {
                     url: '/my-list',
                     templateUrl: '/static/web/templates/my-list.html',
                     controller: 'MyListController as main'
-                })
-                .state('my-list.login', {
-                    url: '/login',
-                    views: {
-                        "loginView": {
-                            templateUrl: '/static/web/templates/login.html',
-                            controller: 'LoginController as login'
-                        }
-                    }
                 })
                 .state('my-list.detail', {
                     url: '/:stationId',

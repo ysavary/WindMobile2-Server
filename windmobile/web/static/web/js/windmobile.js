@@ -42041,7 +42041,7 @@ module.exports = InfoBox;
 },{}],14:[function(require,module,exports){
 /**
  * oclazyload - Load modules on demand (lazy load) with angularJS
- * @version v1.0.6
+ * @version v1.0.4
  * @link https://github.com/ocombe/ocLazyLoad
  * @license MIT
  * @author Olivier Combe <olivier.combe@gmail.com>
@@ -42075,8 +42075,7 @@ module.exports = InfoBox;
         },
             debug = false,
             events = false,
-            moduleCache = [],
-            modulePromises = {};
+            moduleCache = [];
 
         moduleCache.push = function (value) {
             if (this.indexOf(value) === -1) {
@@ -42178,22 +42177,18 @@ module.exports = InfoBox;
          * @param obj
          */
         var stringify = function stringify(obj) {
-            try {
-                return JSON.stringify(obj);
-            } catch (e) {
-                var cache = [];
-                return JSON.stringify(obj, function (key, value) {
-                    if (angular.isObject(value) && value !== null) {
-                        if (cache.indexOf(value) !== -1) {
-                            // Circular reference found, discard key
-                            return;
-                        }
-                        // Store value in our collection
-                        cache.push(value);
+            var cache = [];
+            return JSON.stringify(obj, function (key, value) {
+                if (angular.isObject(value) && value !== null) {
+                    if (cache.indexOf(value) !== -1) {
+                        // Circular reference found, discard key
+                        return;
                     }
-                    return value;
-                });
-            }
+                    // Store value in our collection
+                    cache.push(value);
+                }
+                return value;
+            });
         };
 
         var hashCode = function hashCode(str) {
@@ -42267,28 +42262,16 @@ module.exports = InfoBox;
             if (angular.isUndefined(regInvokes[moduleName][type])) {
                 regInvokes[moduleName][type] = {};
             }
-            var onInvoke = function onInvoke(invokeName, invoke) {
+            var onInvoke = function onInvoke(invokeName, signature) {
                 if (!regInvokes[moduleName][type].hasOwnProperty(invokeName)) {
                     regInvokes[moduleName][type][invokeName] = [];
                 }
-                if (checkHashes(invoke, regInvokes[moduleName][type][invokeName])) {
+                if (regInvokes[moduleName][type][invokeName].indexOf(signature) === -1) {
                     newInvoke = true;
-                    regInvokes[moduleName][type][invokeName].push(invoke);
+                    regInvokes[moduleName][type][invokeName].push(signature);
                     broadcast('ocLazyLoad.componentLoaded', [moduleName, type, invokeName]);
                 }
             };
-
-            function checkHashes(potentialNew, invokes) {
-                var isNew = true,
-                    newHash;
-                if (invokes.length) {
-                    newHash = signature(potentialNew);
-                    angular.forEach(invokes, function (invoke) {
-                        isNew = isNew && signature(invoke) !== newHash;
-                    });
-                }
-                return isNew;
-            }
 
             function signature(data) {
                 if (angular.isArray(data)) {
@@ -42308,15 +42291,15 @@ module.exports = InfoBox;
             }
 
             if (angular.isString(invokeList)) {
-                onInvoke(invokeList, args[2][1]);
+                onInvoke(invokeList, signature(args[2][1]));
             } else if (angular.isObject(invokeList)) {
                 angular.forEach(invokeList, function (invoke, key) {
                     if (angular.isString(invoke)) {
                         // decorators for example
-                        onInvoke(invoke, invokeList[1]);
+                        onInvoke(invoke, signature(invokeList[1]));
                     } else {
                         // components registered as object lists {"componentName": function() {}}
-                        onInvoke(key, invoke);
+                        onInvoke(key, signature(invoke));
                     }
                 });
             } else {
@@ -42658,11 +42641,9 @@ module.exports = InfoBox;
                  * Inject new modules into Angular
                  * @param moduleName
                  * @param localParams
-                 * @param real
                  */
                 inject: function inject(moduleName) {
                     var localParams = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-                    var real = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
                     var self = this,
                         deferred = $q.defer();
@@ -42670,18 +42651,17 @@ module.exports = InfoBox;
                         if (angular.isArray(moduleName)) {
                             var promisesList = [];
                             angular.forEach(moduleName, function (module) {
-                                promisesList.push(self.inject(moduleName, localParams, real));
+                                promisesList.push(self.inject(module));
                             });
                             return $q.all(promisesList);
                         } else {
-                            self._addToLoadList(self._getModuleName(moduleName), true, real);
+                            self._addToLoadList(self._getModuleName(moduleName), true);
                         }
                     }
                     if (modulesToLoad.length > 0) {
                         var res = modulesToLoad.slice(); // clean copy
                         var loadNext = function loadNext(moduleName) {
                             moduleCache.push(moduleName);
-                            modulePromises[moduleName] = deferred.promise;
                             self._loadDependencies(moduleName, localParams).then(function success() {
                                 try {
                                     justLoaded = [];
@@ -42704,8 +42684,6 @@ module.exports = InfoBox;
 
                         // load the first in list
                         loadNext(modulesToLoad.shift());
-                    } else if (localParams && localParams.name && modulePromises[localParams.name]) {
-                        return modulePromises[localParams.name];
                     } else {
                         deferred.resolve();
                     }
@@ -42807,7 +42785,7 @@ module.exports = InfoBox;
             priority: 1000,
             compile: function compile(element, attrs) {
                 // we store the content and remove it before compilation
-                var content = element.contents();
+                var content = element[0].innerHTML;
                 element.html('');
 
                 return function ($scope, $element, $attr) {
@@ -42817,7 +42795,14 @@ module.exports = InfoBox;
                     }, function (moduleName) {
                         if (angular.isDefined(moduleName)) {
                             $ocLazyLoad.load(moduleName).then(function () {
-                                $animate.enter($compile(content)($scope), $element);
+                                $animate.enter(content, $element);
+                                var contents = element.contents();
+                                angular.forEach(contents, function (content) {
+                                    if (content.nodeType !== 3) {
+                                        // 3 is a text node
+                                        $compile(content)($scope);
+                                    }
+                                });
                             });
                         }
                     }, true);
@@ -43166,7 +43151,7 @@ module.exports = InfoBox;
 
                 // if someone used an external loader and called the load function with just the module name
                 if (angular.isUndefined(config.files) && angular.isDefined(config.name) && $delegate.moduleExists(config.name)) {
-                    return $delegate.inject(config.name, localParams, true);
+                    return $delegate.inject(config.name, localParams);
                 }
 
                 $delegate.filesLoader(config, localParams).then(function () {
@@ -53170,19 +53155,15 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         }]
                     }
                 })
+                .state('sign-up', {
+                    url: '/sign-up',
+                    templateUrl: '/static/web/templates/sign-up.html',
+                    controller: 'SignUpController as main'
+                })
                 .state('my-list', {
                     url: '/my-list',
                     templateUrl: '/static/web/templates/my-list.html',
                     controller: 'MyListController as main'
-                })
-                .state('my-list.login', {
-                    url: '/login',
-                    views: {
-                        "loginView": {
-                            templateUrl: '/static/web/templates/login.html',
-                            controller: 'LoginController as login'
-                        }
-                    }
                 })
                 .state('my-list.detail', {
                     url: '/:stationId',
@@ -53687,8 +53668,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/',
                     params: params
-                }).success(function (data) {
-                    self.stations = data;
+                }).then(function (response) {
+                    self.stations = response.data;
                     for (var i = 0; i < self.stations.length; i++) {
                         var station = self.stations[i];
                         if (station.last) {
@@ -53707,9 +53688,9 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/' + station._id + '/historic',
                     params: params
-                }).success(function (data) {
+                }).then(function (response) {
                     var historic = {
-                        data: data
+                        data: response.data
                     };
                     station.historic = historic;
                 });
@@ -53921,7 +53902,9 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/',
                     params: params
-                }).success(displayMarkers);
+                }).then(function (response) {
+                    displayMarkers(response.data);
+                });
             }
 
             this.getHistoric = function () {
@@ -53933,9 +53916,9 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/' + self.selectedStation._id + '/historic',
                     params: params
-                }).success(function (data) {
+                }).then(function (response) {
                     var historic = {
-                        data: data
+                        data: response.data
                     };
                     self.selectedStation.historic = historic;
                 })
@@ -54064,8 +54047,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
             this.centerMap();
         }])
 
-    .controller('DetailController', ['$rootScope', '$scope', '$state', '$stateParams', '$http', 'utils',
-        function ($rootScope, $scope, $state, $stateParams, $http, utils) {
+    .controller('DetailController', ['$rootScope', '$scope', '$state', '$stateParams', '$http', '$window', 'utils',
+        function ($rootScope, $scope, $state, $stateParams, $http, $window, utils) {
             var self = this;
 
             $('#detailModal').modal().on('hidden.bs.modal', function (e) {
@@ -54083,8 +54066,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/' + $stateParams.stationId + '/historic',
                     params: params
-                }).success(function (data) {
-                    self.stationWindChart = data;
+                }).then(function (response) {
+                    self.stationWindChart = response.data;
                 });
             });
             $('a[data-target="#tab3"]').on('shown.bs.tab', function (event) {
@@ -54098,8 +54081,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/' + $stateParams.stationId + '/historic',
                     params: params
-                }).success(function (data) {
-                    self.stationAirChart = data;
+                }).then(function (response) {
+                    self.stationAirChart = response.data;
                 });
             });
 
@@ -54107,8 +54090,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                 $http({
                     method: 'GET',
                     url: '/api/2/stations/' + $stateParams.stationId
-                }).success(function (data) {
-                    self.station = data;
+                }).then(function (response) {
+                    self.station = response.data;
                     self.updateFromNow();
                 });
             };
@@ -54121,9 +54104,9 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/' + $stateParams.stationId + '/historic',
                     params: params
-                }).success(function (data) {
+                }).then(function (response) {
                     var historic = {
-                        data: data
+                        data: response.data
                     };
                     var windAvg = function (value) {
                         return value['w-avg'];
@@ -54132,11 +54115,12 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                         return value['w-max'];
                     };
                     historic['lastHour'] = {};
-                    historic['lastHour'].min = Math.min.apply(null, data.map(windAvg));
-                    historic['lastHour'].mean = data.map(windAvg).reduce(function (previousValue, currentValue) {
-                        return previousValue + currentValue;
-                    }, 0) / data.length;
-                    historic['lastHour'].max = Math.max.apply(null, data.map(windMax));
+                    historic['lastHour'].min = Math.min.apply(null, historic.data.map(windAvg));
+                    historic['lastHour'].mean =
+                        historic.data.map(windAvg).reduce(function (previousValue, currentValue) {
+                            return previousValue + currentValue;
+                        }, 0) / historic.data.length;
+                    historic['lastHour'].max = Math.max.apply(null, historic.data.map(windMax));
                     self.stationHistoric = historic;
                 })
             };
@@ -54149,6 +54133,46 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     self.station.fromNow = moment.unix(self.station.last._id).fromNow();
                     var status = utils.getStationStatus(self.station);
                     self.station.fromNowClass = utils.getStatusClass(status);
+                }
+            };
+            this.getFavorites = function () {
+                self.favorites = [];
+                var token = $window.localStorage.getItem('token');
+                if (token) {
+                    $http({
+                        method: 'GET',
+                        url: '/api/2/users/profile/',
+                        headers: {'Authorization': 'JWT ' + token}
+                    }).then(function (response) {
+                        self.favorites = response.data.favorites || [];
+                    });
+                }
+            };
+            this.toogleFavorite = function() {
+                var token = $window.localStorage.getItem('token');
+                if (token) {
+                    if (self.favorites.indexOf($stateParams.stationId) > -1) {
+                        $http({
+                            method: 'DELETE',
+                            url: '/api/2/users/profile/favorites/',
+                            headers: {'Authorization': 'JWT ' + token, 'Content-Type': 'application/json'},
+                            data: {'station_id': $stateParams.stationId}
+                        }).catch(function () {
+                            $state.go('sign-up');
+                        });
+                    } else {
+                        $http({
+                            method: 'POST',
+                            url: '/api/2/users/profile/favorites/',
+                            headers: {'Authorization': 'JWT ' + token, 'Content-Type': 'application/json'},
+                            data: {'station_id': $stateParams.stationId}
+                        }).catch(function () {
+                            $state.go('sign-up');
+                        });
+                    }
+                    self.getFavorites();
+                } else {
+                    $state.go('sign-up');
                 }
             };
 
@@ -54166,6 +54190,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                 }
             });
 
+            this.getFavorites();
             this.doDetail();
         }])
 
@@ -54246,8 +54271,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/',
                     params: params
-                }).success(function (data) {
-                    self.stations = data;
+                }).then(function (response) {
+                    self.stations = response.data;
                     for (var i = 0; i < self.stations.length; i++) {
                         var station = self.stations[i];
                         if (station.last) {
@@ -54266,9 +54291,9 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/' + station._id + '/historic',
                     params: params
-                }).success(function (data) {
+                }).then(function (response) {
                     var historic = {
-                        data: data
+                        data: response.data
                     };
                     station.historic = historic;
                 });
@@ -54325,30 +54350,27 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
             this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
 
-            var token = $window.localStorage.token;
+            this.favorites = [];
+            var token = $window.localStorage.getItem('token');
             if (token) {
                 $http({
                     method: 'GET',
                     url: '/api/2/users/profile/',
                     headers: {'Authorization': 'JWT ' + token}
                 }).then(function (response) {
-                    self.favorites = response.data.favorites;
+                    self.favorites = response.data.favorites || [];
                     self.doSearch();
                 }, function () {
-                    $state.go('my-list.login');
+                    $state.go('sign-up');
                 });
             } else {
-                $state.go('my-list.login');
+                $state.go('sign-up');
             }
         }])
 
-    .controller('LoginController', ['$http', '$state', '$window',
+    .controller('SignUpController', ['$http', '$state', '$window',
         function ($http, $state, $window) {
             var self = this;
-
-            $('#loginModal').modal().on('hidden.bs.modal', function (e) {
-                $state.go('^');
-            });
 
             this.login = function () {
                 $http({
@@ -54522,6 +54544,7 @@ angular.module('windmobile.services', [])
         'List': "List",
         'Map': "Map",
         'Help': "Help",
+        'Sign up': "Sign up",
         'Wind': "Wind",
         'Gust': "Gust",
         'Temperature': "Temperature",
@@ -54559,6 +54582,9 @@ angular.module('windmobile.services', [])
         'HELP_COMPATIBILITY_TEXT': "winds.mobi runs on the latest versions of the major browsers (mobile or desktop)",
         'HELP_CONTACT_TITLE': "About",
         'HELP_CONTACT_TEXT': "Questions, issues or improvement ideas ? Please contact me !",
+        'SIGN_UP_SUMMARY_TITLE': "Create your winds.mobi account",
+        'SIGN_UP_TEXT': "Save your favorite stations by creating your winds.mobi account with Google or Facebook.",
+        'MY_LIST_EMPTY': "Your list is empty! Please add your stations by clicking on favorite icon from 'detail' view.",
 
         'N': "N",
         'NE': "NE",
@@ -54590,6 +54616,7 @@ angular.module('windmobile.services', [])
         'List': "Liste",
         'Map': "Carte",
         'Help': "Aide",
+        'Sign up': "Inscription",
         'Wind': "Vent",
         'Gust': "Rafale",
         'Temperature': "Température",
@@ -54627,6 +54654,9 @@ angular.module('windmobile.services', [])
         'HELP_COMPATIBILITY_TEXT': "winds.mobi fonctionne sur les dernières versions des principaux navigateurs web (mobile ou bureau)",
         'HELP_CONTACT_TITLE': "À propos",
         'HELP_CONTACT_TEXT': "Des questions, problèmes ou idées d'amélioration ? Contactez-moi !",
+        'SIGN_UP_SUMMARY_TITLE': "Créer votre compte winds.mobi",
+        'SIGN_UP_TEXT': "Sauvegarder vos balises en créant votre compte winds.mobi avec Google ou Facebook.",
+        'MY_LIST_EMPTY': "Votre liste est vide ! Ajouter une balise en cliquant sur son icône favoris depuis la vue 'détail'.",
 
         'N': "N",
         'NE': "NE",

@@ -399,14 +399,14 @@ class UserProfileFavorite(APIView):
 
     def post(self, request):
         station_id = request.data['station_id']
-        mongo_db.users.update_one({'_id': request.username},
+        mongo_db.users.update_one({'_id': request.user},
                                   {'$addToSet': {'favorites': station_id}},
                                   upsert=True)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request):
         station_id = request.data['station_id']
-        mongo_db.users.update_one({'_id': request.username},
+        mongo_db.users.update_one({'_id': request.user},
                                   {'$pull': {'favorites': station_id}},
                                   upsert=True)
         return Response(status=status.HTTP_204_NO_CONTENT)

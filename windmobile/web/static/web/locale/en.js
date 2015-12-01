@@ -4,6 +4,7 @@
         'List': "List",
         'Map': "Map",
         'Help': "Help",
+        'Sign up': "Sign up",
         'Wind': "Wind",
         'Gust': "Gust",
         'Temperature': "Temperature",
@@ -41,6 +42,9 @@
         'HELP_COMPATIBILITY_TEXT': "winds.mobi runs on the latest versions of the major browsers (mobile or desktop)",
         'HELP_CONTACT_TITLE': "About",
         'HELP_CONTACT_TEXT': "Questions, issues or improvement ideas ? Please contact me !",
+        'SIGN_UP_SUMMARY_TITLE': "Create your winds.mobi account",
+        'SIGN_UP_TEXT': "Save your favorite stations by creating your winds.mobi account with Google or Facebook.",
+        'MY_LIST_EMPTY': "Your list is empty! Please add your stations by clicking on favorite icon from 'detail' view.",
 
         'N': "N",
         'NE': "NE",

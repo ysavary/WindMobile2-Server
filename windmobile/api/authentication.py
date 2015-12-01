@@ -8,7 +8,7 @@ from rest_framework.permissions import BasePermission
 class JWTAuthentication(BaseAuthentication):
 
     def get_jwt_value(self, request):
-        auth = request.META.get('HTTP_AUTHORIZATION').split()
+        auth = request.META.get('HTTP_AUTHORIZATION', '').split()
         if not auth:
             return None
 

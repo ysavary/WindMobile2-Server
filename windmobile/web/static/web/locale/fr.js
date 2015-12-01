@@ -4,6 +4,7 @@
         'List': "Liste",
         'Map': "Carte",
         'Help': "Aide",
+        'Sign up': "Inscription",
         'Wind': "Vent",
         'Gust': "Rafale",
         'Temperature': "Température",
@@ -41,6 +42,9 @@
         'HELP_COMPATIBILITY_TEXT': "winds.mobi fonctionne sur les dernières versions des principaux navigateurs web (mobile ou bureau)",
         'HELP_CONTACT_TITLE': "À propos",
         'HELP_CONTACT_TEXT': "Des questions, problèmes ou idées d'amélioration ? Contactez-moi !",
+        'SIGN_UP_SUMMARY_TITLE': "Créer votre compte winds.mobi",
+        'SIGN_UP_TEXT': "Sauvegarder vos balises en créant votre compte winds.mobi avec Google ou Facebook.",
+        'MY_LIST_EMPTY': "Votre liste est vide ! Ajouter une balise en cliquant sur son icône favoris depuis la vue 'détail'.",
 
         'N': "N",
         'NE': "NE",

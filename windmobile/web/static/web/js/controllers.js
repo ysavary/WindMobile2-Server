@@ -27,8 +27,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/',
                     params: params
-                }).success(function (data) {
-                    self.stations = data;
+                }).then(function (response) {
+                    self.stations = response.data;
                     for (var i = 0; i < self.stations.length; i++) {
                         var station = self.stations[i];
                         if (station.last) {
@@ -47,9 +47,9 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/' + station._id + '/historic',
                     params: params
-                }).success(function (data) {
+                }).then(function (response) {
                     var historic = {
-                        data: data
+                        data: response.data
                     };
                     station.historic = historic;
                 });
@@ -261,7 +261,9 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/',
                     params: params
-                }).success(displayMarkers);
+                }).then(function (response) {
+                    displayMarkers(response.data);
+                });
             }
 
             this.getHistoric = function () {
@@ -273,9 +275,9 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/' + self.selectedStation._id + '/historic',
                     params: params
-                }).success(function (data) {
+                }).then(function (response) {
                     var historic = {
-                        data: data
+                        data: response.data
                     };
                     self.selectedStation.historic = historic;
                 })
@@ -404,8 +406,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
             this.centerMap();
         }])
 
-    .controller('DetailController', ['$rootScope', '$scope', '$state', '$stateParams', '$http', 'utils',
-        function ($rootScope, $scope, $state, $stateParams, $http, utils) {
+    .controller('DetailController', ['$rootScope', '$scope', '$state', '$stateParams', '$http', '$window', 'utils',
+        function ($rootScope, $scope, $state, $stateParams, $http, $window, utils) {
             var self = this;
 
             $('#detailModal').modal().on('hidden.bs.modal', function (e) {
@@ -423,8 +425,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/' + $stateParams.stationId + '/historic',
                     params: params
-                }).success(function (data) {
-                    self.stationWindChart = data;
+                }).then(function (response) {
+                    self.stationWindChart = response.data;
                 });
             });
             $('a[data-target="#tab3"]').on('shown.bs.tab', function (event) {
@@ -438,8 +440,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/' + $stateParams.stationId + '/historic',
                     params: params
-                }).success(function (data) {
-                    self.stationAirChart = data;
+                }).then(function (response) {
+                    self.stationAirChart = response.data;
                 });
             });
 
@@ -447,8 +449,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                 $http({
                     method: 'GET',
                     url: '/api/2/stations/' + $stateParams.stationId
-                }).success(function (data) {
-                    self.station = data;
+                }).then(function (response) {
+                    self.station = response.data;
                     self.updateFromNow();
                 });
             };
@@ -461,9 +463,9 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/' + $stateParams.stationId + '/historic',
                     params: params
-                }).success(function (data) {
+                }).then(function (response) {
                     var historic = {
-                        data: data
+                        data: response.data
                     };
                     var windAvg = function (value) {
                         return value['w-avg'];
@@ -472,11 +474,12 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                         return value['w-max'];
                     };
                     historic['lastHour'] = {};
-                    historic['lastHour'].min = Math.min.apply(null, data.map(windAvg));
-                    historic['lastHour'].mean = data.map(windAvg).reduce(function (previousValue, currentValue) {
-                        return previousValue + currentValue;
-                    }, 0) / data.length;
-                    historic['lastHour'].max = Math.max.apply(null, data.map(windMax));
+                    historic['lastHour'].min = Math.min.apply(null, historic.data.map(windAvg));
+                    historic['lastHour'].mean =
+                        historic.data.map(windAvg).reduce(function (previousValue, currentValue) {
+                            return previousValue + currentValue;
+                        }, 0) / historic.data.length;
+                    historic['lastHour'].max = Math.max.apply(null, historic.data.map(windMax));
                     self.stationHistoric = historic;
                 })
             };
@@ -489,6 +492,46 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     self.station.fromNow = moment.unix(self.station.last._id).fromNow();
                     var status = utils.getStationStatus(self.station);
                     self.station.fromNowClass = utils.getStatusClass(status);
+                }
+            };
+            this.getFavorites = function () {
+                self.favorites = [];
+                var token = $window.localStorage.getItem('token');
+                if (token) {
+                    $http({
+                        method: 'GET',
+                        url: '/api/2/users/profile/',
+                        headers: {'Authorization': 'JWT ' + token}
+                    }).then(function (response) {
+                        self.favorites = response.data.favorites || [];
+                    });
+                }
+            };
+            this.toogleFavorite = function() {
+                var token = $window.localStorage.getItem('token');
+                if (token) {
+                    if (self.favorites.indexOf($stateParams.stationId) > -1) {
+                        $http({
+                            method: 'DELETE',
+                            url: '/api/2/users/profile/favorites/',
+                            headers: {'Authorization': 'JWT ' + token, 'Content-Type': 'application/json'},
+                            data: {'station_id': $stateParams.stationId}
+                        }).catch(function () {
+                            $state.go('sign-up');
+                        });
+                    } else {
+                        $http({
+                            method: 'POST',
+                            url: '/api/2/users/profile/favorites/',
+                            headers: {'Authorization': 'JWT ' + token, 'Content-Type': 'application/json'},
+                            data: {'station_id': $stateParams.stationId}
+                        }).catch(function () {
+                            $state.go('sign-up');
+                        });
+                    }
+                    self.getFavorites();
+                } else {
+                    $state.go('sign-up');
                 }
             };
 
@@ -506,6 +549,7 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                 }
             });
 
+            this.getFavorites();
             this.doDetail();
         }])
 
@@ -586,8 +630,8 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/',
                     params: params
-                }).success(function (data) {
-                    self.stations = data;
+                }).then(function (response) {
+                    self.stations = response.data;
                     for (var i = 0; i < self.stations.length; i++) {
                         var station = self.stations[i];
                         if (station.last) {
@@ -606,9 +650,9 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     method: 'GET',
                     url: '/api/2/stations/' + station._id + '/historic',
                     params: params
-                }).success(function (data) {
+                }).then(function (response) {
                     var historic = {
-                        data: data
+                        data: response.data
                     };
                     station.historic = historic;
                 });
@@ -665,30 +709,27 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
             this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
 
-            var token = $window.localStorage.token;
+            this.favorites = [];
+            var token = $window.localStorage.getItem('token');
             if (token) {
                 $http({
                     method: 'GET',
                     url: '/api/2/users/profile/',
                     headers: {'Authorization': 'JWT ' + token}
                 }).then(function (response) {
-                    self.favorites = response.data.favorites;
+                    self.favorites = response.data.favorites || [];
                     self.doSearch();
                 }, function () {
-                    $state.go('my-list.login');
+                    $state.go('sign-up');
                 });
             } else {
-                $state.go('my-list.login');
+                $state.go('sign-up');
             }
         }])
 
-    .controller('LoginController', ['$http', '$state', '$window',
+    .controller('SignUpController', ['$http', '$state', '$window',
         function ($http, $state, $window) {
             var self = this;
-
-            $('#loginModal').modal().on('hidden.bs.modal', function (e) {
-                $state.go('^');
-            });
 
             this.login = function () {
                 $http({

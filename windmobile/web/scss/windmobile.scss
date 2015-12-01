@@ -62,7 +62,7 @@ body.wdm-list, body.wdm-my-list {
     background-color: #191919;
     padding-top: 70px;
 }
-body.wdm-help {
+body.wdm-help, body.wdm-sign-up {
     padding-top: $header-height;
 }
 
@@ -237,6 +237,11 @@ $font-size: 15px;
     }
 }
 
+.wdm-message {
+    color: $highlight-text-color;
+    font-size: 17px;
+}
+
 .wdm-detail-layout {
     @extend .wdm-card-layout;
 
@@ -393,7 +398,7 @@ $humidity-color: #3b71a0;
     }
 }
 
-.wdm-help {
+.wdm-help, .wdm-sign-up {
     @media (max-width: 550px) {
         width: 350px;
     }
@@ -442,6 +447,13 @@ $humidity-color: #3b71a0;
     height: 22px;
     border-radius: 50%;
     border: solid 1px $text-color;
+}
+
+.wdm-google-sign-up {
+    display: block;
+    width: 191px;
+    height: 46px;
+    background: url('/static/web/img/btn_google_signin_dark_normal_web.png') no-repeat top;
 }
 
 .ng-toast {

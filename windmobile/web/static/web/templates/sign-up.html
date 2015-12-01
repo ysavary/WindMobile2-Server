@@ -1,0 +1,32 @@
+<!-- Fixed navbar -->
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#" ng-click="main.clickOnNavBar()"><img src="/static/web/img/windmobile.png"></a>
+            <a class="navbar-text hidden-xxs" href="#" ng-click="main.clickOnNavBar()"><span>winds</span>.mobi</a>
+        </div>
+        <div class="navbar-right">
+            <ul class="nav navbar-nav">
+                <li><a ui-sref="map"><span class="fa fa-lg fa-map"></span>
+                    <span class="hidden-xs" translate>Map</span></a>
+                </li>
+                <li><a ui-sref="list"><span class="fa fa-lg fa-th-large"></span>
+                    <span class="hidden-xs" translate>List</span></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="wdm-signin-content">
+    <div class="wdm-signin">
+        <h1 translate>Sign up</h1>
+        <h2 translate>SIGN_UP_SUMMARY_TITLE</h2>
+
+        <p translate translate-compile>SIGN_UP_TEXT</p>
+
+        <div>
+            <a class="wdm-google-sign-up" href="/auth/google/oauth2callback/"></a>
+        </div>
+   </div>
+</div>

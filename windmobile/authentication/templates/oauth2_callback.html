@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html>
+
+<head>
+    <title>Winds.mobi</title>
+</head>
+
 <body>
-
-<h2>Login successful</h2>
-
+    <div id="error"></div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script>
 $(document).ready(function() {
@@ -15,10 +18,16 @@ $(document).ready(function() {
         },
         success : function(data) {
             window.localStorage.token = data.token;
+            window.location.replace("{{ redirect_url }}");
+        },
+        error : function(result, textStatus) {
+            $("#error").append("Sorry, an error occurred...");
+            setTimeout(function() {
+                window.location.replace("/");
+            }, 5000);
         }
     });
 });
 </script>
-
 </body>
 </html>

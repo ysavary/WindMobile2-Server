@@ -22,12 +22,11 @@ class GoogleOauth2Callback(Oauth2Callback):
             user_info = requests.get('https://www.googleapis.com/oauth2/v3/userinfo',
                                      params={'access_token': token.access_token}).json()
             username = "google-{0}".format(user_info['sub'])
-            email = user_info['email']
+            email = user_info['email'] or ''
 
-            ott, user_info = self.save_user(username, email, user_info)
+            ott = self.save_user(username, email, user_info)
             context = {
                 'ott': ott,
-                'user_info': user_info,
                 'redirect_url': '/stations/my-list'
             }
             return self.render_to_response(context)

@@ -12,7 +12,7 @@
 $(document).ready(function() {
     $.ajax({
         method: "POST",
-        url: "/api/2/auth/login/",
+        url: "{% url 'api.auth_login' %}",
         data: {
             ott: "{{ ott }}"
         },
@@ -20,8 +20,8 @@ $(document).ready(function() {
             window.localStorage.token = data.token;
             window.location.replace("{{ redirect_url }}");
         },
-        error : function(result, textStatus) {
-            $("#error").append("Sorry, an error occurred...");
+        error : function(xhr, status, error) {
+            $("#error").append("Sorry, an error occurred: '" + xhr.responseText + "'");
             setTimeout(function() {
                 window.location.replace("/");
             }, 5000);

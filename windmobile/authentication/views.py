@@ -31,7 +31,7 @@ class Oauth2Callback(TemplateView):
         ott = binascii.hexlify(os.urandom(20)).decode('ascii')
         mongo_db.login_ott.insert_one({'_id': ott, 'username': username, 'createdAt': datetime.utcnow()})
 
-        return ott, user_info
+        return ott
 
 
 mongo_url = os.environ['WINDMOBILE_MONGO_URL']

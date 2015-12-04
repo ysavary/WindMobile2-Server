@@ -9,7 +9,7 @@ from .views import Oauth2Callback
 class GoogleOauth2Callback(Oauth2Callback):
     def get(self, request, *args, **kwargs):
         flow = client.flow_from_clientsecrets(
-            'client_secret.json',
+            'google_client_secret.json',
             scope=['profile', 'email'],
             redirect_uri=reverse('auth.google_oauth2callback', request=self.request))
 

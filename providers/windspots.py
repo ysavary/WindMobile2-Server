@@ -1,11 +1,10 @@
-import os
 import urllib.parse
 
-# Modules
-import requests
 import arrow
+import requests
 
 from provider import get_logger, Provider, ProviderException
+from settings import *
 
 logger = get_logger('windspots')
 
@@ -91,5 +90,5 @@ class Windspots(Provider):
         logger.info("Done !")
 
 
-windspots = Windspots(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'])
+windspots = Windspots(MONGODB_URL, GOOGLE_API_KEY)
 windspots.process_data()

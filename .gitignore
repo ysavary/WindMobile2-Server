@@ -2,6 +2,7 @@
 .idea/
 .sass-cache/
 node_modules/
-envdir/
+local_settings.py
 windmobile/static
 logfile.txt
+google_client_secret.json

@@ -1,10 +1,9 @@
-import os
 import urllib.parse
 
-# Modules
 import requests
 
 from provider import get_logger, Provider, ProviderException, Status
+from settings import *
 
 logger = get_logger('jdc')
 
@@ -99,5 +98,5 @@ class Jdc(Provider):
         logger.info("Done !")
 
 
-jdc = Jdc(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'])
+jdc = Jdc(MONGODB_URL, GOOGLE_API_KEY)
 jdc.process_data()

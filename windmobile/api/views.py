@@ -1,5 +1,4 @@
 import logging
-import os
 
 import jwt
 from django.conf import settings
@@ -412,7 +411,6 @@ class UserProfileFavorite(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-mongo_url = os.environ['WINDMOBILE_MONGO_URL']
-uri = uri_parser.parse_uri(mongo_url)
+uri = uri_parser.parse_uri(settings.MONGODB_URL)
 mongo_client = MongoClient(uri['nodelist'][0][0], uri['nodelist'][0][1])
 mongo_db = mongo_client[uri['database']]

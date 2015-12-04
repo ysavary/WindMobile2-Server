@@ -2,6 +2,7 @@ import binascii
 import os
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.views.generic import TemplateView
 from pymongo import ASCENDING
@@ -34,7 +35,6 @@ class Oauth2Callback(TemplateView):
         return ott
 
 
-mongo_url = os.environ['WINDMOBILE_MONGO_URL']
-uri = uri_parser.parse_uri(mongo_url)
+uri = uri_parser.parse_uri(settings.MONGODB_URL)
 mongo_client = MongoClient(uri['nodelist'][0][0], uri['nodelist'][0][1])
 mongo_db = mongo_client[uri['database']]

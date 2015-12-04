@@ -1,10 +1,10 @@
 import argparse
-import os
-# Modules
+
 import arrow
 from pymongo import uri_parser, MongoClient
 
 from provider import get_logger, Status, max_data_age_in_days
+from settings import *
 
 logger = get_logger('hide_stations')
 
@@ -14,7 +14,7 @@ parser.add_argument('--days', type=int, default=max_data_age_in_days,
                          "before hiding the station [default: %(default)s]")
 args = vars(parser.parse_args())
 
-uri = uri_parser.parse_uri(os.environ['WINDMOBILE_MONGO_URL'])
+uri = uri_parser.parse_uri(MONGODB_URL)
 client = MongoClient(uri['nodelist'][0][0], uri['nodelist'][0][1])
 mongo_db = client[uri['database']]
 

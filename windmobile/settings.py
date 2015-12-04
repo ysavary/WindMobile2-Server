@@ -143,6 +143,10 @@ SWAGGER_SETTINGS = {
 }
 
 
+FACEBOOK_CLIENT_ID = ''
+FACEBOOK_CLIENT_SECRET = ''
+
+
 try:
     from .local_settings import *
 except ImportError:

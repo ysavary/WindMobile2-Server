@@ -20,12 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+SECRET_KEY = 'dev'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = (os.environ.get('DEBUG', 'True').lower() not in ['false', 'no', 'none'])
+DEBUG = True
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split()
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -81,8 +81,16 @@ WSGI_APPLICATION = 'windmobile.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-import dj_database_url
-DATABASES = {'default': dj_database_url.config(default='postgres://localhost/windmobile')}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'NAME': 'windmobile',
+    },
+}
+
+MONGODB_URL = 'mongodb://localhost:27017/windmobile'
 
 
 # Internationalization
@@ -118,10 +126,6 @@ STATICFILES_DIRS = (
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-SWAGGER_SETTINGS = {
-    "api_version": '2.0'
-}
-
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
@@ -129,4 +133,12 @@ REST_FRAMEWORK = {
     )
 }
 
-MONGODB_URL = os.environ['WINDMOBILE_MONGO_URL']
+SWAGGER_SETTINGS = {
+    "api_version": '2.0'
+}
+
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass

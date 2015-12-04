@@ -1,14 +1,13 @@
-import os
-from urllib.parse import urlparse
 from datetime import datetime, timedelta
+from urllib.parse import urlparse
 
-# Modules
 import MySQLdb
 import arrow
 from cachetools import hashkey, cached
 
-from provider import get_logger, Provider, ProviderException, Status
 import wgs84
+from provider import get_logger, Provider, ProviderException, Status
+from settings import *
 
 logger = get_logger('windline')
 
@@ -221,6 +220,5 @@ class Windline(Provider):
 
         logger.info("Done !")
 
-windline = Windline(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'],
-                    os.environ['WINDMOBILE_WINDLINE_URL'])
+windline = Windline(MONGODB_URL, GOOGLE_API_KEY, WINDLINE_URL)
 windline.process_data()

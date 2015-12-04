@@ -1,12 +1,12 @@
 import io
-import os
 import json
+from os import path
 
-# Modules
-import requests
 import arrow
+import requests
 
 from provider import get_logger, Provider, Status
+from settings import *
 
 logger = get_logger('meteoswiss')
 
@@ -20,7 +20,7 @@ class MeteoSwiss(Provider):
         try:
             logger.info("Processing METEOSWISS data...")
 
-            with open(os.path.join(os.path.dirname(__file__), 'meteoswiss/vqha69.json')) as in_file:
+            with open(path.join(path.dirname(__file__), 'meteoswiss/vqha69.json')) as in_file:
                 descriptions = json.load(in_file)
 
             data_file = io.StringIO(
@@ -79,5 +79,5 @@ class MeteoSwiss(Provider):
 
         logger.info("...Done!")
 
-meteoswiss = MeteoSwiss(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'])
+meteoswiss = MeteoSwiss(MONGODB_URL, GOOGLE_API_KEY)
 meteoswiss.process_data()

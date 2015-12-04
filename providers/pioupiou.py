@@ -1,11 +1,10 @@
-import os
 import urllib.parse
 
-# Modules
-import requests
 import arrow
+import requests
 
 from provider import get_logger, Provider, ProviderException, Status
+from settings import *
 
 logger = get_logger('jdc')
 
@@ -77,5 +76,5 @@ class Pioupiou(Provider):
         logger.info("Done !")
 
 
-pioupiou = Pioupiou(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'])
+pioupiou = Pioupiou(MONGODB_URL, GOOGLE_API_KEY)
 pioupiou.process_data()

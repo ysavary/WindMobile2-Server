@@ -1,11 +1,9 @@
-import os
-
-# Modules
-import requests
 import arrow
 import dateutil
+import requests
 
 from provider import get_logger, Provider, ProviderException, Status
+from settings import *
 
 logger = get_logger('ffvl')
 
@@ -89,5 +87,5 @@ class Ffvl(Provider):
 
         logger.info("...Done!")
 
-ffvl = Ffvl(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'])
+ffvl = Ffvl(MONGODB_URL, GOOGLE_API_KEY)
 ffvl.process_data()

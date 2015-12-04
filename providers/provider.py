@@ -1,17 +1,17 @@
-import sys
-import os
 import logging
 import logging.handlers
 import math
+import sys
+from os import path
 
-# Modules
-from pymongo import uri_parser, MongoClient, GEOSPHERE, ASCENDING
-from pymongo.errors import CollectionInvalid
-import requests
 import arrow
 import dateutil
 import redis
+import requests
+from pymongo import uri_parser, MongoClient, GEOSPHERE, ASCENDING
+from pymongo.errors import CollectionInvalid
 
+from settings import *
 
 max_data_age_in_days = 30
 
@@ -35,16 +35,16 @@ def get_logger(name, level=logging.INFO):
     handler.setFormatter(fmt)
     logger.addHandler(handler)
 
-    if 'WINDMOBILE_LOG_DIR' in os.environ:
+    if WINDMOBILE_LOG_DIR:
         try:
             handler = logging.handlers.TimedRotatingFileHandler(
-                os.path.join(os.environ['WINDMOBILE_LOG_DIR'], name + '.log'), when='midnight', backupCount=20)
+                path.join(path.expanduser(WINDMOBILE_LOG_DIR), name + '.log'), when='midnight', backupCount=20)
             fmt = NoExceptionFormatter('%(asctime)s %(levelname)s [%(name)s]: %(message)s', '%Y-%m-%dT%H:%M:%S%z')
             handler.setFormatter(fmt)
             logger.addHandler(handler)
 
             handler = logging.handlers.RotatingFileHandler(
-                os.path.join(os.environ['WINDMOBILE_LOG_DIR'], name + '.stacktraces.log'), maxBytes=50 * 10 ** 6)
+                path.join(path.expanduser(WINDMOBILE_LOG_DIR), name + '.stacktraces.log'), maxBytes=50 * 10 ** 6)
             fmt = logging.Formatter('%(asctime)s %(levelname)s [%(name)s]: %(message)s', '%Y-%m-%dT%H:%M:%S%z')
             handler.setFormatter(fmt)
             logger.addHandler(handler)

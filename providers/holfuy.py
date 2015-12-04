@@ -1,15 +1,14 @@
-import os
-from datetime import datetime, timedelta
-import pytz
 import json
 import re
 import urllib.parse
+from datetime import datetime, timedelta
 
-# Modules
+import pytz
 import requests
 import xmltodict
 
 from provider import get_logger, Provider, Status, to_float
+from settings import *
 
 logger = get_logger('holfuy')
 
@@ -82,5 +81,5 @@ class Holfuy(Provider):
         logger.info("Done !")
 
 
-holfuy = Holfuy(os.environ['WINDMOBILE_MONGO_URL'], os.environ['GOOGLE_API_KEY'])
+holfuy = Holfuy(MONGODB_URL, GOOGLE_API_KEY)
 holfuy.process_data()

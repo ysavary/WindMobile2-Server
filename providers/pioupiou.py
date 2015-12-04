@@ -6,7 +6,7 @@ import requests
 from provider import get_logger, Provider, ProviderException, Status
 from settings import *
 
-logger = get_logger('jdc')
+logger = get_logger('pioupiou')
 
 
 class Pioupiou(Provider):

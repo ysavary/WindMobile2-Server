@@ -1,6 +1,7 @@
 # coding=utf-8
 import os
 
+from django.conf import settings
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.exceptions import ParseError
@@ -294,7 +295,6 @@ class Historic(APIView):
         return Response(list(mongo_db[station_id].find({}, projection_dict, sort=(('_id', -1),)).limit(nb_data)))
 
 
-mongo_url = os.environ['WINDMOBILE_MONGO_URL']
-uri = uri_parser.parse_uri(mongo_url)
+uri = uri_parser.parse_uri(settings.MONGODB_URL)
 client = MongoClient(uri['nodelist'][0][0], uri['nodelist'][0][1])
 mongo_db = client[uri['database']]

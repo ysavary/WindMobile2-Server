@@ -87,7 +87,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     resetZoomButton: {
                         theme: {
                             fill: 'none',
-                            stroke: '#ddd',
+                            stroke: '#666',
                             style: {color: '#8d8d8d'}
                         }
                     }
@@ -395,7 +395,10 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     },
                     xAxis: {
                         type: 'datetime',
-                        lineColor: '#666'
+                        lineColor: '#666',
+                        tickColor: '#666',
+                        gridLineWidth: 0.5,
+                        gridLineColor: '#666'
                     },
                     yAxis: {
                         opposite: false,

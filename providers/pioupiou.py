@@ -23,8 +23,8 @@ class Pioupiou(Provider):
     def process_data(self):
         try:
             logger.info("Processing Pioupiou data...")
-            result = requests.get("http://api.pioupiou.fr/v1/live-with-meta/all",
-                                  timeout=(self.connect_timeout, self.read_timeout))
+            result = requests.get("http://api.pioupiou.fr/v1/live-with-meta/all", timeout=(self.connect_timeout,
+                                                                                           self.read_timeout))
 
             for piou_station in result.json()['data']:
                 try:

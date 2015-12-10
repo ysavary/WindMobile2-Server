@@ -35,7 +35,7 @@ class Pioupiou(Provider):
                     if location['success']:
                         last_location_date = arrow.get(location['date'])
                         if (arrow.utcnow().timestamp - last_location_date.timestamp) > 3600 * 24 * 10:
-                            raise ProviderException("Last location date is {0}".format(last_location_date.humanize()))
+                            logger.warn("Last location date is {0}".format(last_location_date.humanize()))
 
                     station = self.save_station(
                         station_id,

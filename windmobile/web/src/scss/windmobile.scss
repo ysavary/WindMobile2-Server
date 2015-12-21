@@ -54,8 +54,6 @@ $grid-float-breakpoint: 0px;
     @include responsive-invisibility('.hidden-xxs');
 }
 
-@import "ngToast";
-
 // Take care of bootstrap navbar height with wdm-{controller} class
 $header-height: 50px;
 body.wdm-list {
@@ -444,6 +442,17 @@ $humidity-color: #3b71a0;
     border: solid 1px $text-color;
 }
 
-.ng-toast {
-    margin-top: 55px;
+#toast {
+    width: 300px;
+    height: auto;
+    position: absolute;
+    left: 50%;
+    margin-left: -150px;
+    top: $header-height + 10px;
+    color: #fff;
+    background-color: #95433a;
+    border: solid darken(#95433a, 5%) 1px;
+    padding: 10px;
+    text-align: center;
+    border-radius: 4px;
 }

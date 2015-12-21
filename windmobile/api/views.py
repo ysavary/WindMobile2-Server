@@ -1,13 +1,12 @@
 # coding=utf-8
-import os
 
 from django.conf import settings
+from pymongo import MongoClient, uri_parser, ASCENDING
+from pymongo.errors import OperationFailure
 from rest_framework import status
-from rest_framework.views import APIView
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
-from pymongo import MongoClient, uri_parser
-from pymongo.errors import OperationFailure
+from rest_framework.views import APIView
 
 from windmobile.api import diacritics
 
@@ -123,6 +122,11 @@ class Stations(APIView):
                         }
                     }
                 }
+            try:
+                # $near results are already sorted: return now
+                return Response(list(mongo_db.stations.find(query, projection_dict).limit(limit)))
+            except OperationFailure as e:
+                raise ParseError(e.details)
 
         if within_pt1_latitude and within_pt1_longitude and within_pt2_latitude and within_pt2_longitude:
             result = []
@@ -143,7 +147,10 @@ class Stations(APIView):
                         }
                     }
                 }
-                cursor = mongo_db.stations.find(query, projection_dict)
+                try:
+                    cursor = mongo_db.stations.find(query, projection_dict)
+                except OperationFailure as e:
+                    raise ParseError(e.details)
                 count = cursor.count()
 
                 if count > 0:
@@ -171,7 +178,7 @@ class Stations(APIView):
             return Response(result)
 
         try:
-            return Response(list(mongo_db.stations.find(query, projection_dict).limit(limit)))
+            return Response(list(mongo_db.stations.find(query, projection_dict).sort('short', ASCENDING).limit(limit)))
         except OperationFailure as e:
             raise ParseError(e.details)
 

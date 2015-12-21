@@ -8,6 +8,7 @@ var ngAnnotate = require('gulp-ng-annotate');
 var browserify = require('browserify');
 var sourcemaps = require('gulp-sourcemaps');
 var uglify = require('gulp-uglify');
+var cdnizer = require('gulp-cdnizer');
 var disc = require("disc");
 
 gulp.task('fix-angular-src-for-browserify', function () {
@@ -38,7 +39,7 @@ gulp.task('js', function () {
 });
 
 gulp.task('sass', function () {
-    gulp.src('scss/*.*')
+    gulp.src('src/scss/*.*')
         .pipe(sourcemaps.init())
         .pipe(sass({
             includePaths: ['node_modules/bootstrap-sass/assets/stylesheets', 'node_modules/ng-toast/src/styles/sass'],
@@ -46,6 +47,24 @@ gulp.task('sass', function () {
         }).on('error', sass.logError))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('static/web/css/'));
+});
+
+gulp.task('html', function () {
+    gulp.src('src/html/stations.html')
+        .pipe(gutil.env.production ?
+            cdnizer({
+                defaultCDNBase: '//files.windsmobi.netdna-cdn.com',
+                allowRev: true,
+                allowMin: true,
+                files: [
+                    '/static/web/js/windmobile.js',
+                    '/static/web/css/windmobile.css',
+                    '/static/web/img/*.*',
+                    '/static/web/manifest.json'
+                ]
+            }) :
+            gutil.noop())
+        .pipe(gulp.dest('static/web/'));
 });
 
 gulp.task('discify', function (cb) {
@@ -64,6 +83,7 @@ gulp.task('discify', function (cb) {
 
 gulp.task('watch', function () {
     gulp.watch(['static/web/js/app.js', 'static/web/js/controllers.js', 'static/web/js/services.js'], ['js']);
-    gulp.watch('scss/*.*', ['sass']);
+    gulp.watch('src/scss/*.*', ['sass']);
+    gulp.watch('src/html/stations.html', ['html']);
 });
-gulp.task('default', ['js', 'sass']);
+gulp.task('default', ['js', 'sass', 'html']);

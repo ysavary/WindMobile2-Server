@@ -19,6 +19,7 @@
         'Plain': "Plain",
         'no recent data': "no recent data",
         'meters': "meters",
+        'Location service is disabled': "Location service is disabled",
         'Unable to find your location': "Unable to find your location",
 
         'HELP_STATION_SUMMARY_TITLE': "Station summary display",

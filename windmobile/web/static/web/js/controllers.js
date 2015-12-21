@@ -1,12 +1,11 @@
 var angular = require('angular');
 var moment = require('moment');
 var InfoBox = require('google-maps-infobox');
-require('ng-toast');
 
-angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
+angular.module('windmobile.controllers', ['windmobile.services'])
 
-    .controller('ListController', ['$scope', '$state', '$http', '$location', 'utils',
-        function ($scope, $state, $http, $location, utils) {
+    .controller('ListController', ['$rootScope', '$scope', '$state', '$http', '$translate', '$location', 'utils',
+        function ($rootScope, $scope, $state, $http, $translate, $location, utils) {
             var self = this;
 
             function search(position) {
@@ -68,6 +67,18 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                     }, function (positionError) {
                         clearTimeout(locationTimeout);
                         search();
+                        if (!$rootScope.locationError) {
+                            if (positionError.code == 1) {
+                                $translate('Location service is disabled').then(function (text) {
+                                    $('#toast').text(text).stop().fadeIn(400).delay(3000).fadeOut(400);
+                                });
+                            } else {
+                                $translate('Unable to find your location').then(function (text) {
+                                    $('#toast').text(text).stop().fadeIn(400).delay(3000).fadeOut(400);
+                                });
+                            }
+                            $rootScope.locationError = true;
+                        }
                     }, {
                         enableHighAccuracy: true,
                         maximumAge: 300000
@@ -123,11 +134,9 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
             this.doSearch();
         }])
 
-    .controller('MapController', ['$rootScope', '$scope', '$state', '$http', '$compile', '$translate', '$templateCache', '$location', 'ngToast', 'utils',
-        function ($rootScope, $scope, $state, $http, $compile, $translate, $templateCache, $location, ngToast, utils) {
+    .controller('MapController', ['$rootScope', '$scope', '$state', '$http', '$compile', '$translate', '$templateCache', '$location', 'utils',
+        function ($rootScope, $scope, $state, $http, $compile, $translate, $templateCache, $location, utils) {
             var self = this;
-
-            ngToast.settings.maxNumber = 1;
             var infoBox;
 
             var markersArray = [];
@@ -306,13 +315,17 @@ angular.module('windmobile.controllers', ['ngToast', 'windmobile.services'])
                         $('#center-map').removeClass('wdm-navbar-button-active');
                     }, function (positionError) {
                         $('#center-map').removeClass('wdm-navbar-button-active');
-                        if (positionError.code > 1) {
-                            $translate('Unable to find your location').then(function (text) {
-                                ngToast.create({
-                                    className: 'alert alert-danger',
-                                    content: text
+                        if (!$rootScope.locationError) {
+                            if (positionError.code == 1) {
+                                $translate('Location service is disabled').then(function (text) {
+                                    $('#toast').text(text).stop().fadeIn(400).delay(3000).fadeOut(400);
                                 });
-                            });
+                            } else {
+                                $translate('Unable to find your location').then(function (text) {
+                                    $('#toast').text(text).stop().fadeIn(400).delay(3000).fadeOut(400);
+                                });
+                            }
+                            $rootScope.locationError = true;
                         }
                     }, {
                         enableHighAccuracy: true,

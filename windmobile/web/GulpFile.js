@@ -42,7 +42,7 @@ gulp.task('sass', function () {
     gulp.src('src/scss/*.*')
         .pipe(sourcemaps.init())
         .pipe(sass({
-            includePaths: ['node_modules/bootstrap-sass/assets/stylesheets', 'node_modules/ng-toast/src/styles/sass'],
+            includePaths: ['node_modules/bootstrap-sass/assets/stylesheets'],
             outputStyle: 'compressed'
         }).on('error', sass.logError))
         .pipe(sourcemaps.write('./'))
@@ -84,6 +84,6 @@ gulp.task('discify', function (cb) {
 gulp.task('watch', function () {
     gulp.watch(['static/web/js/app.js', 'static/web/js/controllers.js', 'static/web/js/services.js'], ['js']);
     gulp.watch('src/scss/*.*', ['sass']);
-    gulp.watch('src/html/stations.html', ['html']);
+    gulp.watch('src/html/**/*.html', ['html']);
 });
 gulp.task('default', ['js', 'sass', 'html']);

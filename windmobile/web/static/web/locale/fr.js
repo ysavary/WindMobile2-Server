@@ -19,6 +19,7 @@
         'Plain': "Plaine",
         'no recent data': "pas de donnée récente",
         'meters': "mètres",
+        'Location service is disabled': "Service de localisation désactivé",
         'Unable to find your location': "Votre position n’a pu être déterminée",
 
         'HELP_STATION_SUMMARY_TITLE': "Affichage condensé d'une balise",

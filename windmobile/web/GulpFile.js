@@ -60,8 +60,7 @@ gulp.task('html', function () {
                     '/static/web/js/windmobile.js',
                     '/static/web/css/windmobile.css',
                     '/static/web/manifest.json',
-                    '/static/web/img/*.*',
-                    '/static/web/doc/*.*'
+                    '/static/web/img/*.*'
                 ]
             }) :
             gutil.noop())

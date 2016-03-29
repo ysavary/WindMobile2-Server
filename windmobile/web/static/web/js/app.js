@@ -72,7 +72,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     templateUrl: '/static/web/templates/help.html',
                     controller: 'HelpController as help'
                 });
-            $urlRouterProvider.otherwise("/map");
+            $urlRouterProvider.otherwise('/map');
         }])
     .run(['$rootScope', '$location', '$window', '$interval', 'visibilityBroadcaster', function ($rootScope, $location, $window, $interval) {
         var self = this;

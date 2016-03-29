@@ -147,10 +147,7 @@ class Stations(APIView):
                         }
                     }
                 }
-                try:
-                    cursor = mongo_db.stations.find(query, projection_dict)
-                except OperationFailure as e:
-                    raise ParseError(e.details)
+                cursor = mongo_db.stations.find(query, projection_dict)
                 count = cursor.count()
 
                 if count > 0:
@@ -170,12 +167,15 @@ class Stations(APIView):
                                 j2 = y1 + (j + 1) * delta_y
                                 density_search(i1, j1, i2, j2, level + 1)
 
-            density_search(
-                float(within_pt1_longitude),
-                float(within_pt1_latitude),
-                float(within_pt2_longitude),
-                float(within_pt2_latitude))
-            return Response(result)
+            try:
+                density_search(
+                    float(within_pt1_longitude),
+                    float(within_pt1_latitude),
+                    float(within_pt2_longitude),
+                    float(within_pt2_latitude))
+                return Response(result)
+            except OperationFailure as e:
+                raise ParseError(e.details)
 
         try:
             return Response(list(mongo_db.stations.find(query, projection_dict).sort('short', ASCENDING).limit(limit)))

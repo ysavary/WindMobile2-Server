@@ -53,7 +53,7 @@ gulp.task('html', function () {
     gulp.src('src/html/**/*.html')
         .pipe(gutil.env.production ?
             cdnizer({
-                defaultCDNBase: '//files.windsmobi.netdna-cdn.com',
+                defaultCDNBase: '//files-windsmobi.netdna-ssl.com',
                 allowRev: true,
                 allowMin: true,
                 files: [

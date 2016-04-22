@@ -246,6 +246,10 @@ $font-size: 15px;
         font-size: 19px;
         color: $highlight-text-color;
     }
+    .wdm-wind-dir {
+        font-size: 17px;
+        color: $highlight-text-color;
+    }
     .wdm-wind-hour-value {
         font-size: 17px;
         color: $highlight-text-color;
@@ -256,7 +260,7 @@ $font-size: 15px;
     }
 }
 
-.wdm-wind-direction {
+.wdm-wind-dir-chart {
     text-anchor: middle;
     alignment-baseline: central;
 }

@@ -230,7 +230,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
             }
         };
     })
-    .directive('wdmWindDirection', ['$translate', function ($translate) {
+    .directive('wdmWindDirChart', ['$translate', function ($translate) {
         return {
             restrict: "C",
             link: function (scope, element, attrs) {

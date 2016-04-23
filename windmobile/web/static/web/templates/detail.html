@@ -21,7 +21,7 @@
                     <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">
                         <div class="wdm-wind-avg">{{ detail.station.last['w-avg'].toFixed(1) }}<span class="wdm-unit">km/h</span></div>
                         <div class="wdm-wind-max"><span class="wdm-label" translate>Gust</span> {{ detail.station.last['w-max'].toFixed(1) }}<span class="wdm-unit" translate>km/h</span></div>
-                        <div class="wdm-wind-dir"><span class="wdm-label" translate>Direction</span> {{ detail.station.last['w-dir'].toFixed(1) }}<span class="wdm-unit">°</span></div>
+                        <div class="wdm-wind-dir"><span class="wdm-label" translate>Direction</span> {{ detail.station.last['w-dir'].toFixed() }}<span class="wdm-unit">°</span></div>
                     </div>
                     <svg class="wdm-wind-dir-chart" style="float:right;width:90px;height:90px;" viewBox="0 0 100 100" data-scope-watch="detail.stationHistoric"></svg>
                     <div style="clear:both;"></div>

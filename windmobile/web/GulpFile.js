@@ -4,26 +4,23 @@ var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 
 var sass = require('gulp-sass');
-var ngAnnotate = require('gulp-ng-annotate');
 var browserify = require('browserify');
 var sourcemaps = require('gulp-sourcemaps');
 var uglify = require('gulp-uglify');
 var cdnizer = require('gulp-cdnizer');
-var disc = require("disc");
 
-gulp.task('fix-angular-src-for-browserify', function () {
-    return gulp.src(['static/web/js/app.js', 'static/web/js/controllers.js', 'static/web/js/services.js'])
-        .pipe(ngAnnotate())
-        .pipe(gulp.dest('static/web/js/'));
-});
 
 gulp.task('js', function () {
-    var bundle = browserify(
+    var b = browserify(
         ['static/web/js/app.js', 'static/web/js/controllers.js', 'static/web/js/services.js'],
-        {debug: true}
-    ).bundle();
+        {
+            debug: true,
+            // => true for discify: './node_modules/disc/bin/discify static/web/js/windmobile.js > discify.html'
+            fullPaths: false
+        }
+    );
 
-    return bundle
+    return b.bundle()
         // http://stackoverflow.com/questions/23161387/catching-browserify-parse-error-standalone-option
         .on('error', function (err) {
             gutil.log(err);
@@ -42,7 +39,6 @@ gulp.task('sass', function () {
     gulp.src('src/scss/*.*')
         .pipe(sourcemaps.init())
         .pipe(sass({
-            includePaths: ['node_modules/bootstrap-sass/assets/stylesheets'],
             outputStyle: 'compressed'
         }).on('error', sass.logError))
         .pipe(sourcemaps.write('./'))
@@ -65,20 +61,6 @@ gulp.task('html', function () {
             }) :
             gutil.noop())
         .pipe(gulp.dest('static/web/'));
-});
-
-gulp.task('discify', function (cb) {
-    var b = browserify(
-        ['static/web/js/app.js', 'static/web/js/controllers.js', 'static/web/js/services.js'],
-        {fullPaths: true}
-    );
-    b.bundle()
-        .pipe(disc())
-        .pipe(source('index.html'))
-        .pipe(gulp.dest('./disc'))
-        .once('end', function () {
-            cb();
-        });
 });
 
 gulp.task('watch', function () {

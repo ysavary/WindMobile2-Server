@@ -1,4 +1,4 @@
-<div class="modal" id="detailModal" ui-view="detailView" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal" id="detailModal" ui-view="detailView" tabindex="-1" role="dialog">
 </div>
 
 <script type="text/ng-template" id="_infobox.html">
@@ -39,37 +39,41 @@
     </div>
 </script>
 
-<nav id="map-header" class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#" ng-click="main.clickOnNavBar()"><img src="/static/web/img/windmobile.png"></a>
-            <a class="navbar-text hidden-xxs" href="#" ng-click="main.clickOnNavBar()"><span>winds</span>.mobi</a>
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+        <div class="mdl-layout-icon" id="wdm-app-icon">
+            <a href="#" ng-click="main.clickOnNavBar()"><img src="/static/web/img/windmobile.png"></a>
         </div>
-        <form class="navbar-form navbar-left" role="search">
-            <div class="input-group">
-                <input type="text" class="form-control" ng-model="main.search" ng-change="main.doSearch()">
-                <span class="input-group-clear fa fa-times-circle-o" ng-click="main.clearSearch()" ng-show="main.search"></span>
-                <span class="input-group-addon">
-                    <i class="fa fa-search"></i>
-                </span>
+        <div class="mdl-layout__header-row">
+            <a id="wdm-app-title" class="mdl-layout-title mdl-layout--large-screen-only" href="#" ng-click="main.clickOnNavBar()">winds.mobi</a>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label">
+                <label class="mdl-button mdl-js-button mdl-button--icon" for="wdm-search-field">
+                    <i class="material-icons">search</i>
+                </label>
+                <div class="mdl-textfield__expandable-holder">
+                    <input id="wdm-search-field" class="mdl-textfield__input" type="text" name="search" ng-model="main.search" ng-change="main.doSearch()"
+                           spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
+                </div>
             </div>
-        </form>
-        <div class="navbar-right">
-            <ul class="nav navbar-nav">
-                <li><a id="center-map" href="#" ng-click="main.centerMap()"><span class="fa fa-lg fa-bullseye"></span>
-                    <span class="hidden-xs" translate>Center</span></a>
-                </li>
-                <li><a ui-sref="list"><span class="fa fa-lg fa-th-large"></span>
-                    <span class="hidden-xs" translate>List</span></a>
-                </li>
-                <li><a ui-sref="help"><span class="fa fa-lg"><b>?</b></span>
-                    <span class="hidden-xs" translate>Help</span></a>
-                </li>
-            </ul>
+            <button class="mdl-button mdl-button--icon mdl-a" ng-click="main.clearSearch()" ng-show="main.search">
+                <i class="material-icons">clear</i>
+            </button>
+            <div class="mdl-layout-spacer"></div>
+            <nav class="mdl-navigation">
+                <button class="mdl-button mdl-button--icon" ng-click="main.centerMap()">
+                    <i class="material-icons">gps_fixed</i>
+                </button>
+                <button class="mdl-button mdl-button--icon" ui-sref="list">
+                    <i class="material-icons">view_module</i>
+                </button>
+                <button class="mdl-button mdl-button--icon" ui-sref="help">
+                    <i class="material-icons">help</i>
+                </button>
+            </nav>
         </div>
-    </div>
-</nav>
-
-<div id="map">
-    <div id="map-canvas"></div>
+    </header>
+    <main class="mdl-layout__content">
+        <div id="wdm-map" class="page-content">
+        </div>
+    </main>
 </div>

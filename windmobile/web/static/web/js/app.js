@@ -1,5 +1,8 @@
-require('bootstrap-sass/assets/javascripts/bootstrap/modal.js');
-require('bootstrap-sass/assets/javascripts/bootstrap/tab.js');
+global.jQuery = global.$ = require('jquery');
+require('material-design-lite/material');
+// Using boostrap for modals and tabs only
+require('bootstrap-sass/assets/javascripts/bootstrap/modal');
+require('bootstrap-sass/assets/javascripts/bootstrap/tab');
 
 var angular = require('angular');
 var Snap = require('snapsvg');
@@ -9,6 +12,9 @@ require('moment/locale/de.js');
 
 angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-router'), require('angular-translate'), require('oclazyload'),
     'windmobile.services', 'windmobile.controllers'])
+    .constant('appConfig', {
+        url_absolute: 'https://winds.mobi'
+    })
     .config(['$ocLazyLoadProvider', '$translateProvider', '$locationProvider', '$stateProvider', '$urlRouterProvider',
         function ($ocLazyLoadProvider, $translateProvider, $locationProvider, $stateProvider, $urlRouterProvider) {
             $ocLazyLoadProvider.config({
@@ -74,7 +80,8 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 });
             $urlRouterProvider.otherwise('/map');
         }])
-    .run(['$rootScope', '$location', '$window', '$interval', 'visibilityBroadcaster', function ($rootScope, $location, $window, $interval) {
+    .run(['$rootScope', '$location', '$window', '$interval', '$timeout', 'visibilityBroadcaster',
+        function ($rootScope, $location, $window, $interval, $timeout) {
         var self = this;
 
         $rootScope.$on('ocLazyLoad.fileLoaded', function (event, file) {
@@ -163,6 +170,13 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 }
                 $rootScope.controller = toState.name.split('.')[0];
             });
+        // https://stackoverflow.com/questions/31278781/material-design-lite-integration-with-angularjs
+        $rootScope.$on('$viewContentLoaded', function () {
+            $timeout(function () {
+                // https://getmdl.io/started/#dynamic
+                componentHandler.upgradeAllRegistered();
+            }, 0);
+        });
     }])
     .directive('wdmWindMiniChart', function () {
         return {

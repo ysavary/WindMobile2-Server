@@ -1,3 +1,4 @@
+var $ = require('jquery/dist/jquery.js');
 var angular = require('angular');
 var moment = require('moment');
 var InfoBox = require('google-maps-infobox');
@@ -70,11 +71,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         if (!$rootScope.locationError) {
                             if (positionError.code == 1) {
                                 $translate('Location service is disabled').then(function (text) {
-                                    $('#toast').text(text).stop().fadeIn(400).delay(3000).fadeOut(400);
+                                    $('.mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar({message: text});
                                 });
                             } else {
                                 $translate('Unable to find your location').then(function (text) {
-                                    $('#toast').text(text).stop().fadeIn(400).delay(3000).fadeOut(400);
+                                    $('.mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar({message: text});
                                 });
                             }
                             $rootScope.locationError = true;
@@ -103,7 +104,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 if (!utils.inIframe()) {
                     self.clearSearch();
                 } else {
-                    window.open('http://winds.mobi');
+                    window.open(appConfig.url_absolute);
                 }
             };
 
@@ -134,8 +135,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.doSearch();
         }])
 
-    .controller('MapController', ['$rootScope', '$scope', '$state', '$http', '$compile', '$translate', '$templateCache', '$location', 'utils',
-        function ($rootScope, $scope, $state, $http, $compile, $translate, $templateCache, $location, utils) {
+    .controller('MapController', ['$rootScope', '$scope', '$state', '$http', '$compile', '$translate', '$templateCache', '$location', 'utils', 'appConfig',
+        function ($rootScope, $scope, $state, $http, $compile, $translate, $templateCache, $location, utils, appConfig) {
             var self = this;
             var infoBox;
 
@@ -265,7 +266,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
                 params.search = self.search;
                 // 1000*1000 px windows should have a limit ~= 100
-                params.limit = Math.round($(window).width() * $(window).height() / (1000 * 1000 / 100));
+                var map = $('#wdm-map');
+                params.limit = Math.round(map.width() * map.height() / (1000 * 1000 / 100));
 
                 $http({
                     method: 'GET',
@@ -318,11 +320,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         if (!$rootScope.locationError) {
                             if (positionError.code == 1) {
                                 $translate('Location service is disabled').then(function (text) {
-                                    $('#toast').text(text).stop().fadeIn(400).delay(3000).fadeOut(400);
+                                    $('.mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar({message: text});
                                 });
                             } else {
                                 $translate('Unable to find your location').then(function (text) {
-                                    $('#toast').text(text).stop().fadeIn(400).delay(3000).fadeOut(400);
+                                    $('.mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar({message: text});
                                 });
                             }
                             $rootScope.locationError = true;
@@ -338,7 +340,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 if (!utils.inIframe()) {
                     self.clearSearch();
                 } else {
-                    window.open('http://winds.mobi');
+                    window.open(appConfig.url_absolute);
                 }
             };
 
@@ -356,7 +358,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 },
                 mapTypeId: google.maps.MapTypeId.TERRAIN
             };
-            this.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+            this.map = new google.maps.Map(document.getElementById('wdm-map'), mapOptions);
 
             this.getLegendColor = function(value) {
                 return utils.getColorInRange(value, 50);
@@ -416,11 +418,14 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
             this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
-            this.centerMap();
+            setTimeout(function () {
+                google.maps.event.trigger(self.map, 'resize');
+                self.centerMap();
+            }, 500);
         }])
 
-    .controller('DetailController', ['$rootScope', '$scope', '$state', '$stateParams', '$http', 'utils',
-        function ($rootScope, $scope, $state, $stateParams, $http, utils) {
+    .controller('DetailController', ['$rootScope', '$scope', '$state', '$stateParams', '$http', 'utils', 'appConfig',
+        function ($rootScope, $scope, $state, $stateParams, $http, utils, appConfig) {
             var self = this;
 
             $('#detailModal').modal().on('hidden.bs.modal', function (e) {
@@ -525,8 +530,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.doDetail();
         }])
 
-    .controller('HelpController', ['$state', 'utils',
-        function ($state, utils) {
+    .controller('HelpController', ['$state', 'utils', 'appConfig',
+        function ($state, utils, appConfig) {
             this.example = {
                 data: [{
                     "_id": 1444993200,
@@ -578,7 +583,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 if (!utils.inIframe()) {
                     $state.go('map');
                 } else {
-                    window.open('http://winds.mobi');
+                    window.open(appConfig.url_absolute);
                 }
             };
         }]);

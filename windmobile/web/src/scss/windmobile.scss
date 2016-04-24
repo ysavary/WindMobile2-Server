@@ -1,182 +1,91 @@
-$grid-float-breakpoint: 0px;
-// Core variables and mixins
-@import "bootstrap/variables";
-@import "bootstrap/mixins";
-
-// Reset and dependencies
-@import "bootstrap/normalize";
-//@import "bootstrap/print";
-//@import "bootstrap/glyphicons";
-
-// Core CSS
-@import "bootstrap/scaffolding";
-@import "bootstrap/type";
-@import "bootstrap/code";
-@import "bootstrap/grid";
-@import "bootstrap/tables";
-@import "bootstrap/forms";
-@import "bootstrap/buttons";
-
-// Components
-//@import "bootstrap/component-animations";
-//@import "bootstrap/dropdowns";
-@import "bootstrap/button-groups";
-@import "bootstrap/input-groups";
-@import "bootstrap/navs";
-@import "bootstrap/navbar";
-//@import "bootstrap/breadcrumbs";
-//@import "bootstrap/pagination";
-//@import "bootstrap/pager";
-//@import "bootstrap/labels";
-//@import "bootstrap/badges";
-//@import "bootstrap/jumbotron";
-//@import "bootstrap/thumbnails";
-@import "bootstrap/alerts";
-//@import "bootstrap/progress-bars";
-//@import "bootstrap/media";
-//@import "bootstrap/list-group";
-@import "bootstrap/panels";
-//@import "bootstrap/responsive-embed";
-//@import "bootstrap/wells";
-//@import "bootstrap/close";
-
-// Components w/ JavaScript
-@import "bootstrap/modals";
-//@import "bootstrap/tooltip";
-//@import "bootstrap/popovers";
-//@import "bootstrap/carousel";
-
-// Utility classes
-@import "bootstrap/utilities";
-@import "bootstrap/responsive-utilities";
-
-@media (max-width: 500px) {
-    @include responsive-invisibility('.hidden-xxs');
+// Universal Box Sizing with Inheritance
+html {
+    box-sizing: border-box;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
 }
 
-// Take care of bootstrap navbar height with wdm-{controller} class
-$header-height: 50px;
-body.wdm-list {
+$layout-header-mobile-baseline: 55px;
+$color-primary: 168, 23, 23;
+@import "node_modules/material-design-lite/src/material-design-lite";
+
+// Using boostrap for modals and tabs only
+@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap/variables";
+@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap/mixins";
+@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap/modals";
+@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap/navs";
+
+$text-color: #8d8d8d;
+$highlight-text-color: #ddd;
+$small-font-size: 12px;
+$font-size: 15px;
+
+#wdm-app-icon {
+    background: white;
+    border-radius: 50%;
+}
+#wdm-app-icon img {
+    padding: 4px;
+    height: 32px;
+    width: 32px;
+}
+#wdm-app-title {
+    text-decoration: none;
+    color: white;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#wdm-map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#wdm-list-main {
     background-color: #191919;
-    padding-top: 70px;
 }
-body.wdm-help {
-    padding-top: $header-height;
-}
-
-body.modal-open .wdm-list-content {
+body.modal-open #wdm-list-content {
     -webkit-filter: blur(2px);
     -moz-filter: blur(2px);
     -o-filter: blur(2px);
     -ms-filter: blur(2px);
     filter: blur(2px);
 }
-
-.navbar-default {
-    background: linear-gradient(#f8f8f8, #ececec);
-    border-radius: 0;
-    border: none;
-    border-bottom: 1px solid #cbcbcb;
+#wdm-list-content {
+    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 
-.navbar-brand {
-    padding: 3px;
-    img {
-        height: 45px;
+#wdm-help {
+    @media (max-width: 550px) {
+        width: 350px;
     }
-}
+    width: 500px;
+    margin: auto;
+    padding: 0 2px 10px 2px;
 
-a.navbar-text {
-    text-decoration: none;
-    margin-left: 0px;
-    padding-left: 5px;
-    margin-right: 10px;
-}
-
-.navbar-text > span {
-    color: #d75556;
-    font-weight: 500;
-}
-
-.navbar-form {
-    .input-group {
-        width: 250px;
-        @media (max-width: 600px) {
-            width: 155px;
-        }
-        @media (max-width: 330px) {
-            width: 135px;
-        }
-        input {
-            padding-right: 20px;
-        }
-        .input-group-addon {
-            padding: 5px;
-            width: 30px;
-        }
-        .input-group-clear {
-            position: absolute;
-            right: 35px;
-            top: 0;
-            bottom: 0;
-            height: 14px;
-            margin: auto;
-            cursor: pointer;
-            color: #555555;
-            z-index: 2;
-        }
+    h1, h2, p, ol, li, td {
+        color: $text-color;
     }
-}
-
-.nav-link-icon {
-    font-size: 1.2em;
-}
-
-.navbar-default .navbar-nav > li > a {
-    padding-left: 8px;
-    padding-right: 8px;
-
-    // Fix firefox dotted outline border issue
-    outline-width: 0;
-
-    // On a mobile device, tapped elements are "hover" until the user tap something else
-    &:hover, &:focus, &:visited {
-        color: #888;
-    }
-    &:active {
+    h1 {
+        font-size: 23px;
         color: #333;
     }
+    h2 {
+        font-size: 19px;
+    }
+    p {
+        margin: 10px 0 10px 0;
+    }
+    ol {
+        margin-top: 10px;
+    }
 }
-
-.wdm-navbar-button-active {
-    color: #333 !important;
-}
-
-#map-header {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    height: $header-height;
-}
-
-#map {
-    height: 100%;
-    width: 100%;
-}
-
-#map-canvas {
-    position: absolute;
-    top: $header-height;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-}
-
-$text-color: #8d8d8d;
-$highlight-text-color: #ddd;
-$small-font-size: 12px;
-$font-size: 15px;
 
 .wdm-card-border {
     margin: 5px;
@@ -190,6 +99,7 @@ $font-size: 15px;
     vertical-align: top;
     color: $text-color;
     font-size: $font-size;
+    line-height: 1.428571429;
     text-align: left;
     cursor: pointer;
 
@@ -373,6 +283,10 @@ $humidity-color: #3b71a0;
         margin-right: 10px;
     }
 
+    table {
+        border-collapse: collapse;
+        line-height: 1.428571429;
+    }
     td {
         width: 50px;
         @media (min-height: 600px) {
@@ -396,11 +310,6 @@ $humidity-color: #3b71a0;
 }
 
 .wdm-help {
-    @media (max-width: 550px) {
-        width: 350px;
-    }
-    width: 500px;
-    margin: auto;
     padding: 0 2px 10px 2px;
 
     h1, h2, p, ol, li, td {
@@ -444,19 +353,4 @@ $humidity-color: #3b71a0;
     height: 22px;
     border-radius: 50%;
     border: solid 1px $text-color;
-}
-
-#toast {
-    width: 300px;
-    height: auto;
-    position: absolute;
-    left: 50%;
-    margin-left: -150px;
-    top: $header-height + 10px;
-    color: #fff;
-    background-color: #95433a;
-    border: solid darken(#95433a, 5%) 1px;
-    padding: 10px;
-    text-align: center;
-    border-radius: 4px;
 }

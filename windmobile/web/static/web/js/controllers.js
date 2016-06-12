@@ -157,6 +157,13 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     window.open(appConfig.url_absolute);
                 }
             };
+            this.clickOnHelp = function () {
+                if (!utils.inIframe()) {
+                    $state.go('help');
+                } else {
+                    window.open(appConfig.url_absolute + '/stations/help');
+                }
+            };
 
             this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
@@ -436,6 +443,13 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     $state.go($state.current, {lat: undefined, lon: undefined, zoom: undefined}, {reload: true});
                 } else {
                     window.open(appConfig.url_absolute);
+                }
+            };
+            this.clickOnHelp = function () {
+                if (!utils.inIframe()) {
+                    $state.go('help');
+                } else {
+                    window.open(appConfig.url_absolute + '/stations/help');
                 }
             };
 

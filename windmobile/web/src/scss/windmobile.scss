@@ -8,7 +8,9 @@ html {
 
 $layout-header-mobile-baseline: 55px;
 $color-primary: 168, 23, 23;
-$color-accent: 255, 255, 255;
+$color-accent: 240, 240, 240;
+$text-link-color: rgb(91, 0, 0);
+$trim-color-classes: true;
 @import "node_modules/material-design-lite/src/material-design-lite";
 
 // Using boostrap for modals and tabs only
@@ -23,7 +25,7 @@ $small-font-size: 12px;
 $font-size: 15px;
 
 #wdm-app-icon {
-    background: white;
+    background: unquote("rgb(#{$color-accent})");
     border-radius: 50%;
 }
 #wdm-app-icon img {
@@ -32,7 +34,8 @@ $font-size: 15px;
     width: 32px;
 }
 #wdm-app-title {
-    text-decoration: none;
+    color: unquote("rgb(#{$color-accent})");
+    cursor: pointer;
     margin-left: 10px;
     margin-right: 10px;
 }

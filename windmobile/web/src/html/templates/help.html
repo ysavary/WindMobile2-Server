@@ -4,14 +4,16 @@
             <a href="#" ng-click="help.clickOnNavBar()"><img src="/static/web/img/windmobile.png"></a>
         </div>
         <div class="mdl-layout__header-row">
-            <a id="wdm-app-title" class="mdl-layout-title mdl-layout--large-screen-only" href="#" ng-click="help.clickOnNavBar()">winds.mobi</a>
+            <span id="wdm-app-title" class="mdl-layout-title mdl-layout--large-screen-only" ng-click="help.clickOnNavBar()">winds.mobi</span>
             <div class="mdl-layout-spacer"></div>
             <nav class="mdl-navigation">
-                <button class="mdl-button mdl-button--icon" ui-sref="map">
+                <button class="mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ui-sref="map">
                     <i class="material-icons">map</i>
+                    <span translate>Map</span>
                 </button>
-                <button class="mdl-button mdl-button--icon" ui-sref="list">
+                <button class="mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ui-sref="list">
                     <i class="material-icons">view_module</i>
+                    <span translate>List</span>
                 </button>
             </nav>
         </div>
@@ -79,13 +81,13 @@
 
             <h1 translate>HELP_PROVIDERS_TITLE</h1>
             <ul>
-                <li><a href="http://www.balisemeteo.com">ffvl.fr</a></li>
-                <li><a href="http://holfuy.hu">holfuy.hu</a></li>
-                <li><a href="http://meteo.jdc.ch">jdc.ch</a></li>
-                <li><a href="http://www.meteoswiss.ch">meteoswiss.ch</a></li>
-                <li><a href="http://pioupiou.fr">pioupiou.fr</a></li>
-                <li><a href="http://www.windline.ch">windline.ch</a></li>
-                <li><a href="http://www.windspots.com">windspots.com</a></li>
+                <li><a href="http://www.balisemeteo.com" target="_blank">ffvl.fr</a></li>
+                <li><a href="http://holfuy.hu" target="_blank">holfuy.hu</a></li>
+                <li><a href="http://meteo.jdc.ch" target="_blank">jdc.ch</a></li>
+                <li><a href="http://www.meteoswiss.ch" target="_blank">meteoswiss.ch</a></li>
+                <li><a href="http://pioupiou.fr" target="_blank">pioupiou.fr</a></li>
+                <li><a href="http://www.windline.ch" target="_blank">windline.ch</a></li>
+                <li><a href="http://www.windspots.com" target="_blank">windspots.com</a></li>
             </ul>
 
             <h1 translate>HELP_COMPATIBILITY_TITLE</h1>

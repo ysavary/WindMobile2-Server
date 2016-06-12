@@ -454,12 +454,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
             // Initialize Google Maps
             var mapOptions = {
-                // France and Switzerland
-                center: {
-                    lat: self.lat == undefined ? 46.76 : self.lat,
-                    lng: self.lon == undefined ? 4.08 : self.lon
-                },
-                zoom: self.zoom == undefined ? 6 : self.zoom,
                 panControl: false,
                 streetViewControl: false,
                 mapTypeControlOptions: {
@@ -499,7 +493,19 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             // Should try to find another way to reload map when the #wdm-map change
             setTimeout(function () {
                 google.maps.event.trigger(self.map, 'resize');
-                if (self.lat == undefined && self.lon == undefined) {
+                if (self.lat != undefined && self.lon != undefined) {
+                    self.map.panTo({
+                        lat: self.lat,
+                        lng: self.lon
+                    });
+                    self.map.setZoom(self.zoom == undefined ? 8 : self.zoom);
+                } else {
+                    // France and Switzerland by default
+                    self.map.panTo({
+                        lat: 46.76,
+                        lng: 4.08
+                    });
+                    self.map.setZoom(self.zoom == undefined ? 6 : self.zoom);
                     self.centerMap();
                 }
             }, 500);
@@ -609,13 +615,13 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
             });
 
-            this.openOnMap = function (station) {
+            this.showOnMap = function (station) {
                 $state.go('map', {
                     lat: station.loc.coordinates[1], lon: station.loc.coordinates[0],
                     zoom: 12
                 });
             };
-            this.openOnList = function (station) {
+            this.showOnList = function (station) {
                 $state.go('list', {
                     lat: station.loc.coordinates[1], lon: station.loc.coordinates[0]
                 });

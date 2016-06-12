@@ -490,7 +490,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
             });
             google.maps.event.addListener(self.map, 'center_changed', function () {
-                $rootScope.location = LocationEnum.NOT_FIXED;
+                if ($rootScope.location == LocationEnum.FIXED) {
+                    $rootScope.location = LocationEnum.NOT_FIXED;
+                }
             });
             google.maps.event.addListener(self.map, 'bounds_changed', (function () {
                 var timer;

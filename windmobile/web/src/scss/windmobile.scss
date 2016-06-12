@@ -6,6 +6,9 @@ html {
     box-sizing: inherit;
 }
 
+// Material Design Lite customization
+$layout-header-mobile-row-height: 52px;
+$layout-header-desktop-row-height: 60px;
 $layout-header-mobile-baseline: 55px;
 $color-primary: 168, 23, 23;
 $color-accent: 240, 240, 240;
@@ -62,32 +65,6 @@ body.modal-open #wdm-list-content {
     text-align: center;
     margin-top: 15px;
     margin-bottom: 15px;
-}
-
-#wdm-help {
-    @media (max-width: 550px) {
-        width: 350px;
-    }
-    width: 500px;
-    margin: auto;
-    padding: 0 2px 10px 2px;
-
-    h1, h2, p, ol, li, td {
-        color: $text-color;
-    }
-    h1 {
-        font-size: 23px;
-        color: #333;
-    }
-    h2 {
-        font-size: 19px;
-    }
-    p {
-        margin: 10px 0 10px 0;
-    }
-    ol {
-        margin-top: 10px;
-    }
 }
 
 .wdm-card-border {
@@ -312,11 +289,20 @@ $humidity-color: #3b71a0;
     }
 }
 
-.wdm-help {
+#wdm-help {
+    @media (max-width: 550px) {
+        width: 350px;
+    }
+    width: 500px;
+    margin: auto;
     padding: 0 2px 10px 2px;
 
     h1, h2, p, ol, li, td {
         color: $text-color;
+    }
+    h1, h2 {
+        margin-top: 20px;
+        margin-bottom: 15px;
     }
     h1 {
         font-size: 23px;
@@ -341,8 +327,14 @@ $humidity-color: #3b71a0;
     }
 }
 
-.wdm-card-help {
+.wdm-card-summary-help {
     width: 330px;
+    background-color: #222;
+    position: relative;
+}
+
+.wdm-card-detail-help {
+    height: 75px;
     background-color: #222;
     position: relative;
 }

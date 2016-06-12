@@ -644,61 +644,59 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.doDetail();
         }])
 
-    .controller('HelpController',
-        ['$state', 'utils', 'appConfig',
-        function ($state, utils, appConfig) {
-            this.example = {
-                data: [{
-                    "_id": 1444993200,
-                    "w-dir": 305,
-                    "w-avg": 10.2,
-                    "w-max": 20.4
-                }, {
-                    "_id": 1444992600,
-                    "w-dir": 288,
-                    "w-avg": 11.3,
-                    "w-max": 25.2
-                }, {
-                    "_id": 1444992000,
-                    "w-dir": 255,
-                    "w-avg": 6.9,
-                    "w-max": 18.7
-                }, {
-                    "_id": 1444991400,
-                    "w-dir": 267,
-                    "w-avg": 4.9,
-                    "w-max": 17.1
-                }, {
-                    "_id": 1444990800,
-                    "w-dir": 204,
-                    "w-avg": 5,
-                    "w-max": 13.0
-                }, {
-                    "_id": 1444990200,
-                    "w-dir": 213,
-                    "w-avg": 4.0,
-                    "w-max": 11.3
-                }, {
-                    "_id": 1444989600,
-                    "w-dir": 184,
-                    "w-avg": 6.1,
-                    "w-max": 13.1
-                }, {
-                    "_id": 1444989000,
-                    "w-dir": 172,
-                    "w-avg": 5.8,
-                    "w-max": 13.2
-                }
-                ]
-            };
-            this.getLegendColor = function(value) {
-                return utils.getColorInRange(value, 50);
-            };
-            this.clickOnNavBar = function () {
-                if (!utils.inIframe()) {
-                    $state.go('map');
-                } else {
-                    window.open(appConfig.url_absolute);
-                }
-            };
-        }]);
+    .controller('HelpController', ['$state', 'utils', 'appConfig', function ($state, utils, appConfig) {
+        this.example = {
+            data: [{
+                "_id": 1444993200,
+                "w-dir": 305,
+                "w-avg": 10.2,
+                "w-max": 20.4
+            }, {
+                "_id": 1444992600,
+                "w-dir": 288,
+                "w-avg": 11.3,
+                "w-max": 25.2
+            }, {
+                "_id": 1444992000,
+                "w-dir": 255,
+                "w-avg": 6.9,
+                "w-max": 18.7
+            }, {
+                "_id": 1444991400,
+                "w-dir": 267,
+                "w-avg": 4.9,
+                "w-max": 17.1
+            }, {
+                "_id": 1444990800,
+                "w-dir": 204,
+                "w-avg": 5,
+                "w-max": 13.0
+            }, {
+                "_id": 1444990200,
+                "w-dir": 213,
+                "w-avg": 4.0,
+                "w-max": 11.3
+            }, {
+                "_id": 1444989600,
+                "w-dir": 184,
+                "w-avg": 6.1,
+                "w-max": 13.1
+            }, {
+                "_id": 1444989000,
+                "w-dir": 172,
+                "w-avg": 5.8,
+                "w-max": 13.2
+            }],
+            fromNow: moment().add(-1, 'hours').fromNow()
+        };
+        this.getLegendColor = function(value) {
+            return utils.getColorInRange(value, 50);
+        };
+        this.clickOnNavBar = function () {
+            if (!utils.inIframe()) {
+                $state.go('map');
+            } else {
+                window.open(appConfig.url_absolute);
+            }
+        };
+    }]);

@@ -64,7 +64,8 @@ gulp.task('html', function () {
 });
 
 gulp.task('watch', function () {
-    gulp.watch(['static/web/js/app.js', 'static/web/js/controllers.js', 'static/web/js/services.js'], ['js']);
+    gulp.watch(['static/web/js/app.js', 'static/web/js/controllers.js', 'static/web/js/services.js',
+        'static/web/locale/*.js'], ['js']);
     gulp.watch('src/scss/*.*', ['sass']);
     gulp.watch('src/html/**/*.html', ['html']);
 });

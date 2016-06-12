@@ -22,7 +22,7 @@
         'Location service is disabled': "Location service is disabled",
         'Unable to find your location': "Unable to find your location",
 
-        'HELP_STATION_SUMMARY_TITLE': "Station summary display",
+        'HELP_STATION_SUMMARY_TITLE': "Station summary view",
         'HELP_STATION_NAME': "Station name",
         'HELP_ALTITUDE': "Altitude",
         'HELP_LAST_UPDATE': "Date and measure validity",
@@ -35,6 +35,12 @@
         'HELP_STATION_SUMMARY_TEXT_3': "Trend: last hour mean wind historic",
         'HELP_STATION_SUMMARY_TEXT_4': "Wind direction historic: from circle center (1 hour ago) " +
         "to outside (last measure)",
+        'HELP_STATION_DETAIL_TITLE': "Station detail view",
+        'HELP_STATION_DETAIL_TEXT_1': "Display selected station on center of the map",
+        'HELP_STATION_DETAIL_TEXT_2': "Display surrounding stations on list view",
+        'HELP_IFRAME_TITLE': "Integrate winds.mobi",
+        'HELP_IFRAME_TEXT': "winds.mobi could be integrated into your web site with an iframe. You can specify " +
+        "the search point or the map position with 'lat', 'lon' and 'zoom' parameters.",
         'HELP_MAP_COLORS_TITLE': "Station colors in map view",
         'HELP_MAP_COLORS_TEXT': "Wind gust [km/h]",
         'HELP_PROVIDERS_TITLE': "Data providers list",

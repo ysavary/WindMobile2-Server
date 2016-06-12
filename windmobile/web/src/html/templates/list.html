@@ -9,7 +9,7 @@
         <div class="mdl-layout__header-row">
             <a id="wdm-app-title" class="mdl-layout-title mdl-layout--large-screen-only" href="#" ng-click="main.clickOnNavBar()">winds.mobi</a>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label">
-                <label class="mdl-button mdl-js-button mdl-button--icon" for="wdm-search-field">
+                <label class="mdl-button mdl-js-button mdl-button--accent mdl-button--icon" for="wdm-search-field">
                     <i class="material-icons">search</i>
                 </label>
                 <div class="mdl-textfield__expandable-holder">
@@ -17,16 +17,25 @@
                            spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
                 </div>
             </div>
-            <button class="mdl-button mdl-button--icon" ng-click="main.clearSearch()" ng-show="main.search">
+            <button class="mdl-button mdl-js-button mdl-button--accent mdl-button--icon" ng-click="main.clearSearch()" ng-show="main.search">
                 <i class="material-icons">clear</i>
             </button>
             <div class="mdl-layout-spacer"></div>
             <nav class="mdl-navigation">
-                <button class="mdl-button mdl-button--icon" ui-sref="map">
+                <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon" ui-sref="map">
                     <i class="material-icons">map</i>
                 </button>
-                <button class="mdl-button mdl-button--icon" ui-sref="help">
+                <button class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ui-sref="map">
+                    <i class="material-icons">map</i>
+                    <span translate>Map</span>
+                </button>
+
+                <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon" ui-sref="help">
                     <i class="material-icons">help</i>
+                </button>
+                <button class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ui-sref="help">
+                    <i class="material-icons">help</i>
+                    <span translate>Aide</span>
                 </button>
             </nav>
         </div>

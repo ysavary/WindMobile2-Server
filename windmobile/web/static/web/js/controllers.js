@@ -3,22 +3,29 @@ var angular = require('angular');
 var moment = require('moment');
 var InfoBox = require('google-maps-infobox');
 
+var LocationEnum = {
+    FIXED: 1,
+    SEARCHING: 0,
+    NOT_FIXED: -1,
+    DISABLED: -2
+};
+
 angular.module('windmobile.controllers', ['windmobile.services'])
 
-    .controller('ListController', ['$rootScope', '$scope', '$state', '$http', '$translate', '$location', 'utils',
-        function ($rootScope, $scope, $state, $http, $translate, $location, utils) {
+    .controller('ListController', ['$rootScope', '$scope', '$state', '$http', '$translate', '$location', 'utils', 'appConfig',
+        function ($rootScope, $scope, $state, $http, $translate, $location, utils, appConfig) {
             var self = this;
 
-            function search(position) {
+            function search(lat, lon) {
                 var params = {
                     keys: ['short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max']
                 };
-                if (position) {
-                    params['near-lat'] = position.coords.latitude;
-                    params['near-lon'] = position.coords.longitude;
+                if (lat !== undefined && lon !== undefined) {
+                    params['near-lat'] = lat;
+                    params['near-lon'] = lon;
                 }
                 if (self.tenant) {
-                    params.provider = self.tenant
+                    params.provider = self.tenant;
                 }
                 params.search = self.search;
                 params.limit = 12;
@@ -58,34 +65,46 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 $state.go('list.detail', {stationId: station._id});
             };
             this.doSearch = function () {
-                if (navigator.geolocation) {
-                    // If the user does not answer the geolocation request, the error handler will never be called even
-                    // with a timeout option
-                    var locationTimeout = setTimeout(search, 1000);
-                    navigator.geolocation.getCurrentPosition(function (position) {
-                        clearTimeout(locationTimeout);
-                        search(position);
-                    }, function (positionError) {
-                        clearTimeout(locationTimeout);
-                        search();
-                        if (!$rootScope.locationError) {
-                            if (positionError.code == 1) {
-                                $translate('Location service is disabled').then(function (text) {
-                                    $('.mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar({message: text});
-                                });
-                            } else {
-                                $translate('Unable to find your location').then(function (text) {
-                                    $('.mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar({message: text});
-                                });
-                            }
-                            $rootScope.locationError = true;
-                        }
-                    }, {
-                        enableHighAccuracy: true,
-                        maximumAge: 300000
-                    });
+                if (self.lat !== undefined && self.lon !== undefined) {
+                    search(self.lat, self.lon);
                 } else {
-                    search();
+                    if (navigator.geolocation) {
+                        $rootScope.location = LocationEnum.SEARCHING;
+                        // If the user does not answer the geolocation request, the error handler will never be called even
+                        // with a timeout option
+                        var locationTimeout = setTimeout(search, 1000);
+                        navigator.geolocation.getCurrentPosition(function (position) {
+                            clearTimeout(locationTimeout);
+                            search(position.coords.latitude, position.coords.longitude);
+                            $rootScope.location = LocationEnum.FIXED;
+                        }, function (positionError) {
+                            clearTimeout(locationTimeout);
+                            search();
+                            if (positionError.code == 1) {
+                                $rootScope.location = LocationEnum.DISABLED;
+                                if (!$rootScope.locationMsg) {
+                                    $rootScope.locationMsg = true;
+                                    $translate('Location service is disabled').then(function (text) {
+                                        $('.mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar({message: text});
+                                    });
+                                }
+                            } else {
+                                $rootScope.location = LocationEnum.NOT_FIXED;
+                                if (!$rootScope.locationMsg) {
+                                    $rootScope.locationMsg = true;
+                                    $translate('Unable to find your location').then(function (text) {
+                                        $('.mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar({message: text});
+                                    });
+                                }
+                            }
+                        }, {
+                            enableHighAccuracy: true,
+                            maximumAge: 300000
+                        });
+                    } else {
+                        $rootScope.location = LocationEnum.DISABLED;
+                        search();
+                    }
                 }
             };
             this.clearSearch = function () {
@@ -102,7 +121,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             };
             this.clickOnNavBar = function() {
                 if (!utils.inIframe()) {
-                    self.clearSearch();
+                    $state.go($state.current, {}, {reload: true});
                 } else {
                     window.open(appConfig.url_absolute);
                 }
@@ -132,6 +151,13 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
             this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
+
+            var lat = parseFloat($location.search().lat);
+            this.lat = isNaN(lat) ? undefined : lat;
+
+            var lon = parseFloat($location.search().lon);
+            this.lon = isNaN(lon) ? undefined : lon;
+
             this.doSearch();
         }])
 
@@ -308,79 +334,47 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             };
             this.centerMap = function () {
                 if (navigator.geolocation) {
-                    $('#center-map').addClass('wdm-navbar-button-active');
+                    $rootScope.location = LocationEnum.SEARCHING;
                     navigator.geolocation.getCurrentPosition(function (position) {
                         var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                         self.map.panTo(currentPosition);
-                        self.map.setZoom(8);
-                        //search(currentPosition);
-                        $('#center-map').removeClass('wdm-navbar-button-active');
+                        self.map.setZoom(self.zoom === undefined ? 8 : self.zoom);
+                        $rootScope.location = LocationEnum.FIXED;
                     }, function (positionError) {
-                        $('#center-map').removeClass('wdm-navbar-button-active');
-                        if (!$rootScope.locationError) {
-                            if (positionError.code == 1) {
+                        if (positionError.code == 1) {
+                            $rootScope.location = LocationEnum.DISABLED;
+                            if (!$rootScope.locationMsg) {
+                                $rootScope.locationMsg = true;
                                 $translate('Location service is disabled').then(function (text) {
                                     $('.mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar({message: text});
                                 });
-                            } else {
+                            }
+                        } else {
+                            $rootScope.location = LocationEnum.NOT_FIXED;
+                            if (!$rootScope.locationMsg) {
+                                $rootScope.locationMsg = true;
                                 $translate('Unable to find your location').then(function (text) {
                                     $('.mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar({message: text});
                                 });
                             }
-                            $rootScope.locationError = true;
                         }
                     }, {
                         enableHighAccuracy: true,
                         maximumAge: 300000,
                         timeout: 20000
                     });
+                } else {
+                    $rootScope.location = LocationEnum.DISABLED;
                 }
             };
             this.clickOnNavBar = function() {
                 if (!utils.inIframe()) {
-                    self.clearSearch();
+                    $state.go($state.current, {}, {reload: true});
                 } else {
                     window.open(appConfig.url_absolute);
                 }
             };
 
-            // Initialize Google Maps
-            var mapOptions = {
-                // France and Switzerland
-                center: new google.maps.LatLng(46.76, 4.08),
-                zoom: 6,
-                panControl: false,
-                streetViewControl: false,
-                mapTypeControlOptions: {
-                    mapTypeIds: [google.maps.MapTypeId.TERRAIN, google.maps.MapTypeId.ROADMAP,
-                        google.maps.MapTypeId.SATELLITE],
-                    position: google.maps.ControlPosition.LEFT_BOTTOM
-                },
-                mapTypeId: google.maps.MapTypeId.TERRAIN
-            };
-            this.map = new google.maps.Map(document.getElementById('wdm-map'), mapOptions);
-
-            this.getLegendColor = function(value) {
-                return utils.getColorInRange(value, 50);
-            };
-            var legendDiv = $compile($templateCache.get('_legend.html'))($scope);
-            this.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(legendDiv[0]);
-
-            google.maps.event.addListener(self.map, 'click', function () {
-                if (infoBox) {
-                    infoBox.close();
-                    self.selectedStation = null;
-                }
-            });
-            google.maps.event.addListener(self.map, 'bounds_changed', (function () {
-                var timer;
-                return function () {
-                    clearTimeout(timer);
-                    timer = setTimeout(function () {
-                        self.doSearch();
-                    }, 500);
-                }
-            }()));
             this.updateFromNow = function() {
                 if (self.selectedStation && self.selectedStation.last) {
                     self.selectedStation.fromNow = moment.unix(self.selectedStation.last._id).fromNow();
@@ -388,7 +382,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     self.selectedStation.fromNowClass = utils.getStatusClass(status);
                 }
             };
-
             $scope.$on('onFromNowInterval', function() {
                 self.updateFromNow();
             });
@@ -418,9 +411,64 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
             this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
+
+            var lat = parseFloat($location.search().lat);
+            this.lat = isNaN(lat) ? undefined : lat;
+
+            var lon = parseFloat($location.search().lon);
+            this.lon = isNaN(lon) ? undefined : lon;
+
+            var zoom = parseInt($location.search().zoom);
+            this.zoom = isNaN(zoom) ? undefined : zoom;
+
+            // Initialize Google Maps
+            var mapOptions = {
+                // France and Switzerland
+                center: new google.maps.LatLng(self.lat === undefined ? 46.76 : self.lat,
+                    self.lon === undefined ? 4.08 : self.lon),
+                zoom: self.zoom === undefined ? 6 : self.zoom,
+                panControl: false,
+                streetViewControl: false,
+                mapTypeControlOptions: {
+                    mapTypeIds: [google.maps.MapTypeId.TERRAIN, google.maps.MapTypeId.ROADMAP,
+                        google.maps.MapTypeId.SATELLITE],
+                    position: google.maps.ControlPosition.LEFT_BOTTOM
+                },
+                mapTypeId: google.maps.MapTypeId.TERRAIN
+            };
+            this.map = new google.maps.Map($('#wdm-map')[0], mapOptions);
+
+            this.getLegendColor = function(value) {
+                return utils.getColorInRange(value, 50);
+            };
+            var legendDiv = $compile($templateCache.get('_legend.html'))($scope);
+            this.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(legendDiv[0]);
+
+            google.maps.event.addListener(self.map, 'click', function () {
+                if (infoBox) {
+                    infoBox.close();
+                    self.selectedStation = null;
+                }
+            });
+            google.maps.event.addListener(self.map, 'center_changed', function () {
+                $rootScope.location = LocationEnum.NOT_FIXED;
+            });
+            google.maps.event.addListener(self.map, 'bounds_changed', (function () {
+                var timer;
+                return function () {
+                    clearTimeout(timer);
+                    timer = setTimeout(function () {
+                        self.doSearch();
+                    }, 500);
+                }
+            }()));
+
+            // Should try to find another way to reload map when the #wdm-map change
             setTimeout(function () {
                 google.maps.event.trigger(self.map, 'resize');
-                self.centerMap();
+                if (self.lat === undefined && self.lon === undefined) {
+                    self.centerMap();
+                }
             }, 500);
         }])
 

@@ -8,6 +8,7 @@ html {
 
 $layout-header-mobile-baseline: 55px;
 $color-primary: 168, 23, 23;
+$color-accent: 255, 255, 255;
 @import "node_modules/material-design-lite/src/material-design-lite";
 
 // Using boostrap for modals and tabs only
@@ -32,7 +33,6 @@ $font-size: 15px;
 }
 #wdm-app-title {
     text-decoration: none;
-    color: white;
     margin-left: 10px;
     margin-right: 10px;
 }
@@ -353,4 +353,17 @@ $humidity-color: #3b71a0;
     height: 22px;
     border-radius: 50%;
     border: solid 1px $text-color;
+}
+
+.blink {
+    animation: blink 700ms infinite alternate;
+}
+
+@keyframes blink {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
 }

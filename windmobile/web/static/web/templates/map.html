@@ -51,8 +51,10 @@
                     <i class="material-icons">search</i>
                 </label>
                 <div class="mdl-textfield__expandable-holder">
-                    <input id="wdm-search-field" class="mdl-textfield__input" type="text" name="search" ng-model="main.search" ng-change="main.doSearch()"
-                           spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
+                    <form>
+                        <input id="wdm-search-field" class="mdl-textfield__input" type="text" name="search" ng-model="main.search" ng-change="main.doSearch()"
+                               spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
+                    </form>
                 </div>
             </div>
             <button class="mdl-button mdl-js-button mdl-button--accent mdl-button--icon" ng-click="main.clearSearch()" ng-show="main.search">

@@ -143,6 +143,12 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     self.doSearch();
                 }
             });
+            $('#wdm-search-field').keydown(function (event) {
+                if (event.keyCode == 13) {
+                    this.blur();
+                    return false;
+                }
+            });
 
             this.clickOnNavBar = function() {
                 if (!utils.inIframe()) {
@@ -418,6 +424,12 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     }
                 }
             });
+            $('#wdm-search-field').keydown(function (event) {
+                if (event.keyCode == 13) {
+                    this.blur();
+                    return false;
+                }
+            });
 
             this.clickOnNavBar = function() {
                 if (!utils.inIframe()) {
@@ -618,7 +630,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.showOnMap = function (station) {
                 $state.go('map', {
                     lat: station.loc.coordinates[1], lon: station.loc.coordinates[0],
-                    zoom: 12
+                    zoom: 10
                 });
             };
             this.showOnList = function (station) {

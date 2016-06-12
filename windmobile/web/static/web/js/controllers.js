@@ -12,15 +12,17 @@ var LocationEnum = {
 
 angular.module('windmobile.controllers', ['windmobile.services'])
 
-    .controller('ListController', ['$rootScope', '$scope', '$state', '$http', '$translate', '$location', 'utils', 'appConfig',
-        function ($rootScope, $scope, $state, $http, $translate, $location, utils, appConfig) {
+    .controller('ListController',
+        ['$rootScope', '$scope', '$state', '$http', '$translate', '$location', 'utils', 'appConfig', 'lat', 'lon',
+        function ($rootScope, $scope, $state, $http, $translate, $location, utils, appConfig, lat, lon) {
             var self = this;
 
             function search(lat, lon) {
                 var params = {
-                    keys: ['short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max']
+                    keys: ['short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg',
+                        'last.w-max']
                 };
-                if (lat !== undefined && lon !== undefined) {
+                if (lat != undefined && lon != undefined) {
                     params['near-lat'] = lat;
                     params['near-lon'] = lon;
                 }
@@ -65,7 +67,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 $state.go('list.detail', {stationId: station._id});
             };
             this.doSearch = function () {
-                if (self.lat !== undefined && self.lon !== undefined) {
+                if (self.lat != undefined && self.lon != undefined) {
                     search(self.lat, self.lon);
                 } else {
                     if (navigator.geolocation) {
@@ -112,6 +114,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 $location.search('search', null);
                 this.doSearch();
             };
+
             this.updateFromNow = function(station) {
                 if (station.last) {
                     station.fromNow = moment.unix(station.last._id).fromNow();
@@ -119,14 +122,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     station.fromNowClass = utils.getStatusClass(status);
                 }
             };
-            this.clickOnNavBar = function() {
-                if (!utils.inIframe()) {
-                    $state.go($state.current, {}, {reload: true});
-                } else {
-                    window.open(appConfig.url_absolute);
-                }
-            };
-
             $scope.$on('onFromNowInterval', function () {
                 for (var i = 0; i < self.stations.length; i++) {
                     self.updateFromNow(self.stations[i]);
@@ -149,20 +144,40 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
             });
 
+            this.clickOnNavBar = function() {
+                if (!utils.inIframe()) {
+                    $state.go($state.current, {lat: undefined, lon: undefined}, {reload: true});
+                } else {
+                    window.open(appConfig.url_absolute);
+                }
+            };
+
             this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
 
-            var lat = parseFloat($location.search().lat);
-            this.lat = isNaN(lat) ? undefined : lat;
+            if (lat == undefined) {
+                var lat = parseFloat($location.search().lat);
+                this.lat = isNaN(lat) ? undefined : lat;
+            } else {
+                this.lat = lat;
+            }
 
-            var lon = parseFloat($location.search().lon);
-            this.lon = isNaN(lon) ? undefined : lon;
+            if (lon == undefined) {
+                var lon = parseFloat($location.search().lon);
+                this.lon = isNaN(lon) ? undefined : lon;
+            }
+            else {
+                this.lon = lon;
+            }
 
             this.doSearch();
         }])
 
-    .controller('MapController', ['$rootScope', '$scope', '$state', '$http', '$compile', '$translate', '$templateCache', '$location', 'utils', 'appConfig',
-        function ($rootScope, $scope, $state, $http, $compile, $translate, $templateCache, $location, utils, appConfig) {
+    .controller('MapController',
+        ['$rootScope', '$scope', '$state', '$http', '$compile', '$translate', '$templateCache', '$location', 'utils',
+            'appConfig', 'lat', 'lon', 'zoom',
+        function ($rootScope, $scope, $state, $http, $compile, $translate, $templateCache, $location, utils,
+                  appConfig, lat, lon, zoom) {
             var self = this;
             var infoBox;
 
@@ -336,9 +351,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 if (navigator.geolocation) {
                     $rootScope.location = LocationEnum.SEARCHING;
                     navigator.geolocation.getCurrentPosition(function (position) {
-                        var currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                        self.map.panTo(currentPosition);
-                        self.map.setZoom(self.zoom === undefined ? 8 : self.zoom);
+                        self.map.panTo({
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        });
+                        self.map.setZoom(self.zoom == undefined ? 8 : self.zoom);
                         $rootScope.location = LocationEnum.FIXED;
                     }, function (positionError) {
                         if (positionError.code == 1) {
@@ -365,13 +382,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     });
                 } else {
                     $rootScope.location = LocationEnum.DISABLED;
-                }
-            };
-            this.clickOnNavBar = function() {
-                if (!utils.inIframe()) {
-                    $state.go($state.current, {}, {reload: true});
-                } else {
-                    window.open(appConfig.url_absolute);
                 }
             };
 
@@ -409,24 +419,47 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
             });
 
+            this.clickOnNavBar = function() {
+                if (!utils.inIframe()) {
+                    $state.go($state.current, {lat: undefined, lon: undefined, zoom: undefined}, {reload: true});
+                } else {
+                    window.open(appConfig.url_absolute);
+                }
+            };
+
             this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
 
-            var lat = parseFloat($location.search().lat);
-            this.lat = isNaN(lat) ? undefined : lat;
+            if (lat == undefined) {
+                var lat = parseFloat($location.search().lat);
+                this.lat = isNaN(lat) ? undefined : lat;
+            } else {
+                this.lat = lat;
+            }
 
-            var lon = parseFloat($location.search().lon);
-            this.lon = isNaN(lon) ? undefined : lon;
+            if (lon == undefined) {
+                var lon = parseFloat($location.search().lon);
+                this.lon = isNaN(lon) ? undefined : lon;
+            }
+            else {
+                this.lon = lon;
+            }
 
-            var zoom = parseInt($location.search().zoom);
-            this.zoom = isNaN(zoom) ? undefined : zoom;
+            if (zoom == undefined) {
+                var zoom = parseInt($location.search().zoom);
+                this.zoom = isNaN(zoom) ? undefined : zoom;
+            } else {
+                this.zoom = zoom;
+            }
 
             // Initialize Google Maps
             var mapOptions = {
                 // France and Switzerland
-                center: new google.maps.LatLng(self.lat === undefined ? 46.76 : self.lat,
-                    self.lon === undefined ? 4.08 : self.lon),
-                zoom: self.zoom === undefined ? 6 : self.zoom,
+                center: {
+                    lat: self.lat == undefined ? 46.76 : self.lat,
+                    lng: self.lon == undefined ? 4.08 : self.lon
+                },
+                zoom: self.zoom == undefined ? 6 : self.zoom,
                 panControl: false,
                 streetViewControl: false,
                 mapTypeControlOptions: {
@@ -466,13 +499,14 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             // Should try to find another way to reload map when the #wdm-map change
             setTimeout(function () {
                 google.maps.event.trigger(self.map, 'resize');
-                if (self.lat === undefined && self.lon === undefined) {
+                if (self.lat == undefined && self.lon == undefined) {
                     self.centerMap();
                 }
             }, 500);
         }])
 
-    .controller('DetailController', ['$rootScope', '$scope', '$state', '$stateParams', '$http', 'utils', 'appConfig',
+    .controller('DetailController',
+        ['$rootScope', '$scope', '$state', '$stateParams', '$http', 'utils', 'appConfig',
         function ($rootScope, $scope, $state, $stateParams, $http, utils, appConfig) {
             var self = this;
 
@@ -575,10 +609,23 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
             });
 
+            this.openOnMap = function (station) {
+                $state.go('map', {
+                    lat: station.loc.coordinates[1], lon: station.loc.coordinates[0],
+                    zoom: 12
+                });
+            };
+            this.openOnList = function (station) {
+                $state.go('list', {
+                    lat: station.loc.coordinates[1], lon: station.loc.coordinates[0]
+                });
+            };
+
             this.doDetail();
         }])
 
-    .controller('HelpController', ['$state', 'utils', 'appConfig',
+    .controller('HelpController',
+        ['$state', 'utils', 'appConfig',
         function ($state, utils, appConfig) {
             this.example = {
                 data: [{

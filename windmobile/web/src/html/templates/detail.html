@@ -3,6 +3,8 @@
         <div class="wdm-detail-layout" style="width: 100%; padding-left: 10px; padding-right: 10px">
             <div class="wdm-name" style="float:left;">{{ detail.station.name }}</div>
             <a class="btn" href="#" style="float:right; margin-left: 10px" data-dismiss="modal"><i class="material-icons md-18">cancel</i></a>
+            <a class="btn" style="float:right; margin-left: 10px" href="#" ng-click="detail.openOnMap(detail.station)"><i class="material-icons md-18">map</i></a>
+            <a class="btn" style="float:right; margin-left: 10px" href="#" ng-click="detail.openOnList(detail.station)"><i class="material-icons md-18">view_module</i></a>
             <div class="wdm-info" style="float:right;">
                 <div class="wdm-last-update" style="float:right;" ng-class="detail.station.fromNowClass">{{ detail.station.fromNow }}</div>
                 <a class="wdm-provider" style="clear:right;float:right;" href="{{ detail.station.url }}" target="_blank">{{ detail.station['pv-name'] }}</a>

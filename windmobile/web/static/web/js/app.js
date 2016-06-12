@@ -37,6 +37,22 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
             $stateProvider
                 .state('map', {
                     url: '/map',
+                    params: {
+                        lat: null,
+                        lon: null,
+                        zoom: null
+                    },
+                    resolve: {
+                        lat: ['$stateParams', function ($stateParams) {
+                            return $stateParams.lat;
+                        }],
+                        lon: ['$stateParams', function ($stateParams) {
+                            return $stateParams.lon;
+                        }],
+                        zoom: ['$stateParams', function ($stateParams) {
+                            return $stateParams.zoom;
+                        }]
+                    },
                     templateUrl: '/static/web/templates/map.html',
                     controller: 'MapController as main'
                 })
@@ -56,6 +72,18 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 })
                 .state('list', {
                     url: '/list',
+                    params: {
+                        lat: null,
+                        lon: null
+                    },
+                    resolve: {
+                        lat: ['$stateParams', function ($stateParams) {
+                            return $stateParams.lat;
+                        }],
+                        lon: ['$stateParams', function ($stateParams) {
+                            return $stateParams.lon;
+                        }]
+                    },
                     templateUrl: '/static/web/templates/list.html',
                     controller: 'ListController as main'
                 })

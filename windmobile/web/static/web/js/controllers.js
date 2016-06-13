@@ -491,8 +491,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             };
             this.map = new google.maps.Map($('#wdm-map')[0], mapOptions);
 
-            this.getLegendColor = function(value) {
-                return utils.getColorInRange(value, 50);
+            this.getLegendColorStyle = function (value) {
+                return {color: utils.getColorInRange(value, 50)};
             };
             var legendDiv = $compile($templateCache.get('_legend.html'))($scope);
             this.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(legendDiv[0]);
@@ -703,8 +703,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             }],
             fromNow: moment().add(-1, 'hours').fromNow()
         };
-        this.getLegendColor = function(value) {
-            return utils.getColorInRange(value, 50);
+        this.getLegendColorStyle = function(value) {
+            return {background: utils.getColorInRange(value, 50)};
         };
         this.clickOnNavBar = function () {
             if (!utils.inIframe()) {

@@ -36,16 +36,16 @@
         'HELP_STATION_SUMMARY_TEXT_4': "Wind direction historic: from circle center (1 hour ago) " +
         "to outside (last measure)",
         'HELP_STATION_DETAIL_TITLE': "Station detail view",
-        'HELP_STATION_DETAIL_TEXT_1': "Display selected station on center of the map",
+        'HELP_STATION_DETAIL_TEXT_1': "Center the map on this station",
         'HELP_STATION_DETAIL_TEXT_2': "Display surrounding stations on list view",
-        'HELP_IFRAME_TITLE': "Integrate winds.mobi",
-        'HELP_IFRAME_TEXT': "winds.mobi could be integrated into your web site with an iframe. You can specify " +
+        'HELP_IFRAME_TITLE': "Add winds.mobi to your website",
+        'HELP_IFRAME_TEXT': "winds.mobi could be embedded inside your website with an iframe. You can specify " +
         "the search point or the map position with 'lat', 'lon' and 'zoom' parameters.",
         'HELP_MAP_COLORS_TITLE': "Station colors in map view",
         'HELP_MAP_COLORS_TEXT': "Wind gust [km/h]",
         'HELP_PROVIDERS_TITLE': "Data providers list",
         'HELP_COMPATIBILITY_TITLE': "Compatibility",
-        'HELP_COMPATIBILITY_TEXT': "winds.mobi runs on the latest versions of the major browsers (mobile or desktop)",
+        'HELP_COMPATIBILITY_TEXT': "winds.mobi runs on the latest versions of the major browsers (mobile or desktop).",
         'HELP_CONTACT_TITLE': "About",
         'HELP_CONTACT_TEXT': "Questions, issues or improvement ideas ? Please contact me !",
 

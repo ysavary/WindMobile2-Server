@@ -36,17 +36,17 @@
         'HELP_STATION_SUMMARY_TEXT_4': "Historique de la direction du vent: du centre du cercle (il y a 1 heure) " +
         "vers l'extéreur (dernière mesure)",
         'HELP_STATION_DETAIL_TITLE': "Affichage détaillé d'une balise",
-        'HELP_STATION_DETAIL_TEXT_1': "Afficher cette balise au centre de la carte",
+        'HELP_STATION_DETAIL_TEXT_1': "Centrer la carte sur cette balise",
         'HELP_STATION_DETAIL_TEXT_2': "Afficher les balises environnantes en mode liste",
-        'HELP_IFRAME_TITLE': "Intégration de winds.mobi",
-        'HELP_IFRAME_TEXT': "winds.mobi peut-être intégré dans un site existant à l'aide d'une iFrame. " +
+        'HELP_IFRAME_TITLE': "Ajouter winds.mobi à votre site",
+        'HELP_IFRAME_TEXT': "winds.mobi peut-être intégré dans un site existant à l'aide d'une iframe. " +
         "Vous pouvez fixer le point de recherche ou la position de la carte avec les paramètres 'lat', 'lon' et 'zoom'.",
         'HELP_MAP_COLORS_TITLE': "Couleurs des balises en mode carte",
         'HELP_MAP_COLORS_TEXT': "Rafale [km/h]",
         'HELP_PROVIDERS_TITLE': "Liste des fournisseurs de données",
         'HELP_COMPATIBILITY_TITLE': "Compatibilité",
         'HELP_COMPATIBILITY_TEXT': "winds.mobi fonctionne sur les dernières versions des principaux navigateurs web " +
-        "(mobile ou bureau)",
+        "(mobile ou bureau).",
         'HELP_CONTACT_TITLE': "À propos",
         'HELP_CONTACT_TEXT': "Des questions, problèmes ou idées d'amélioration ? Contactez-moi !",
 

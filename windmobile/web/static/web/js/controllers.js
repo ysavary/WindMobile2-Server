@@ -658,7 +658,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.doDetail();
         }])
 
-    .controller('HelpController', ['$state', 'utils', 'appConfig', function ($state, utils, appConfig) {
+    .controller('HelpController', ['$state', '$anchorScroll', 'utils', 'appConfig',
+        function ($state, $anchorScroll, utils, appConfig) {
         this.example = {
             data: [{
                 "_id": 1444993200,
@@ -713,4 +714,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 window.open(appConfig.url_absolute);
             }
         };
+        setTimeout(function () {
+            $anchorScroll();
+        }, 300);
     }]);

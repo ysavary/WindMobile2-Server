@@ -282,6 +282,17 @@ $humidity-color: #3b71a0;
         text-align: center;
         font-weight: 900;
     }
+
+    .wdm-map-legend-type {
+        font-weight: normal;
+        color: DarkGray;
+
+        img {
+            width: 30px;
+            height: 20px;
+        }
+    }
+
     .wdm-map-hideable {
         @media (max-height: 700px) {
             display: none;

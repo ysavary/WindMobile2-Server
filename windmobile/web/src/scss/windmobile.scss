@@ -288,8 +288,14 @@ $humidity-color: #3b71a0;
         color: DarkGray;
 
         img {
+            @media (min-height: 700px) {
+                height: 20px;
+            }
+            @media (max-height: 500px) {
+                height: 16px;
+            }
+            height: 18px;
             width: 30px;
-            height: 20px;
         }
     }
 
@@ -345,7 +351,6 @@ $humidity-color: #3b71a0;
 }
 
 .wdm-card-detail-help {
-    height: 75px;
     background-color: #222;
     position: relative;
     border-radius: 8px 8px 0 0;

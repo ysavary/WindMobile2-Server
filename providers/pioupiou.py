@@ -14,17 +14,30 @@ class Pioupiou(Provider):
     provider_name = 'pioupiou.fr'
     provider_url = 'http://pioupiou.fr'
 
-    def get_status(self, status):
+    def get_status(self, station_id, status, location_date, location_status):
         if status == 'on':
-            return Status.GREEN
+            if location_date:
+                if (arrow.utcnow().timestamp - location_date.timestamp) < 3600 * 24 * 15:
+                    up_to_date = True
+                else:
+                    logger.warn("'{0}': last known location date is {1}".format(station_id, location_date.humanize()))
+                    up_to_date = False
+            else:
+                logger.warn("'{0}': no last known location".format(station_id))
+                return Status.RED
+
+            if location_status and up_to_date:
+                return Status.GREEN
+            else:
+                return Status.ORANGE
         else:
             return Status.HIDDEN
 
     def process_data(self):
         try:
             logger.info("Processing Pioupiou data...")
-            result = requests.get("http://api.pioupiou.fr/v1/live-with-meta/all",
-                                  timeout=(self.connect_timeout, self.read_timeout))
+            result = requests.get("http://api.pioupiou.fr/v1/live-with-meta/all", timeout=(self.connect_timeout,
+                                                                                           self.read_timeout))
 
             for piou_station in result.json()['data']:
                 try:
@@ -32,10 +45,12 @@ class Pioupiou(Provider):
                     station_id = self.get_station_id(piou_id)
 
                     location = piou_station['location']
-                    if location['success']:
-                        last_location_date = arrow.get(location['date'])
-                        if (arrow.utcnow().timestamp - last_location_date.timestamp) > 3600 * 24 * 10:
-                            raise ProviderException("Last location date is {0}".format(last_location_date.humanize()))
+                    location_date = None
+                    if location['date']:
+                        try:
+                            location_date = arrow.get(location['date'])
+                        except arrow.parser.ParserError:
+                            pass
 
                     station = self.save_station(
                         station_id,
@@ -43,7 +58,8 @@ class Pioupiou(Provider):
                         None,
                         piou_station['location']['latitude'],
                         piou_station['location']['longitude'],
-                        self.get_status(piou_station['status']['state']),
+                        self.get_status(station_id, piou_station['status']['state'], location_date,
+                                        location['success']),
                         url=urllib.parse.urljoin(self.provider_url, str(piou_id)))
 
                     measures_collection = self.measures_collection(station_id)

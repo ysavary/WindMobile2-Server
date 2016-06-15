@@ -1,5 +1,8 @@
-require('bootstrap-sass/assets/javascripts/bootstrap/modal.js');
-require('bootstrap-sass/assets/javascripts/bootstrap/tab.js');
+global.jQuery = global.$ = require('jquery');
+require('material-design-lite/material');
+// Using boostrap for modals and tabs only
+require('bootstrap-sass/assets/javascripts/bootstrap/modal');
+require('bootstrap-sass/assets/javascripts/bootstrap/tab');
 
 var angular = require('angular');
 var Snap = require('snapsvg');
@@ -9,6 +12,9 @@ require('moment/locale/de.js');
 
 angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-router'), require('angular-translate'), require('oclazyload'),
     'windmobile.services', 'windmobile.controllers'])
+    .constant('appConfig', {
+        url_absolute: 'https://winds.mobi'
+    })
     .config(['$ocLazyLoadProvider', '$translateProvider', '$locationProvider', '$stateProvider', '$urlRouterProvider',
         function ($ocLazyLoadProvider, $translateProvider, $locationProvider, $stateProvider, $urlRouterProvider) {
             $ocLazyLoadProvider.config({
@@ -31,6 +37,22 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
             $stateProvider
                 .state('map', {
                     url: '/map',
+                    params: {
+                        lat: null,
+                        lon: null,
+                        zoom: null
+                    },
+                    resolve: {
+                        lat: ['$stateParams', function ($stateParams) {
+                            return $stateParams.lat;
+                        }],
+                        lon: ['$stateParams', function ($stateParams) {
+                            return $stateParams.lon;
+                        }],
+                        zoom: ['$stateParams', function ($stateParams) {
+                            return $stateParams.zoom;
+                        }]
+                    },
                     templateUrl: '/static/web/templates/map.html',
                     controller: 'MapController as main'
                 })
@@ -50,6 +72,18 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 })
                 .state('list', {
                     url: '/list',
+                    params: {
+                        lat: null,
+                        lon: null
+                    },
+                    resolve: {
+                        lat: ['$stateParams', function ($stateParams) {
+                            return $stateParams.lat;
+                        }],
+                        lon: ['$stateParams', function ($stateParams) {
+                            return $stateParams.lon;
+                        }]
+                    },
                     templateUrl: '/static/web/templates/list.html',
                     controller: 'ListController as main'
                 })
@@ -96,9 +130,10 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     templateUrl: '/static/web/templates/help.html',
                     controller: 'HelpController as main'
                 });
-            $urlRouterProvider.otherwise("/map");
+            $urlRouterProvider.otherwise('/map');
         }])
-    .run(['$rootScope', '$location', '$window', '$interval', 'visibilityBroadcaster', function ($rootScope, $location, $window, $interval) {
+    .run(['$rootScope', '$location', '$window', '$interval', '$timeout', 'visibilityBroadcaster',
+        function ($rootScope, $location, $window, $interval, $timeout) {
         var self = this;
 
         $rootScope.$on('ocLazyLoad.fileLoaded', function (event, file) {
@@ -111,7 +146,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     resetZoomButton: {
                         theme: {
                             fill: 'none',
-                            stroke: '#ddd',
+                            stroke: '#666',
                             style: {color: '#8d8d8d'}
                         }
                     }
@@ -187,6 +222,13 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 }
                 $rootScope.controller = toState.name.split('.')[0];
             });
+        // https://stackoverflow.com/questions/31278781/material-design-lite-integration-with-angularjs
+        $rootScope.$on('$viewContentLoaded', function () {
+            $timeout(function () {
+                // https://getmdl.io/started/#dynamic
+                componentHandler.upgradeAllRegistered();
+            }, 0);
+        });
     }])
     .directive('wdmWindMiniChart', function () {
         return {
@@ -254,7 +296,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
             }
         };
     })
-    .directive('wdmWindDirection', ['$translate', function ($translate) {
+    .directive('wdmWindDirChart', ['$translate', function ($translate) {
         return {
             restrict: "C",
             link: function (scope, element, attrs) {
@@ -419,7 +461,10 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     },
                     xAxis: {
                         type: 'datetime',
-                        lineColor: '#666'
+                        lineColor: '#666',
+                        tickColor: '#666',
+                        gridLineWidth: 0.5,
+                        gridLineColor: '#666'
                     },
                     yAxis: {
                         opposite: false,

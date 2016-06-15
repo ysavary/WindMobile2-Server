@@ -1,0 +1,109 @@
+<div class="modal" id="detailModal" ui-view="detailView" tabindex="-1" role="dialog">
+</div>
+
+<script type="text/ng-template" id="_infobox.html">
+    <div class="wdm-card-border wdm-card-layout wdm-card-map" ng-click="main.selectStation()">
+        <div class="wdm-name" style="float:left;">{{ main.selectedStation.short }}</div>
+        <div class="wdm-info" style="float:right;">
+            <div class="wdm-last-update" style="float:right;" ng-class="main.selectedStation.fromNowClass">{{ main.selectedStation.fromNow }}</div>
+            <div class="wdm-provider" style="clear:right;float:right;">{{ main.selectedStation['pv-name'] }}</div>
+        </div>
+        <div class="wdm-altitude" style="clear:left;float:left;">{{ main.selectedStation.alt }} <span translate>meters</span></div>
+        <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">
+            <div class="wdm-wind-avg">{{ main.selectedStation.last['w-avg'].toFixed(1) }}</div>
+            <div class="wdm-wind-max">{{ main.selectedStation.last['w-max'].toFixed(1) }}<span class="wdm-unit" translate>km/h</span></div>
+            <svg class="wdm-wind-mini-chart" style="width:100%;max-width:70px;" viewBox="0 0 100 40" data-scope-watch="main.selectedStation.historic"></svg>
+        </div>
+        <svg class="wdm-wind-dir-chart" style="float:right;width:70px;height:70px;" viewBox="0 0 100 100" data-scope-watch="main.selectedStation.historic"></svg>
+    </div>
+</script>
+
+<script type="text/ng-template" id="_legend.html">
+    <div class="wdm-map-legend">
+        <table>
+            <tr><td class="wdm-map-legend-type"><img src="/static/web/img/arrow-triangle-right.svg"><span translate>Summit</span></td></tr>
+            <tr><td class="wdm-map-legend-type"><img src="/static/web/img/arrow-round-right.svg"><span translate>Plain</span></td></tr>
+            <tr><td><div style="height: 1px; margin-left: 5px; margin-right:5px; background-color: #E6E6E6;"></div></td></tr>
+            <tr><td ng-style="main.getLegendColorStyle(-1);" translate>no recent data</td></tr>
+            <tr><td ng-style="main.getLegendColorStyle(5);" class="wdm-map-hideable"><5 km/h</td></tr>
+            <tr><td ng-style="main.getLegendColorStyle(10);">10 km/h</td></tr>
+            <tr><td ng-style="main.getLegendColorStyle(15);" class="wdm-map-hideable">15 km/h</td></tr>
+            <tr><td ng-style="main.getLegendColorStyle(20);">20 km/h</td></tr>
+            <tr><td ng-style="main.getLegendColorStyle(25);" class="wdm-map-hideable">25 km/h</td></tr>
+            <tr><td ng-style="main.getLegendColorStyle(30);">30 km/h</td></tr>
+            <tr><td ng-style="main.getLegendColorStyle(35);" class="wdm-map-hideable">35 km/h</td></tr>
+            <tr><td ng-style="main.getLegendColorStyle(40);">40 km/h</td></tr>
+            <tr><td ng-style="main.getLegendColorStyle(45);" class="wdm-map-hideable">45 km/h</td></tr>
+            <tr><td ng-style="main.getLegendColorStyle(50);">>50 km/h</td></tr>
+        </table>
+    </div>
+</script>
+
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+        <div class="mdl-layout-icon" id="wdm-app-icon">
+            <a href="#" ng-click="main.clickOnNavBar()"><img src="/static/web/img/windmobile.png"></a>
+        </div>
+        <div class="mdl-layout__header-row">
+            <span id="wdm-app-title" class="mdl-layout-title mdl-layout--large-screen-only" ng-click="main.clickOnNavBar()">winds.mobi</span>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label">
+                <label class="mdl-button mdl-js-button mdl-button--accent mdl-button--icon" for="wdm-search-field">
+                    <i class="material-icons">search</i>
+                </label>
+                <div class="mdl-textfield__expandable-holder">
+                    <form>
+                        <input id="wdm-search-field" class="mdl-textfield__input" type="text" name="search" ng-model="main.search" ng-change="main.doSearch()"
+                               spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
+                    </form>
+                </div>
+            </div>
+            <button class="mdl-button mdl-js-button mdl-button--accent mdl-button--icon" ng-click="main.clearSearch()" ng-show="main.search">
+                <i class="material-icons">clear</i>
+            </button>
+            <div class="mdl-layout-spacer"></div>
+            <nav class="mdl-navigation">
+                <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon" ng-click="main.centerMap()"
+                        ng-disabled="location === -2">
+                    <span ng-switch="location">
+                        <i ng-switch-when="1" class="material-icons">gps_fixed</i>
+                        <i ng-switch-when="0" class="material-icons blink">location_searching</i>
+                        <i ng-switch-when="-1" class="material-icons">gps_not_fixed</i>
+                        <i ng-switch-when="-2" class="material-icons">location_disabled</i>
+                        <i ng-switch-default class="material-icons">gps_not_fixed</i>
+                    </span>
+                </button>
+                <button class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ng-click="main.centerMap()"
+                        ng-disabled="location === -2">
+                    <span ng-switch="location">
+                        <i ng-switch-when="1" class="material-icons">gps_fixed</i>
+                        <i ng-switch-when="0" class="material-icons blink">location_searching</i>
+                        <i ng-switch-when="-1" class="material-icons">gps_not_fixed</i>
+                        <i ng-switch-when="-2" class="material-icons">location_disabled</i>
+                        <i ng-switch-default class="material-icons">gps_not_fixed</i>
+                    </span>
+                    <span translate>Center</span>
+                </button>
+
+                <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon" ui-sref="list">
+                    <i class="material-icons">view_module</i>
+                </button>
+                <button class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ui-sref="list">
+                    <i class="material-icons">view_module</i>
+                    <span translate>List</span>
+                </button>
+
+                <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon" ng-click="main.clickOnHelp()">
+                    <i class="material-icons">help</i>
+                </button>
+                <button class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ng-click="main.clickOnHelp()">
+                    <i class="material-icons">help</i>
+                    <span translate>Help</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+    <main class="mdl-layout__content">
+        <div id="wdm-map" class="page-content">
+        </div>
+    </main>
+</div>

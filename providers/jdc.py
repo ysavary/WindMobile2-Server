@@ -29,10 +29,15 @@ class Jdc(Provider):
     def process_data(self):
         try:
             logger.info("Processing JDC data...")
-            result = requests.get("http://meteo.jdc.ch/API/?Action=StationView&flags=offline|maintenance|test|online",
+            result = requests.get("http://meteo.jdc.ch/API/?Action=StationView&flags=all",
                                   timeout=(self.connect_timeout, self.read_timeout))
 
-            for jdc_station in result.json()['Stations']:
+            try:
+                jdc_stations = result.json()['Stations']
+            except:
+                raise ProviderException("API does not return stations in JSON format")
+
+            for jdc_station in jdc_stations:
                 try:
                     jdc_id = jdc_station['serial']
                     station_id = self.get_station_id(jdc_id)

@@ -23,8 +23,8 @@ class MeteoSwiss(Provider):
             with open(path.join(path.dirname(__file__), 'meteoswiss/vqha69.json')) as in_file:
                 descriptions = json.load(in_file)
 
-            data_file = io.StringIO(
-                requests.get("http://data.geo.admin.ch/ch.meteoschweiz.swissmetnet/VQHA69.txt").text)
+            data_file = io.StringIO(requests.get("http://data.geo.admin.ch/ch.meteoschweiz.swissmetnet/VQHA69.csv",
+                                                 timeout=(self.connect_timeout, self.read_timeout)).text)
             lines = data_file.readlines()
             keys = lines[2].strip().split('|')
 

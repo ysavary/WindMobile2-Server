@@ -21,8 +21,7 @@ class Holfuy(Provider):
     def process_data(self):
         try:
             logger.info("Processing Holfuy data...")
-            result = requests.get("http://holfuy.hu/en/mkrs.php",
-                                  timeout=(self.connect_timeout, self.read_timeout))
+            result = requests.get("http://holfuy.hu/en/mkrs.php", timeout=(self.connect_timeout, self.read_timeout))
             result.encoding = 'utf-8'
 
             xml_files = re.split('<\?xml version=\"1.0\" encoding=\"UTF-8\"\?>', result.text)

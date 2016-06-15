@@ -1,3 +1,4 @@
+# coding=utf-8
 import logging
 
 import jwt
@@ -8,6 +9,10 @@ from pymongo import MongoClient, uri_parser
 from pymongo.errors import OperationFailure
 from rest_framework import status
 from rest_framework.exceptions import ParseError, NotAuthenticated, AuthenticationFailed
+from pymongo import MongoClient, uri_parser, ASCENDING
+from pymongo.errors import OperationFailure
+from rest_framework import status
+from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -137,6 +142,11 @@ class Stations(APIView):
                         }
                     }
                 }
+            try:
+                # $near results are already sorted: return now
+                return Response(list(mongo_db.stations.find(query, projection_dict).limit(limit)))
+            except OperationFailure as e:
+                raise ParseError(e.details)
 
         if within_pt1_latitude and within_pt1_longitude and within_pt2_latitude and within_pt2_longitude:
             result = []
@@ -177,18 +187,21 @@ class Stations(APIView):
                                 j2 = y1 + (j + 1) * delta_y
                                 density_search(i1, j1, i2, j2, level + 1)
 
-            density_search(
-                float(within_pt1_longitude),
-                float(within_pt1_latitude),
-                float(within_pt2_longitude),
-                float(within_pt2_latitude))
-            return Response(result)
+            try:
+                density_search(
+                    float(within_pt1_longitude),
+                    float(within_pt1_latitude),
+                    float(within_pt2_longitude),
+                    float(within_pt2_latitude))
+                return Response(result)
+            except OperationFailure as e:
+                raise ParseError(e.details)
 
         if ids:
             query['_id'] = {'$in': ids}
 
         try:
-            return Response(list(mongo_db.stations.find(query, projection_dict).limit(limit)))
+            return Response(list(mongo_db.stations.find(query, projection_dict).sort('short', ASCENDING).limit(limit)))
         except OperationFailure as e:
             raise ParseError(e.details)
 

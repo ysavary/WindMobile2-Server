@@ -1,23 +1,23 @@
-<!-- Fixed navbar -->
-<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#" ng-click="main.clickOnNavBar()"><img src="/static/web/img/windmobile.png"></a>
-            <a class="navbar-text hidden-xxs" href="#" ng-click="main.clickOnNavBar()"><span>winds</span>.mobi</a>
+<div class="mdl-layout mdl-js-layout">
+    <header class="mdl-layout__header mdl-layout__header--scroll">
+        <div class="mdl-layout-icon" id="wdm-app-icon">
+            <a href="#" ng-click="$ctrl.clickOnNavBar()"><img src="/static/web/img/windmobile.png"></a>
         </div>
-        <div class="navbar-right">
-            <ul class="nav navbar-nav">
-                <li><a ui-sref="map"><span class="fa fa-lg fa-map"></span>
-                    <span class="hidden-xs" translate>Map</span></a>
-                </li>
-                <li><a ui-sref="list"><span class="fa fa-lg fa-th-large"></span>
-                    <span class="hidden-xs" translate>List</span></a>
-                </li>
-            </ul>
+        <div class="mdl-layout__header-row">
+            <span id="wdm-app-title" class="mdl-layout-title mdl-layout--large-screen-only" ng-click="$ctrl.clickOnNavBar()">winds.mobi</span>
+            <div class="mdl-layout-spacer"></div>
+            <nav class="mdl-navigation">
+                <button class="mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ui-sref="map">
+                    <i class="material-icons">map</i>
+                    <span translate>Map</span>
+                </button>
+                <button class="mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ui-sref="list">
+                    <i class="material-icons">view_module</i>
+                    <span translate>List</span>
+                </button>
+            </nav>
         </div>
-    </div>
-</nav>
-
+    </header>
 <div class="wdm-signin-content">
     <div class="wdm-signin">
         <h1 translate>Sign up</h1>

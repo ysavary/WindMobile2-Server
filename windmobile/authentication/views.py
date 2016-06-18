@@ -25,7 +25,7 @@ class Oauth2Callback(TemplateView):
         user.save()
 
         # Save user_info
-        mongo_db.users.update_one({'_id': username}, {'$set': {'user_info': user_info}}, upsert=True)
+        mongo_db.users.update_one({'_id': username}, {'$set': {'user-info': user_info}}, upsert=True)
 
         # Generate One Time Token for API authentication
         mongo_db.login_ott.create_index([('createdAt', ASCENDING)], expireAfterSeconds=30)

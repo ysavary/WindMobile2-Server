@@ -1,17 +1,11 @@
 <div class="modal-dialog">
     <div class="modal-body wdm-card-border wdm-modal">
         <div class="wdm-detail-layout" style="width: 100%; padding-left: 10px; padding-right: 10px">
-            <div class="wdm-name" style="float:left;">{{ detail.station.name }}</div>
-            <span style="margin-left: 10px; vertical-align: middle;">
-                <a ng-click="detail.toogleFavorite()">
-                    <i class="fa fa-lg fa-star"
-                       ng-if="detail.favorites.indexOf(detail.station._id) > -1">
-                    </i>
-                    <i class="fa fa-lg fa-star-o"
-                       ng-if="detail.favorites.indexOf(detail.station._id) == -1">
-                    </i>
-                </a>
-            </span>
+            <div style="float:left;">
+                <a class="btn" ng-if="$app.profile.favorites.indexOf(detail.station._id) > -1" ng-click="$app.toogleFavorite(detail.station._id)"><i class="material-icons md-18">favorite</i></a>
+                <a class="btn" ng-if="$app.profile.favorites.indexOf(detail.station._id) == -1" ng-click="$app.toogleFavorite(detail.station._id)"><i class="material-icons md-18">favorite_border</i></a>
+                <span class="wdm-name" style="vertical-align: top">{{ detail.station.name }}</span>
+            </div>
             <a class="btn" style="margin-left: 10px" ng-click="detail.showOnMap(detail.station)"><i class="material-icons md-18">map</i></a>
             <a class="btn" ng-click="detail.showOnList(detail.station)"><i class="material-icons md-18">view_module</i></a>
             <a class="btn" style="float:right; margin-left: 10px" data-dismiss="modal"><i class="material-icons md-18">cancel</i></a>

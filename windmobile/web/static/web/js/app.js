@@ -35,7 +35,12 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
 
             $locationProvider.html5Mode(true);
             $stateProvider
+                .state('app', {
+                    controller: 'AppController as $app',
+                    templateUrl: '/static/web/templates/app.html'
+                })
                 .state('map', {
+                    parent: 'app',
                     url: '/map',
                     params: {
                         lat: null,
@@ -71,6 +76,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     }
                 })
                 .state('list', {
+                    parent: 'app',
                     url: '/list',
                     params: {
                         lat: null,
@@ -101,29 +107,14 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         }]
                     }
                 })
-                .state('sign-up', {
-                    url: '/sign-up',
-                    templateUrl: '/static/web/templates/sign-up.html',
-                    controller: 'SignUpController as main'
+                .state('social-login', {
+                    url: '/social-login',
+                    templateUrl: '/static/web/templates/social-login.html'
                 })
-                .state('my-list', {
-                    url: '/my-list',
-                    templateUrl: '/static/web/templates/my-list.html',
-                    controller: 'MyListController as main'
-                })
-                .state('my-list.detail', {
-                    url: '/:stationId',
-                    views: {
-                        "detailView": {
-                            templateUrl: '/static/web/templates/detail.html',
-                            controller: 'DetailController as detail'
-                        }
-                    },
-                    resolve: {
-                        loadMyCtrl: ['$ocLazyLoad', function ($ocLazyLoad) {
-                            return $ocLazyLoad.load('/static/web/lib/highstock.js');
-                        }]
-                    }
+                .state('login', {
+                    url: '/login',
+                    templateUrl: '/static/web/templates/login.html',
+                    controller: 'LoginController as $ctrl'
                 })
                 .state('help', {
                     url: '/help',

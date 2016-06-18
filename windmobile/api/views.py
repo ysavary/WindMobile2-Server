@@ -5,13 +5,10 @@ import jwt
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from pymongo import MongoClient, uri_parser
-from pymongo.errors import OperationFailure
-from rest_framework import status
-from rest_framework.exceptions import ParseError, NotAuthenticated, AuthenticationFailed
 from pymongo import MongoClient, uri_parser, ASCENDING
 from pymongo.errors import OperationFailure
 from rest_framework import status
+from rest_framework.exceptions import NotAuthenticated, AuthenticationFailed
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.views import APIView

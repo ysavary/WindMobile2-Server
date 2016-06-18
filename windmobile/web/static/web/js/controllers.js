@@ -12,6 +12,74 @@ var LocationEnum = {
 
 angular.module('windmobile.controllers', ['windmobile.services'])
 
+    .controller('AppController', ['$rootScope', '$scope', '$state', '$stateParams', '$window', '$http',
+        function ($rootScope, $scope, $state, $stateParams, $window, $http) {
+            var self = this;
+
+            this.getProfile = function () {
+                self.profile = undefined;
+                var token = $window.localStorage.getItem('token');
+                if (token) {
+                    $http({
+                        method: 'GET',
+                        url: '/api/2/users/profile/',
+                        headers: {'Authorization': 'JWT ' + token}
+                    }).then(function (response) {
+                        var data = response.data;
+                        if (data._id.indexOf('facebook-') > -1) {
+                            self.profile = {
+                                name: data['user-info'].first_name,
+                                picture: data['user-info'].link
+                            };
+                        } else if (data._id.indexOf('google-') > -1) {
+                            self.profile = {
+                                name: data['user-info'].given_name,
+                                picture: data['user-info'].picture
+                            };
+                        } else {
+                            self.profile = {
+                                name: data._id
+                            };
+                        }
+                        self.profile.favorites = response.data.favorites || [];
+                    });
+                }
+            };
+            this.toogleFavorite = function(stationId) {
+                var token = $window.localStorage.getItem('token');
+                if (token) {
+                    if (self.profile.favorites.indexOf(stationId) > -1) {
+                        $http({
+                            method: 'DELETE',
+                            url: '/api/2/users/profile/favorites/',
+                            headers: {'Authorization': 'JWT ' + token, 'Content-Type': 'application/json'},
+                            data: {'station_id': stationId}
+                        }).catch(function () {
+                            $state.go('social-login');
+                        });
+                    } else {
+                        $http({
+                            method: 'POST',
+                            url: '/api/2/users/profile/favorites/',
+                            headers: {'Authorization': 'JWT ' + token, 'Content-Type': 'application/json'},
+                            data: {'station_id': stationId}
+                        }).catch(function () {
+                            $state.go('social-login');
+                        });
+                    }
+                    self.getProfile();
+                } else {
+                    $state.go('social-login');
+                }
+            };
+            this.logout = function() {
+                $window.localStorage.removeItem('token');
+                $state.go($state.current, {}, {reload: true});
+            };
+
+            this.getProfile();
+        }])
+
     .controller('ListController',
         ['$rootScope', '$scope', '$state', '$http', '$translate', '$location', 'utils', 'appConfig', 'lat', 'lon',
         function ($rootScope, $scope, $state, $http, $translate, $location, utils, appConfig, lat, lon) {
@@ -114,7 +182,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 $location.search('search', null);
                 this.doSearch();
             };
-
             this.updateFromNow = function(station) {
                 if (station.last) {
                     station.fromNow = moment.unix(station.last._id).fromNow();
@@ -143,6 +210,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     self.doSearch();
                 }
             });
+
             $('#wdm-search-field').keydown(function (event) {
                 if (event.keyCode == 13) {
                     this.blur();
@@ -540,8 +608,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
         }])
 
     .controller('DetailController',
-        ['$rootScope', '$scope', '$state', '$stateParams', '$http', 'utils', 'appConfig',
-        function ($rootScope, $scope, $state, $stateParams, $http, utils, appConfig) {
+        ['$rootScope', '$scope', '$state', '$stateParams', '$http', '$window', 'utils',
+        function ($rootScope, $scope, $state, $stateParams, $http, $window, utils) {
             var self = this;
 
             $('#detailModal').modal().on('hidden.bs.modal', function (e) {
@@ -620,6 +688,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 this.getStation();
                 this.getStationHistoric();
             };
+
             this.updateFromNow = function() {
                 if (self.station.last) {
                     self.station.fromNow = moment.unix(self.station.last._id).fromNow();
@@ -627,7 +696,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     self.station.fromNowClass = utils.getStatusClass(status);
                 }
             };
-
             $scope.$on('onFromNowInterval', function() {
                 self.updateFromNow();
             });
@@ -635,7 +703,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 console.info(moment().format() + " --> [DetailController] onRefreshInterval");
                 self.doDetail();
             });
-
             $scope.$on('visibilityChange', function(event, isHidden) {
                 if (!isHidden) {
                     console.info(moment().format() + " --> [DetailController] visibilityChange: isHidden=" + isHidden);
@@ -656,6 +723,27 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             };
 
             this.doDetail();
+        }])
+
+    .controller('LoginController', ['$http', '$state', '$window',
+        function ($http, $state, $window) {
+            var self = this;
+
+            this.login = function () {
+                $http({
+                    method: 'POST',
+                    url: '/api/2/auth/login/',
+                    data: {
+                        username: self.username,
+                        password: self.password
+                    }
+                }).then(function (response) {
+                    $window.localStorage.token = response.data.token;
+                    $state.go('list');
+                }, function (response) {
+                    console.log(response.data);
+                })
+            }
         }])
 
     .controller('HelpController', ['$state', '$anchorScroll', 'utils', 'appConfig',

@@ -370,7 +370,6 @@ $humidity-color: #3b71a0;
 .blink {
     animation: blink 700ms infinite alternate;
 }
-
 @keyframes blink {
     from {
         opacity: 1;
@@ -378,4 +377,18 @@ $humidity-color: #3b71a0;
     to {
         opacity: 0;
     }
+}
+
+.wdm-google-sign-up {
+    display: block;
+    width: 185px;
+    height: 40px;
+    background: url('/static/web/img/btn_google_signin_dark_normal_web.png') no-repeat top;
+}
+
+.wdm-facebook-sign-up {
+    display: block;
+    width: 185px;
+    height: 40px;
+    background: url('/static/web/img/btn_google_signin_dark_normal_web.png') no-repeat top;
 }

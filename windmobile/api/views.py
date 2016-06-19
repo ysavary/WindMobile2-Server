@@ -114,9 +114,11 @@ class Stations(APIView):
             query['pv-code'] = provider
 
         if search:
-            regexp_query = diacritics.create_regexp(diacritics.normalize(search))
-            query['$or'] = [{'name': {'$regex': regexp_query, '$options': 'i'}},
-                            {'short': {'$regex': regexp_query, '$options': 'i'}}]
+            query['$or'] = []
+            for word in search.split():
+                regexp_query = diacritics.create_regexp(diacritics.normalize(word))
+                query['$or'].append({'name': {'$regex': regexp_query, '$options': 'i'}})
+                query['$or'].append({'short': {'$regex': regexp_query, '$options': 'i'}})
 
         if near_latitude and near_longitude:
             if near_distance:
@@ -406,7 +408,7 @@ class UserProfile(APIView):
         if profile:
             return Response(profile)
         else:
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class UserProfileFavorite(APIView):

@@ -45,6 +45,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         profile.favorites = data.favorites || [];
                         self.profile = profile;
                     }, function (response) {
+                        $window.localStorage.removeItem('token');
                         self.profile = undefined;
                     });
                 } else {

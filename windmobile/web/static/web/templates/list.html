@@ -73,7 +73,13 @@
     <main id="wdm-list-main" class="mdl-layout__content">
         <div id="wdm-list-content" class="page-content">
             <div class="wdm-card-border wdm-card-layout wdm-card-list" ng-repeat="station in main.stations" ng-click="main.selectStation(station)">
-                <div class="wdm-name" style="float:left;">{{ station.short }}</div>
+                <div class="wdm-name" style="float: left;" ng-switch="$app.profile.favorites.indexOf(station._id) > -1">
+                    <span ng-click="$app.toogleFavorite(station._id, $event)">
+                        <i ng-switch-when="true" class="material-icons">favorite</i>
+                        <i ng-switch-default class="material-icons">favorite_border</i>
+                    </span>
+                    <span class="wdm-name-text">{{ station.short }}</span>
+                </div>
                 <div class="wdm-info" style="float:right;">
                     <div class="wdm-last-update" style="float:right;" ng-class="station.fromNowClass">{{ station.fromNow }}</div>
                     <div class="wdm-provider" style="clear:right;float:right;">{{ station['pv-name'] }}</div>

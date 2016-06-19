@@ -94,9 +94,16 @@ body.modal-open #wdm-list-content {
         }
     }
     .wdm-name {
-        overflow: hidden;
-        color: $highlight-text-color;
-        font-size: 17px;
+        i {
+            vertical-align: middle;
+            font-size: 17px;
+        }
+        span.wdm-name-text {
+            vertical-align: middle;
+            overflow: hidden;
+            color: $highlight-text-color;
+            font-size: 17px;
+        }
     }
     .wdm-last-update {
         font-size: $small-font-size;

@@ -16,5 +16,6 @@ urlpatterns = patterns(
     url(r'^auth/login/$', AuthenticationLogin.as_view(), name='api.auth_login'),
 
     url(r'^users/profile/$', UserProfile.as_view(), name='api.user_profile'),
-    url(r'^users/profile/favorites/$', UserProfileFavorite.as_view(), name='api.user_profile_favorites')
+    url(r'^users/profile/favorites/(?P<station_id>.+)/$', UserProfileFavorite.as_view(),
+        name='api.user_profile_favorites')
 )

@@ -15,6 +15,38 @@
                     <i class="material-icons">view_module</i>
                     <span translate>List</span>
                 </button>
+
+                <div ng-if="$app.profile">
+                    <button id="menu_account_small" class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent">
+                        <img ng-if="$app.profile.picture" height="32" width="32" src="{{ $app.profile.picture }}">
+                        <span ng-if="!$app.profile.picture">{{ $app.profile.name }}</span>
+                    </button>
+                    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu_account_small">
+                        <li class="mdl-menu__item" ng-click="$app.logout()" translate>Logout</li>
+                    </ul>
+                    <button id="menu_account_large" class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect">
+                        <img ng-if="$app.profile.picture" height="32" width="32" src="{{ $app.profile.picture }}">
+                        <span>{{ $app.profile.name }}</span>
+                    </button>
+                    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu_account_large">
+                        <li class="mdl-menu__item" ng-click="$app.logout()" translate>Logout</li>
+                    </ul>
+                </div>
+                <div ng-if="!$app.profile">
+                    <button id="menu_account_small" class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon">
+                        <i class="material-icons">account_box</i>
+                    </button>
+                    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu_account_small">
+                        <li class="mdl-menu__item mdl-menu__item--full-bleed-divider" ui-sref="social-login" translate>Login</li>
+                    </ul>
+                    <button id="menu_account_large" class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect">
+                        <i class="material-icons">account_box</i>
+                        <span translate>Login</span>
+                    </button>
+                    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu_account_large">
+                        <li class="mdl-menu__item" ui-sref="social-login" translate>Login</li>
+                    </ul>
+                </div>
             </nav>
         </div>
     </header>

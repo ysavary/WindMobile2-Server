@@ -2,6 +2,7 @@ var $ = require('jquery/dist/jquery.js');
 var angular = require('angular');
 var moment = require('moment');
 var InfoBox = require('google-maps-infobox');
+var _unionBy = require('lodash/unionBy');
 
 var LocationEnum = {
     FIXED: 1,
@@ -17,7 +18,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             var self = this;
 
             this.getProfile = function () {
-                self.profile = undefined;
                 var token = $window.localStorage.getItem('token');
                 if (token) {
                     $http({
@@ -26,50 +26,66 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         headers: {'Authorization': 'JWT ' + token}
                     }).then(function (response) {
                         var data = response.data;
+                        var profile;
                         if (data._id.indexOf('facebook-') > -1) {
-                            self.profile = {
+                            profile = {
                                 name: data['user-info'].first_name,
                                 picture: "https://graph.facebook.com/" + data['user-info'].id + "/picture"
                             };
                         } else if (data._id.indexOf('google-') > -1) {
-                            self.profile = {
+                            profile = {
                                 name: data['user-info'].given_name,
                                 picture: data['user-info'].picture
                             };
                         } else {
-                            self.profile = {
+                            profile = {
                                 name: data._id
                             };
                         }
-                        self.profile.favorites = response.data.favorites || [];
+                        profile.favorites = data.favorites || [];
+                        self.profile = profile;
+                    }, function (response) {
+                        self.profile = undefined;
                     });
+                } else {
+                    self.profile = undefined;
                 }
             };
-            this.toogleFavorite = function(stationId) {
-                var token = $window.localStorage.getItem('token');
-                if (token) {
-                    if (self.profile.favorites.indexOf(stationId) > -1) {
-                        $http({
-                            method: 'DELETE',
-                            url: '/api/2/users/profile/favorites/',
-                            headers: {'Authorization': 'JWT ' + token, 'Content-Type': 'application/json'},
-                            data: {'station_id': stationId}
-                        }).catch(function () {
-                            $state.go('social-login');
-                        });
+            this.toogleFavorite = function(stationId, event) {
+                // Prevent opening detail view
+                event.stopImmediatePropagation();
+
+                if (stationId) {
+                    var token = $window.localStorage.getItem('token');
+                    if (token) {
+                        if (self.profile.favorites.indexOf(stationId) > -1) {
+                            $http({
+                                method: 'DELETE',
+                                url: '/api/2/users/profile/favorites/' + stationId + '/',
+                                headers: {'Authorization': 'JWT ' + token, 'Content-Type': 'application/json'}
+                            }).then(function (response) {
+                                self.getProfile();
+                            }, function (response) {
+                                if (response.status === 401) {
+                                    $state.go('social-login');
+                                }
+                            });
+                        } else {
+                            $http({
+                                method: 'POST',
+                                url: '/api/2/users/profile/favorites/' + stationId + '/',
+                                headers: {'Authorization': 'JWT ' + token, 'Content-Type': 'application/json'}
+                            }).then(function (response) {
+                                self.getProfile();
+                            }, function (response) {
+                                if (response.status === 401) {
+                                    $state.go('social-login');
+                                }
+                            });
+                        }
                     } else {
-                        $http({
-                            method: 'POST',
-                            url: '/api/2/users/profile/favorites/',
-                            headers: {'Authorization': 'JWT ' + token, 'Content-Type': 'application/json'},
-                            data: {'station_id': stationId}
-                        }).catch(function () {
-                            $state.go('social-login');
-                        });
+                        $state.go('social-login');
                     }
-                    self.getProfile();
-                } else {
-                    $state.go('social-login');
                 }
             };
             this.logout = function() {
@@ -81,178 +97,203 @@ angular.module('windmobile.controllers', ['windmobile.services'])
         }])
 
     .controller('ListController',
-        ['$rootScope', '$scope', '$state', '$http', '$translate', '$location', 'utils', 'appConfig', 'lat', 'lon',
-        function ($rootScope, $scope, $state, $http, $translate, $location, utils, appConfig, lat, lon) {
-            var self = this;
+        ['$rootScope', '$scope', '$state', '$http', '$translate', '$location', '$q', 'utils', 'appConfig', 'lat', 'lon',
+            function ($rootScope, $scope, $state, $http, $translate, $location, $q, utils, appConfig, lat, lon) {
+                var self = this;
 
-            function search(lat, lon) {
-                var params = {
-                    keys: ['short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg',
-                        'last.w-max']
+                function search(lat, lon) {
+                    var keys = ['short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg',
+                        'last.w-max'];
+
+                    if ($scope.$app.profile && $scope.$app.profile.favorites && $scope.$app.profile.favorites.length > 0) {
+                        var favoritesParam = {
+                            keys: keys
+                        };
+                        if (self.tenant) {
+                            favoritesParam.provider = self.tenant;
+                        }
+                        favoritesParam.search = self.search;
+                        favoritesParam.ids = $scope.$app.profile.favorites;
+                        var favoritesPromise = $http({
+                            method: 'GET',
+                            url: '/api/2/stations/',
+                            params: favoritesParam
+                        });
+                    }
+
+                    var defaultParam = {
+                        keys: keys
+                    };
+                    if (lat != undefined && lon != undefined) {
+                        defaultParam['near-lat'] = lat;
+                        defaultParam['near-lon'] = lon;
+                    }
+                    if (self.tenant) {
+                        defaultParam.provider = self.tenant;
+                    }
+                    defaultParam.search = self.search;
+                    defaultParam.limit = 12;
+                    var defaultPromise = $http({
+                        method: 'GET',
+                        url: '/api/2/stations/',
+                        params: defaultParam
+                    });
+
+                    $q.all({
+                        'favorites': favoritesPromise || $q.resolve([]),
+                        'default': defaultPromise
+                    }).then(function (values) {
+                        self.stations = _unionBy(values.favorites.data, values.default.data, function (value) {
+                            return value._id;
+                        });
+                        for (var i = 0; i < self.stations.length; i++) {
+                            var station = self.stations[i];
+                            if (station.last) {
+                                self.updateFromNow(station);
+                                self.getHistoric(station);
+                            }
+                        }
+                    });
+                }
+
+                this.getHistoric = function (station) {
+                    var params = {
+                        duration: 3600,
+                        keys: ['w-dir', 'w-avg']
+                    };
+                    $http({
+                        method: 'GET',
+                        url: '/api/2/stations/' + station._id + '/historic',
+                        params: params
+                    }).success(function (data) {
+                        var historic = {
+                            data: data
+                        };
+                        station.historic = historic;
+                    });
                 };
-                if (lat != undefined && lon != undefined) {
-                    params['near-lat'] = lat;
-                    params['near-lon'] = lon;
-                }
-                if (self.tenant) {
-                    params.provider = self.tenant;
-                }
-                params.search = self.search;
-                params.limit = 12;
-
-                $http({
-                    method: 'GET',
-                    url: '/api/2/stations/',
-                    params: params
-                }).success(function (data) {
-                    self.stations = data;
-                    for (var i = 0; i < self.stations.length; i++) {
-                        var station = self.stations[i];
-                        if (station.last) {
-                            self.updateFromNow(station);
-                            self.getHistoric(station);
+                this.selectStation = function (station) {
+                    $state.go('list.detail', {stationId: station._id});
+                };
+                this.doSearch = function () {
+                    if (self.lat != undefined && self.lon != undefined) {
+                        search(self.lat, self.lon);
+                    } else {
+                        if (navigator.geolocation) {
+                            $rootScope.location = LocationEnum.SEARCHING;
+                            // If the user does not answer the geolocation request, the error handler will never be called even
+                            // with a timeout option
+                            var locationTimeout = setTimeout(search, 1000);
+                            navigator.geolocation.getCurrentPosition(function (position) {
+                                clearTimeout(locationTimeout);
+                                search(position.coords.latitude, position.coords.longitude);
+                                $rootScope.location = LocationEnum.FIXED;
+                            }, function (positionError) {
+                                clearTimeout(locationTimeout);
+                                search();
+                                if (positionError.code == 1) {
+                                    $rootScope.location = LocationEnum.DISABLED;
+                                    if (!$rootScope.locationMsg) {
+                                        $rootScope.locationMsg = true;
+                                        $translate('Location service is disabled').then(function (text) {
+                                            $('.mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar({message: text});
+                                        });
+                                    }
+                                } else {
+                                    $rootScope.location = LocationEnum.NOT_FIXED;
+                                    if (!$rootScope.locationMsg) {
+                                        $rootScope.locationMsg = true;
+                                        $translate('Unable to find your location').then(function (text) {
+                                            $('.mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar({message: text});
+                                        });
+                                    }
+                                }
+                            }, {
+                                enableHighAccuracy: true,
+                                maximumAge: 300000
+                            });
+                        } else {
+                            $rootScope.location = LocationEnum.DISABLED;
+                            search();
                         }
                     }
-                });
-            }
-            this.getHistoric = function (station) {
-                var params = {
-                    duration: 3600,
-                    keys: ['w-dir', 'w-avg']
                 };
-                $http({
-                    method: 'GET',
-                    url: '/api/2/stations/' + station._id + '/historic',
-                    params: params
-                }).success(function (data) {
-                    var historic = {
-                        data: data
-                    };
-                    station.historic = historic;
-                });
-            };
-            this.selectStation = function (station) {
-                $state.go('list.detail', {stationId: station._id});
-            };
-            this.doSearch = function () {
-                if (self.lat != undefined && self.lon != undefined) {
-                    search(self.lat, self.lon);
-                } else {
-                    if (navigator.geolocation) {
-                        $rootScope.location = LocationEnum.SEARCHING;
-                        // If the user does not answer the geolocation request, the error handler will never be called even
-                        // with a timeout option
-                        var locationTimeout = setTimeout(search, 1000);
-                        navigator.geolocation.getCurrentPosition(function (position) {
-                            clearTimeout(locationTimeout);
-                            search(position.coords.latitude, position.coords.longitude);
-                            $rootScope.location = LocationEnum.FIXED;
-                        }, function (positionError) {
-                            clearTimeout(locationTimeout);
-                            search();
-                            if (positionError.code == 1) {
-                                $rootScope.location = LocationEnum.DISABLED;
-                                if (!$rootScope.locationMsg) {
-                                    $rootScope.locationMsg = true;
-                                    $translate('Location service is disabled').then(function (text) {
-                                        $('.mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar({message: text});
-                                    });
-                                }
-                            } else {
-                                $rootScope.location = LocationEnum.NOT_FIXED;
-                                if (!$rootScope.locationMsg) {
-                                    $rootScope.locationMsg = true;
-                                    $translate('Unable to find your location').then(function (text) {
-                                        $('.mdl-js-snackbar')[0].MaterialSnackbar.showSnackbar({message: text});
-                                    });
-                                }
-                            }
-                        }, {
-                            enableHighAccuracy: true,
-                            maximumAge: 300000
-                        });
-                    } else {
-                        $rootScope.location = LocationEnum.DISABLED;
-                        search();
+                this.clearSearch = function () {
+                    this.search = null;
+                    $location.search('search', null);
+                    this.doSearch();
+                };
+                this.updateFromNow = function (station) {
+                    if (station.last) {
+                        station.fromNow = moment.unix(station.last._id).fromNow();
+                        var status = utils.getStationStatus(station);
+                        station.fromNowClass = utils.getStatusClass(status);
                     }
-                }
-            };
-            this.clearSearch = function () {
-                this.search = null;
-                $location.search('search', null);
-                this.doSearch();
-            };
-            this.updateFromNow = function(station) {
-                if (station.last) {
-                    station.fromNow = moment.unix(station.last._id).fromNow();
-                    var status = utils.getStationStatus(station);
-                    station.fromNowClass = utils.getStatusClass(status);
-                }
-            };
-            $scope.$on('onFromNowInterval', function () {
-                for (var i = 0; i < self.stations.length; i++) {
-                    self.updateFromNow(self.stations[i]);
-                }
-            });
-            $scope.$on('onRefreshInterval', function () {
-                console.info(moment().format() + " --> [ListController] onRefreshInterval");
-                self.doSearch();
-            });
-
-            $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
-                console.info(moment().format() + " --> [ListController] $stateChangeStart: fromState=" + fromState.name);
-                // Force modal to close on browser back
-                $('#detailModal').modal('hide');
-            });
-            $scope.$on('visibilityChange', function(event, isHidden) {
-                if (!isHidden) {
-                    console.info(moment().format() + " --> [ListController] visibilityChange: isHidden=" + isHidden);
+                };
+                $scope.$on('onFromNowInterval', function () {
+                    for (var i = 0; i < self.stations.length; i++) {
+                        self.updateFromNow(self.stations[i]);
+                    }
+                });
+                $scope.$on('onRefreshInterval', function () {
+                    console.info(moment().format() + " --> [ListController] onRefreshInterval");
                     self.doSearch();
-                }
-            });
+                });
 
-            $('#wdm-search-field').keydown(function (event) {
-                if (event.keyCode == 13) {
-                    this.blur();
-                    return false;
-                }
-            });
+                $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+                    console.info(moment().format() + " --> [ListController] $stateChangeStart: fromState=" + fromState.name);
+                    // Force modal to close on browser back
+                    $('#detailModal').modal('hide');
+                });
+                $scope.$on('visibilityChange', function (event, isHidden) {
+                    if (!isHidden) {
+                        console.info(moment().format() + " --> [ListController] visibilityChange: isHidden=" + isHidden);
+                        self.doSearch();
+                    }
+                });
 
-            this.clickOnNavBar = function() {
-                if (!utils.inIframe()) {
-                    $state.go($state.current, {lat: undefined, lon: undefined}, {reload: true});
+                $('#wdm-search-field').keydown(function (event) {
+                    if (event.keyCode == 13) {
+                        this.blur();
+                        return false;
+                    }
+                });
+
+                this.clickOnNavBar = function () {
+                    if (!utils.inIframe()) {
+                        $state.go($state.current, {lat: undefined, lon: undefined}, {reload: true});
+                    } else {
+                        window.open(appConfig.url_absolute);
+                    }
+                };
+                this.clickOnHelp = function () {
+                    if (!utils.inIframe()) {
+                        $state.go('help');
+                    } else {
+                        window.open(appConfig.url_absolute + '/stations/help');
+                    }
+                };
+
+                this.tenant = utils.getTenant($location.host());
+                this.search = $location.search().search;
+
+                if (lat == undefined) {
+                    var lat = parseFloat($location.search().lat);
+                    this.lat = isNaN(lat) ? undefined : lat;
                 } else {
-                    window.open(appConfig.url_absolute);
+                    this.lat = lat;
                 }
-            };
-            this.clickOnHelp = function () {
-                if (!utils.inIframe()) {
-                    $state.go('help');
-                } else {
-                    window.open(appConfig.url_absolute + '/stations/help');
+
+                if (lon == undefined) {
+                    var lon = parseFloat($location.search().lon);
+                    this.lon = isNaN(lon) ? undefined : lon;
                 }
-            };
+                else {
+                    this.lon = lon;
+                }
 
-            this.tenant = utils.getTenant($location.host());
-            this.search = $location.search().search;
-
-            if (lat == undefined) {
-                var lat = parseFloat($location.search().lat);
-                this.lat = isNaN(lat) ? undefined : lat;
-            } else {
-                this.lat = lat;
-            }
-
-            if (lon == undefined) {
-                var lon = parseFloat($location.search().lon);
-                this.lon = isNaN(lon) ? undefined : lon;
-            }
-            else {
-                this.lon = lon;
-            }
-
-            this.doSearch();
-        }])
+                this.doSearch();
+            }])
 
     .controller('MapController',
         ['$rootScope', '$scope', '$state', '$http', '$compile', '$translate', '$templateCache', '$location', 'utils',
@@ -311,12 +352,19 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     } else {
                         color = utils.getColorInRange(station.last['w-max'], 50);
                     }
+                    var scale = 0.12;
+                    if ($scope.$app.profile && $scope.$app.profile.favorites) {
+                        if ($scope.$app.profile.favorites.indexOf(station._id) > -1) {
+                            scale = scale + scale * 0.3;
+                        }
+                    }
+
                     var icon = {
                         path: (station.peak ?
                             "M20,67.4L88.3-51H20v-99h-40v99h-68.3L-20,67.4V115l-50-25L0,190L70,90l-50,25V67.4z M-35,0c0-19.3,15.7-35,35-35S35-19.3,35,0S19.3,35,0,35S-35,19.3-35,0z" :
                             "M20,67.1C48.9,58.5,70,31.7,70,0S48.9-58.5,20-67.1V-150h-40v82.9C-48.9-58.5-70-31.7-70,0s21.1,58.5,50,67.1V115l-50-25L0,190L70,90l-50,25V67.1z M-35,0c0-19.3,15.7-35,35-35S35-19.3,35,0S19.3,35,0,35S-35,19.3-35,0z"
                         ),
-                        scale: 0.12,
+                        scale: scale,
                         fillOpacity: 1,
                         fillColor: color,
                         strokeWeight: 0,

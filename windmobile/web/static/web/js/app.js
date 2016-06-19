@@ -118,6 +118,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     controller: 'LoginController as $ctrl'
                 })
                 .state('help', {
+                    parent: 'app',
                     url: '/help',
                     templateUrl: '/static/web/templates/help.html',
                     controller: 'HelpController as $ctrl'

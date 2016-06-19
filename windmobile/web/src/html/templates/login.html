@@ -15,14 +15,16 @@
     </header>
     <main class="mdl-layout__content">
         <div id="wdm-help" class="page-content">
-            <h2 translate>SOCIAL_LOGIN_SUMMARY_TITLE</h2>
+            <h2 translate>LOGIN_TITLE</h2>
 
             <p>
-            <li translate>SOCIAL_LOGIN_BENEFIT_1</li>
-            <li translate>SOCIAL_LOGIN_BENEFIT_2</li>
+                <span translate>LOGIN_BENEFIT_TEXT</span>
+                <ul>
+                    <li translate>LOGIN_BENEFIT_1</li>
+                </ul>
             </p>
 
-            <br />
+            <br/>
             <div>
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                     <input id="username" class="mdl-textfield__input" type="text" ng-model="$ctrl.username">
@@ -37,6 +39,6 @@
                 <div style="margin-top: 20px">
                     <button class="mdl-button mdl-js-button mdl-button--raised" ng-click="$ctrl.login()" translate="">Login</button>
                 </div>
-        </div>
+            </div>
         </div>
 </div>

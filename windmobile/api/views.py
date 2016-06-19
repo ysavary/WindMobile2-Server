@@ -1,5 +1,6 @@
 # coding=utf-8
 import logging
+from datetime import datetime, timedelta
 
 import jwt
 from django.conf import settings
@@ -371,13 +372,15 @@ class AuthenticationLogin(APIView):
                     'code': -12,
                     'detail': "Unable to get user"},
                     status=status.HTTP_401_UNAUTHORIZED)
-            token = jwt.encode({'username': username}, settings.SECRET_KEY)
+            token = jwt.encode({'username': username, 'exp': datetime.utcnow() + timedelta(days=30)},
+                               settings.SECRET_KEY)
             return Response({'token': token.decode('utf-8')})
         elif username and password:
             user = authenticate(username=username, password=password)
             if user is not None:
                 if user.is_active:
-                    token = jwt.encode({'username': username}, settings.SECRET_KEY)
+                    token = jwt.encode({'username': username, 'exp': datetime.utcnow() + timedelta(days=30)},
+                                       settings.SECRET_KEY)
                     return Response({'token': token.decode('utf-8')})
                 else:
                     return Response({

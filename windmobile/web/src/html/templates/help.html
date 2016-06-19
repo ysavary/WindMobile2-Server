@@ -1,10 +1,10 @@
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-    <header class="mdl-layout__header mdl-layout__header--scroll">
+    <header class="mdl-layout__header">
         <div class="mdl-layout-icon" id="wdm-app-icon">
-            <a href="#" ng-click="help.clickOnNavBar()"><img src="/static/web/img/windmobile.png"></a>
+            <a href="#" ng-click="$ctrl.clickOnNavBar()"><img src="/static/web/img/windmobile.png"></a>
         </div>
         <div class="mdl-layout__header-row">
-            <span id="wdm-app-title" class="mdl-layout-title mdl-layout--large-screen-only" ng-click="help.clickOnNavBar()">winds.mobi</span>
+            <span id="wdm-app-title" class="mdl-layout-title mdl-layout--large-screen-only" ng-click="$ctrl.clickOnNavBar()">winds.mobi</span>
             <div class="mdl-layout-spacer"></div>
             <nav class="mdl-navigation">
                 <button class="mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ui-sref="map">
@@ -29,11 +29,11 @@
                 </div>
                 <div class="wdm-altitude" style="clear:left;float:left;"><span translate>HELP_ALTITUDE</span></div>
                 <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">
-                    <div class="wdm-wind-avg">{{ help.example.data[0]['w-avg'].toFixed(1) }}</div>
-                    <div class="wdm-wind-max">{{ help.example.data[0]['w-max'].toFixed(1) }}<span class="wdm-unit" translate>km/h</span></div>
-                    <svg class="wdm-wind-mini-chart" style="width:100%;max-width:85px;" viewBox="0 0 100 40" data-scope-watch="help.example"></svg>
+                    <div class="wdm-wind-avg">{{ $ctrl.example.data[0]['w-avg'].toFixed(1) }}</div>
+                    <div class="wdm-wind-max">{{ $ctrl.example.data[0]['w-max'].toFixed(1) }}<span class="wdm-unit" translate>km/h</span></div>
+                    <svg class="wdm-wind-mini-chart" style="width:100%;max-width:85px;" viewBox="0 0 100 40" data-scope-watch="$ctrl.example"></svg>
                 </div>
-                <svg class="wdm-wind-dir-chart" style="float:right;width: 50%;max-width:85px;" viewBox="0 0 100 100" data-scope-watch="help.example"></svg>
+                <svg class="wdm-wind-dir-chart" style="float:right;width: 50%;max-width:85px;" viewBox="0 0 100 100" data-scope-watch="$ctrl.example"></svg>
                 <div class="wdm-help-note" style="right: 160px; top: 2px">1.</div>
                 <div class="wdm-help-note" style="left: 80px; top: 65px">2.</div>
                 <div class="wdm-help-note" style="left: 100px; top: 110px">3.</div>
@@ -57,7 +57,7 @@
                     <a class="btn"><i class="material-icons md-18">view_module</i></a>
                     <a class="btn" style="float:right; margin-left: 10px"><i class="material-icons md-18">cancel</i></a>
                     <div class="wdm-info" style="float:right;">
-                        <div class="wdm-last-update wdm-status-orange" style="float:right;">{{ help.example.fromNow }}</div>
+                        <div class="wdm-last-update wdm-status-orange" style="float:right;">{{ $ctrl.example.fromNow }}</div>
                         <a class="wdm-provider" style="clear:right;float:right;" translate=>HELP_PROVIDER</a>
                     </div>
                     <div class="wdm-altitude" style="clear:left;float:left;" translate>HELP_ALTITUDE</div>
@@ -75,16 +75,16 @@
             <p translate>HELP_MAP_COLORS_TEXT</p>
             <table class="wdm-help-legend">
                 <tr>
-                    <td ng-style="help.getLegendColorStyle(5);"></td>
-                    <td ng-style="help.getLegendColorStyle(10);"></td>
-                    <td ng-style="help.getLegendColorStyle(15);"></td>
-                    <td ng-style="help.getLegendColorStyle(20);"></td>
-                    <td ng-style="help.getLegendColorStyle(25);"></td>
-                    <td ng-style="help.getLegendColorStyle(30);"></td>
-                    <td ng-style="help.getLegendColorStyle(35);"></td>
-                    <td ng-style="help.getLegendColorStyle(40);"></td>
-                    <td ng-style="help.getLegendColorStyle(45);"></td>
-                    <td ng-style="help.getLegendColorStyle(50);"></td>
+                    <td ng-style="$ctrl.getLegendColorStyle(5);"></td>
+                    <td ng-style="$ctrl.getLegendColorStyle(10);"></td>
+                    <td ng-style="$ctrl.getLegendColorStyle(15);"></td>
+                    <td ng-style="$ctrl.getLegendColorStyle(20);"></td>
+                    <td ng-style="$ctrl.getLegendColorStyle(25);"></td>
+                    <td ng-style="$ctrl.getLegendColorStyle(30);"></td>
+                    <td ng-style="$ctrl.getLegendColorStyle(35);"></td>
+                    <td ng-style="$ctrl.getLegendColorStyle(40);"></td>
+                    <td ng-style="$ctrl.getLegendColorStyle(45);"></td>
+                    <td ng-style="$ctrl.getLegendColorStyle(50);"></td>
                 </tr>
                 <tr>
                     <td><5</td>

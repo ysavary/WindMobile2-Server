@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from pymongo import MongoClient, uri_parser, ASCENDING
 from pymongo.errors import OperationFailure
 from rest_framework import status
-from rest_framework.exceptions import NotAuthenticated, AuthenticationFailed
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -358,14 +357,18 @@ class AuthenticationLogin(APIView):
         if ott:
             ott_doc = mongo_db.login_ott.find_one_and_delete({'_id': ott})
             if not ott_doc:
-                log.warn("Unable to find One Time Token")
-                raise AuthenticationFailed()
+                return Response({
+                    'code': -11,
+                    'detail': "Unable to find One Time Token"},
+                    status=status.HTTP_401_UNAUTHORIZED)
             username = ott_doc['username']
             try:
                 User.objects.get(username=username)
             except User.DoesNotExist:
-                log.warn("Unable to get One Time Token's user")
-                raise AuthenticationFailed()
+                return Response({
+                    'code': -12,
+                    'detail': "Unable to get user"},
+                    status=status.HTTP_401_UNAUTHORIZED)
             token = jwt.encode({'username': username}, settings.SECRET_KEY)
             return Response({'token': token.decode('utf-8')})
         elif username and password:
@@ -375,13 +378,20 @@ class AuthenticationLogin(APIView):
                     token = jwt.encode({'username': username}, settings.SECRET_KEY)
                     return Response({'token': token.decode('utf-8')})
                 else:
-                    log.warn("The password is valid, but the account has been disabled")
-                    raise AuthenticationFailed()
+                    return Response({
+                        'code': -22,
+                        'detail': "The password is valid, but the account has been disabled"},
+                        status=status.HTTP_401_UNAUTHORIZED)
             else:
-                log.warn("The username and password were incorrect")
-                raise AuthenticationFailed()
+                return Response({
+                    'code': -21,
+                    'detail': "Invalid username or password"},
+                    status=status.HTTP_401_UNAUTHORIZED)
         else:
-            raise NotAuthenticated()
+            return Response({
+                'code': -1,
+                'detail': "Bad parameters"},
+                status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserProfile(APIView):

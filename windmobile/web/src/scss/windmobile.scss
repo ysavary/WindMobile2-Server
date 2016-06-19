@@ -380,15 +380,17 @@ $humidity-color: #3b71a0;
 }
 
 .wdm-google-sign-up {
-    display: block;
+    display: inline-block;
     width: 185px;
     height: 40px;
     background: url('/static/web/img/btn_google_signin_dark_normal_web.png') no-repeat top;
+    margin-right: 10px;
 }
 
 .wdm-facebook-sign-up {
-    display: block;
+    display: inline-block;
     width: 185px;
     height: 40px;
-    background: url('/static/web/img/btn_google_signin_dark_normal_web.png') no-repeat top;
+    background: url('/static/web/img/facebook-signin.png') no-repeat top;
+    margin-right: 10px;
 }

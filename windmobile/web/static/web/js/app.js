@@ -109,7 +109,8 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 })
                 .state('social-login', {
                     url: '/social-login',
-                    templateUrl: '/static/web/templates/social-login.html'
+                    templateUrl: '/static/web/templates/social-login.html',
+                    controller: 'SocialLoginController as $ctrl'
                 })
                 .state('login', {
                     url: '/login',
@@ -119,7 +120,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 .state('help', {
                     url: '/help',
                     templateUrl: '/static/web/templates/help.html',
-                    controller: 'HelpController as main'
+                    controller: 'HelpController as $ctrl'
                 });
             $urlRouterProvider.otherwise('/map');
         }])

@@ -1,5 +1,5 @@
-<div class="mdl-layout mdl-js-layout">
-    <header class="mdl-layout__header mdl-layout__header--scroll">
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
         <div class="mdl-layout-icon" id="wdm-app-icon">
             <a href="#" ng-click="$ctrl.clickOnNavBar()"><img src="/static/web/img/windmobile.png"></a>
         </div>
@@ -15,12 +15,16 @@
     </header>
     <main class="mdl-layout__content">
         <div id="wdm-help" class="page-content">
-        <h1 translate>Sign up</h1>
-        <h2 translate>SIGN_UP_SUMMARY_TITLE</h2>
+        <h2 translate>SOCIAL_LOGIN_SUMMARY_TITLE</h2>
 
-        <p translate>SIGN_UP_TEXT</p>
+        <p>
+            <li translate>SOCIAL_LOGIN_BENEFIT_1</li>
+            <li translate>SOCIAL_LOGIN_BENEFIT_2</li>
+        </p>
 
+        <br />
         <div>
+            <a class="wdm-facebook-sign-up" href="/auth/facebook/oauth2callback/"></a>
             <a class="wdm-google-sign-up" href="/auth/google/oauth2callback/"></a>
         </div>
    </div>

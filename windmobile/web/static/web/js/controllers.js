@@ -29,7 +29,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         if (data._id.indexOf('facebook-') > -1) {
                             self.profile = {
                                 name: data['user-info'].first_name,
-                                picture: data['user-info'].link
+                                picture: "https://graph.facebook.com/" + data['user-info'].id + "/picture"
                             };
                         } else if (data._id.indexOf('google-') > -1) {
                             self.profile = {
@@ -725,25 +725,69 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.doDetail();
         }])
 
-    .controller('LoginController', ['$http', '$state', '$window',
-        function ($http, $state, $window) {
+    .controller('SocialLoginController', ['$state', 'utils', 'appConfig',
+        function ($state, utils, appConfig) {
+            this.clickOnNavBar = function () {
+                if (!utils.inIframe()) {
+                    $state.go('map');
+                } else {
+                    window.open(appConfig.url_absolute);
+                }
+            };
+        }])
+
+    .controller('LoginController', ['$scope', '$http', '$state', '$window', '$translate', 'utils', 'appConfig',
+        function ($scope, $http, $state, $window, $translate, utils, appConfig) {
             var self = this;
 
             this.login = function () {
-                $http({
-                    method: 'POST',
-                    url: '/api/2/auth/login/',
-                    data: {
-                        username: self.username,
-                        password: self.password
-                    }
-                }).then(function (response) {
-                    $window.localStorage.token = response.data.token;
-                    $state.go('list');
-                }, function (response) {
-                    console.log(response.data);
-                })
-            }
+                if (!self.username) {
+                    $translate('Username is empty').then(function (text) {
+                        self.usernameError = text;
+                    });
+                } else {
+                    self.usernameError = undefined;
+                }
+                if (!self.password) {
+                    $translate('Password is empty').then(function (text) {
+                        self.passwordError = text;
+                    });
+                } else {
+                    self.passwordError = undefined;
+                }
+
+                if (self.username && self.password) {
+                    $http({
+                        method: 'POST',
+                        url: '/api/2/auth/login/',
+                        data: {
+                            username: self.username,
+                            password: self.password
+                        }
+                    }).then(function (response) {
+                        $window.localStorage.token = response.data.token;
+                        $state.go('list');
+                    }, function (response) {
+                        $translate('Invalid username or password').then(function (text) {
+                            self.passwordError = text;
+                        });
+                    })
+                }
+            };
+            this.clickOnNavBar = function () {
+                if (!utils.inIframe()) {
+                    $state.go('map');
+                } else {
+                    window.open(appConfig.url_absolute);
+                }
+            };
+
+            $scope.$watch('$ctrl.usernameError', function (newVal, oldVal) {
+                $('#username-error').css('visibility', self.usernameError ? 'visible' : 'hidden');
+            });
+            $scope.$watch('$ctrl.passwordError', function (newVal, oldVal) {
+                $('#password-error').css('visibility', self.passwordError ? 'visible' : 'hidden');
+            });
         }])
 
     .controller('HelpController', ['$state', '$anchorScroll', 'utils', 'appConfig',

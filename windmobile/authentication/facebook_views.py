@@ -11,12 +11,11 @@ from .views import Oauth2Callback
 class FacebookOauth2Callback(Oauth2Callback):
     authorization_base_url = 'https://www.facebook.com/dialog/oauth?scope=public_profile&scope=email'
     token_url = 'https://graph.facebook.com/oauth/access_token'
-    redirect_uri = settings.FACEBOOK_REDIRECT_URI,
     fields = 'id,name,first_name,last_name,gender,email,link,birthday,age_range,timezone,website,location,locale,' \
              'devices'
 
     def get(self, request, *args, **kwargs):
-        facebook = OAuth2Session(settings.FACEBOOK_CLIENT_ID, redirect_uri=self.redirect_uri)
+        facebook = OAuth2Session(settings.FACEBOOK_CLIENT_ID, redirect_uri=settings.FACEBOOK_REDIRECT_URI)
         facebook = facebook_compliance_fix(facebook)
 
         if 'code' not in self.request.GET:

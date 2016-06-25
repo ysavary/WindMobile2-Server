@@ -68,24 +68,24 @@
             </button>
             <div class="mdl-layout-spacer"></div>
             <nav class="mdl-navigation">
-                <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon" ng-click="main.centerMap()"
-                        ng-disabled="location === -2">
-                    <span ng-switch="location">
-                        <i ng-switch-when="1" class="material-icons">gps_fixed</i>
-                        <i ng-switch-when="0" class="material-icons blink">location_searching</i>
+                <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon" ng-click="$app.getGeoLocation()"
+                        ng-disabled="$app.location === -2">
+                    <span ng-switch="main.getGeoStatus()">
+                        <i ng-switch-when="2" class="material-icons">gps_fixed</i>
+                        <i ng-switch-when="1" class="material-icons blink">location_searching</i>
+                        <i ng-switch-when="0" class="material-icons">gps_not_fixed</i>
                         <i ng-switch-when="-1" class="material-icons">gps_not_fixed</i>
                         <i ng-switch-when="-2" class="material-icons">location_disabled</i>
-                        <i ng-switch-default class="material-icons">gps_not_fixed</i>
                     </span>
                 </button>
-                <button class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ng-click="main.centerMap()"
-                        ng-disabled="location === -2">
-                    <span ng-switch="location">
-                        <i ng-switch-when="1" class="material-icons">gps_fixed</i>
-                        <i ng-switch-when="0" class="material-icons blink">location_searching</i>
+                <button class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ng-click="$app.getGeoLocation()"
+                        ng-disabled="$app.location === -2">
+                    <span ng-switch="main.getGeoStatus()">
+                        <i ng-switch-when="2" class="material-icons">gps_fixed</i>
+                        <i ng-switch-when="1" class="material-icons blink">location_searching</i>
+                        <i ng-switch-when="0" class="material-icons">gps_not_fixed</i>
                         <i ng-switch-when="-1" class="material-icons">gps_not_fixed</i>
                         <i ng-switch-when="-2" class="material-icons">location_disabled</i>
-                        <i ng-switch-default class="material-icons">gps_not_fixed</i>
                     </span>
                     <span translate>Center</span>
                 </button>

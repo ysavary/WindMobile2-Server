@@ -1,4 +1,5 @@
 import requests
+from django.conf import settings
 from django.http import HttpResponseRedirect
 from oauth2client import client
 from rest_framework.reverse import reverse
@@ -9,7 +10,7 @@ from .views import Oauth2Callback
 class GoogleOauth2Callback(Oauth2Callback):
     def get(self, request, *args, **kwargs):
         flow = client.flow_from_clientsecrets(
-            'google_client_secret.json',
+            settings.GOOGLE_CLIENT_SECRET,
             scope=['profile', 'email'],
             redirect_uri=reverse('auth.google_oauth2callback', request=self.request))
 

@@ -96,6 +96,10 @@ angular.module('windmobile.services', [])
                 } catch (e) {
                     return true;
                 }
+            },
+
+            roundTo3Digits: function (num) {
+                return +(Math.round(num + "e+3") + "e-3");
             }
         }
     }])

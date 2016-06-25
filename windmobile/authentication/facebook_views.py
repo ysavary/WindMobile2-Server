@@ -11,7 +11,7 @@ from .views import Oauth2Callback
 class FacebookOauth2Callback(Oauth2Callback):
     authorization_base_url = 'https://www.facebook.com/dialog/oauth?scope=public_profile&scope=email'
     token_url = 'https://graph.facebook.com/oauth/access_token'
-    redirect_uri = 'https://winds.mobi/auth/facebook/oauth2callback'
+    redirect_uri = settings.FACEBOOK_REDIRECT_URI,
     fields = 'id,name,first_name,last_name,gender,email,link,birthday,age_range,timezone,website,location,locale,' \
              'devices'
 

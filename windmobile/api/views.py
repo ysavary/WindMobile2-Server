@@ -198,6 +198,9 @@ class Stations(APIView):
 
         if ids:
             query['_id'] = {'$in': ids}
+            stations = list(mongo_db.stations.find(query, projection_dict).limit(limit))
+            stations.sort(key=lambda station: ids.index(station['_id']))
+            return Response(stations)
 
         try:
             return Response(list(mongo_db.stations.find(query, projection_dict).sort('short', ASCENDING).limit(limit)))

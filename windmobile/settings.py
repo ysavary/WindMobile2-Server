@@ -142,7 +142,9 @@ SWAGGER_SETTINGS = {
     "api_version": '2.0'
 }
 
+GOOGLE_CLIENT_SECRET = ''
 
+FACEBOOK_REDIRECT_URI = ''
 FACEBOOK_CLIENT_ID = ''
 FACEBOOK_CLIENT_SECRET = ''
 
@@ -151,4 +153,3 @@ try:
     from .local_settings import *
 except ImportError:
     pass
-

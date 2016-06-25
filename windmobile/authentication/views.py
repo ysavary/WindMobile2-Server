@@ -1,6 +1,7 @@
 import binascii
 import os
 from datetime import datetime
+from django.utils import timezone
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -20,6 +21,8 @@ class Oauth2Callback(TemplateView):
         try:
             user = User.objects.get(username=username)
             user.email = email
+            # Update last_login field when a user does a social login (jwt token expired, ...)
+            user.last_login = timezone.now()
         except User.DoesNotExist:
             user = User(username=username, email=email)
         user.save()

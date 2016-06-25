@@ -6,12 +6,14 @@ import jwt
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.utils.translation import get_language_from_request
 from pymongo import MongoClient, uri_parser, ASCENDING
 from pymongo.errors import OperationFailure
 from rest_framework import status
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from stop_words import get_stop_words, StopWordError
 
 from . import diacritics
 from .authentication import JWTAuthentication, IsJWTAuthenticated
@@ -49,6 +51,10 @@ class Stations(APIView):
               paramType: query
             - name: search
               description: "String to search (ignoring accent)"
+              type: string
+              paramType: query
+            - name: search-language
+              description: "Language of the search. Default to request language or 'en'"
               type: string
               paramType: query
             - name: near-lat
@@ -92,6 +98,7 @@ class Stations(APIView):
         limit = int(request.query_params.get('limit', 20))
         provider = request.query_params.get('provider')
         search = request.query_params.get('search')
+        search_language = request.query_params.get('search-language')
         near_latitude = request.query_params.get('near-lat')
         near_longitude = request.query_params.get('near-lon')
         near_distance = request.query_params.get('near-distance')
@@ -115,11 +122,21 @@ class Stations(APIView):
             query['pv-code'] = provider
 
         if search:
+            if not search_language:
+                search_language = get_language_from_request(request)
+                if not search_language:
+                    search_language = 'en'
+            try:
+                stop_words = get_stop_words(search_language)
+            except StopWordError:
+                stop_words = get_stop_words('en')
+
             query['$or'] = []
             for word in search.split():
-                regexp_query = diacritics.create_regexp(diacritics.normalize(word))
-                query['$or'].append({'name': {'$regex': regexp_query, '$options': 'i'}})
-                query['$or'].append({'short': {'$regex': regexp_query, '$options': 'i'}})
+                if word not in stop_words:
+                    regexp_query = diacritics.create_regexp(diacritics.normalize(word))
+                    query['$or'].append({'name': {'$regex': regexp_query, '$options': 'i'}})
+                    query['$or'].append({'short': {'$regex': regexp_query, '$options': 'i'}})
 
         if near_latitude and near_longitude:
             if near_distance:

@@ -308,6 +308,10 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     if (isNaN(lat) || isNaN(lon)) {
                         initialLat = undefined;
                         initialLon = undefined;
+                    } else {
+                        var ignoreFirstGeolocation = true;
+                        initialLat = lat;
+                        initialLon = lon;
                     }
                 }
 
@@ -324,7 +328,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
 
                 $scope.$on('geoLocation', function (event, lat, lon) {
-                    self.doSearch(lat, lon);
+                    if (!ignoreFirstGeolocation) {
+                        self.doSearch(lat, lon);
+                    } else {
+                        ignoreFirstGeolocation = false;
+                    }
                 });
                 $scope.$on('profile', function (event) {
                     self.doSearch();
@@ -645,6 +653,10 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 if (isNaN(lat) || isNaN(lon)) {
                     initialLat = undefined;
                     initialLon = undefined;
+                } else {
+                    var ignoreFirstGeolocation = true;
+                    initialLat = lat;
+                    initialLon = lon;
                 }
             }
             if (zoom != undefined) {
@@ -674,7 +686,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             }
 
             $scope.$on('geoLocation', function (event, lat, lon) {
-                self.centerMap(lat, lon, 8);
+                if (!ignoreFirstGeolocation) {
+                    self.centerMap(lat, lon, 8);
+                } else {
+                    ignoreFirstGeolocation = false;
+                }
             });
 
             // Should try to find another way to reload map when the #wdm-map change

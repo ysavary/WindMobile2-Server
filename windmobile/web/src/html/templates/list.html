@@ -56,7 +56,7 @@
                     <i class="material-icons">map</i>
                     <span translate>Map</span>
                 </button>
-                <div ng-if="$app.profile">
+                <div ng-show="$app.profile">
                     <!-- Menu profile small -->
                     <button id="menu_profile_small" class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent">
                         <img ng-if="$app.profile.picture" height="32" width="32" src="{{ $app.profile.picture }}">
@@ -76,7 +76,7 @@
                         <li class="mdl-menu__item" ng-click="main.clickOnHelp()" translate>Help</li>
                     </ul>
                 </div>
-                <div ng-if="!$app.profile">
+                <div ng-hide="$app.profile">
                     <!-- Menu login small -->
                     <button id="menu_login_small" class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon">
                         <i class="material-icons">account_box</i>

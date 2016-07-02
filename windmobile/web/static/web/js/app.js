@@ -346,7 +346,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
 
                             var line = paper.line(lastX, lastY, x, y);
                             line.attr({
-                                class: 'wdm-direction wdm-direction-line'
+                                class: 'wdm-direction-line'
                             });
 
                             lastX = x;
@@ -364,8 +364,8 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 var windAvgSerie = {
                     name: 'windAvg',
                     type: 'areaspline',
+                    lineColor: '#b4b400',
                     lineWidth: 1.5,
-                    lineColor: '#676700',
                     color: '#333',
                     marker: {
                         enabled: false
@@ -375,7 +375,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 var windMaxSerie = {
                     name: 'windMax',
                     type: 'spline',
-                    color: '#676700',
+                    color: '#b4b400',
                     lineWidth: 1.5,
                     marker: {
                         enabled: false
@@ -465,7 +465,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         gridLineColor: '#555',
                         labels: {
                             format: '{value} km/h',
-                            style: {color: "#7d7d00", fontSize: '8.5px'}
+                            style: {color: "#7d7d00", fontSize: '9px'}
                         },
                         minRange: 10,
                         floor: 0
@@ -503,7 +503,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     type: 'column',
                     borderColor: '#444',
                     borderWidth: 0.5,
-                    color: 'rgba(30, 30, 30, 0.4)',
+                    color: '#333',
                     marker: {
                         enabled: false
                     },
@@ -512,7 +512,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 var temperatureSerie = {
                     name: 'temperature',
                     type: 'spline',
-                    color: '#891f30',
+                    color: '#cd1717',
                     lineWidth: 1.5,
                     marker: {
                         enabled: false
@@ -521,7 +521,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 var humiditySerie = {
                     name: 'humidity',
                     type: 'spline',
-                    color: '#264a68',
+                    color: '#1989c6',
                     lineWidth: 1.5,
                     marker: {
                         enabled: false
@@ -549,13 +549,13 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         gridLineColor: "#555",
                         labels: {
                             format: '{value} °C',
-                            style: {color: "#c72d46", fontSize: '8.5px'}
+                            style: {color: "#c72d46", fontSize: '9px'}
                         }
                     }, {
                         gridLineWidth: 0,
                         labels: {
                             format: '{value} %',
-                            style: {color: "#3b71a0", fontSize: '8.5px'}
+                            style: {color: "#3b71a0", fontSize: '9px'}
                         }
                     }, {
                         gridLineWidth: 0,

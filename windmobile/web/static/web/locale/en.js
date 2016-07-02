@@ -31,7 +31,7 @@
         'HELP_PROVIDER': "Data provider name",
         'HELP_STATION_SUMMARY_TEXT_1_RED_DATE': "Red date: ",
         'HELP_STATION_SUMMARY_TEXT_1_RED': "measures are older than 2 hours or the station is not operational",
-        'HELP_STATION_SUMMARY_TEXT_1_ORANGE_DATE': "Orange date: ",
+        'HELP_STATION_SUMMARY_TEXT_1_ORANGE_DATE': "Yellow date: ",
         'HELP_STATION_SUMMARY_TEXT_1_ORANGE': "measures are between 1 and 2 hours old or the station is not accurate",
         'HELP_STATION_SUMMARY_TEXT_2': "Last mean wind and gust wind measure",
         'HELP_STATION_SUMMARY_TEXT_3': "Trend: last hour mean wind historic",

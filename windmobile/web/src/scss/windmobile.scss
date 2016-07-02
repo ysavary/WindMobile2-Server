@@ -22,8 +22,9 @@ $trim-color-classes: true;
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap/modals";
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap/navs";
 
-$text-color: #8d8d8d;
-$highlight-text-color: #ddd;
+$text-color: #ccc;
+$highlight-text-color: #f8f8f8;
+$separator-line-color: darken($text-color, 30%);
 $small-font-size: 12px;
 $font-size: 15px;
 
@@ -52,7 +53,7 @@ $font-size: 15px;
 }
 
 #wdm-list-main {
-    background-color: #191919;
+    background-color: #000;
 }
 body.modal-open #wdm-list-content {
     -webkit-filter: blur(2px);
@@ -70,7 +71,7 @@ body.modal-open #wdm-list-content {
 .wdm-card-border {
     margin: 5px;
     padding: 5px;
-    border: 1.5px solid $highlight-text-color;
+    border: 1.5px solid $separator-line-color;
     border-radius: 8px;
 }
 
@@ -177,38 +178,39 @@ body.modal-open #wdm-list-content {
 }
 
 .wdm-status-red {
-    color: #990000;
+    color: #cd1717;
 }
 .wdm-status-orange {
-    color: #aa7109;
+    color: #b4b400;
 }
 
-$wind-color: #cdcd00;
+$wind-color: #b4b400;
 .wdm-wind-text-color {
-    color: darken($wind-color, 15%)
+    color: darken($wind-color, 5%)
 }
 .wdm-direction-line {
-    stroke: darken($wind-color, 15%);
+    stroke: $wind-color;
     stroke-width: 2;
 }
 .wdm-minichart-line {
-    stroke: darken($wind-color, 15%);
+    stroke: $wind-color;
     stroke-width: 2;
 }
+.wdm-direction-chart-line {
+    color: $wind-color;
+}
 
-$air-color: #3b71a0;
+$air-color: #1989c6;
 .wdm-air-text-color {
-    color: darken($air-color, 15%)
+    color: darken($air-color, 5%);
 }
-
-$temperature-color: #c72d46;
-.wdm-temperature-line {
-    color: darken($temperature-color, 15%)
+$temperature-color: #cd1717;
+.wdm-temperature-chart-line {
+    color: $temperature-color;
 }
-
-$humidity-color: #3b71a0;
-.wdm-humidity-line {
-    color: darken($humidity-color, 15%)
+$humidity-color: $air-color;
+.wdm-humidity-chart-line {
+    color: $humidity-color;
 }
 
 .wdm-card-map {
@@ -223,7 +225,7 @@ $humidity-color: #3b71a0;
     width: 30%;
     min-width: 145px;
     max-width: 250px;
-    background-color: #222;
+    background-color: #151515;
 }
 
 .wdm-modal {
@@ -235,7 +237,7 @@ $humidity-color: #3b71a0;
     margin-top: 15px;
     padding-left: 10px;
     padding-right: 10px;
-    border-bottom: 1px solid $text-color;
+    border-bottom: 1px solid $separator-line-color;
 
     > li {
         > a {
@@ -251,7 +253,7 @@ $humidity-color: #3b71a0;
         > a, a:hover, a:focus {
             background-color: transparent;
             color: $text-color;
-            border: 1px solid $text-color;
+            border: 1px solid $separator-line-color;
         }
     }
 }
@@ -322,18 +324,23 @@ $humidity-color: #3b71a0;
     padding: 0 2px 10px 2px;
 
     h1, h2, p, ol, li, td {
-        color: $text-color;
-    }
-    h1, h2 {
-        margin-top: 20px;
-        margin-bottom: 15px;
+        color: #333;
     }
     h1 {
         font-size: 23px;
-        color: #333;
+        margin-top: 15px;
+        margin-bottom: 5px;
+        i {
+            vertical-align: middle;
+        }
+        span {
+            vertical-align: middle;
+        }
     }
     h2 {
         font-size: 19px;
+        margin-top: 0px;
+        margin-bottom: 10px;
     }
     p {
         margin: 10px 0 10px 0;

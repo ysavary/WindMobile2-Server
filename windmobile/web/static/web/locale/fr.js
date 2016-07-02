@@ -31,7 +31,7 @@
         'HELP_PROVIDER': "Nom du fournisseur des données",
         'HELP_STATION_SUMMARY_TEXT_1_RED_DATE': "Date en rouge: ",
         'HELP_STATION_SUMMARY_TEXT_1_RED': "les mesures ont plus de 2 heures ou la balise n'est pas opérationnelle",
-        'HELP_STATION_SUMMARY_TEXT_1_ORANGE_DATE': "Date en orange: ",
+        'HELP_STATION_SUMMARY_TEXT_1_ORANGE_DATE': "Date en jaune: ",
         'HELP_STATION_SUMMARY_TEXT_1_ORANGE': "les mesures datent d'il y a 1 ou 2 heures ou la balise n'est pas fiable",
         'HELP_STATION_SUMMARY_TEXT_2': "Dernière mesure du vent moyen et de la rafale",
         'HELP_STATION_SUMMARY_TEXT_3': "Tendance: historique du vent moyen durant la dernière heure",

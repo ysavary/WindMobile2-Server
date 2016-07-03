@@ -16,6 +16,16 @@ $text-link-color: rgb(91, 0, 0);
 $trim-color-classes: true;
 @import "node_modules/material-design-lite/src/material-design-lite";
 
+// Fix mdl menus with icon and text alignment
+.mdl-menu__item {
+    i {
+        vertical-align: middle;
+    }
+    span {
+        vertical-align: middle;
+    }
+}
+
 // Using boostrap for modals and tabs only
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap/variables";
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap/mixins";
@@ -326,16 +336,19 @@ $humidity-color: $air-color;
     h1, h2, p, ol, li, td {
         color: #333;
     }
-    h1 {
-        font-size: 23px;
-        margin-top: 15px;
-        margin-bottom: 5px;
+    h1, h2 {
         i {
             vertical-align: middle;
         }
         span {
             vertical-align: middle;
         }
+    }
+
+    h1 {
+        font-size: 23px;
+        margin-top: 15px;
+        margin-bottom: 5px;
     }
     h2 {
         font-size: 19px;

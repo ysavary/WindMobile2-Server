@@ -191,7 +191,7 @@ body.modal-open #wdm-list-content {
     color: #cd1717;
 }
 .wdm-status-orange {
-    color: #b4b400;
+    color: #ffa500;
 }
 
 $wind-color: #b4b400;
@@ -337,6 +337,7 @@ $humidity-color: $air-color;
         color: #333;
     }
     h1, h2 {
+        line-height: 1.35;
         i {
             vertical-align: middle;
         }

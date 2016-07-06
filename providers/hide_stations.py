@@ -24,7 +24,8 @@ now = arrow.now().timestamp
 for station in mongo_db.stations.find({'status': {'$ne': Status.HIDDEN}}):
     last_measure = mongo_db[station['_id']].find_one({'$query': {}, '$orderby': {'_id': -1}})
 
-    if last_measure and last_measure['_id'] < now - max_data_age_in_days * 24 * 3600:
+    if last_measure and last_measure['_id'] < now - args['days'] * 24 * 3600:
         last = arrow.Arrow.fromtimestamp(last_measure['_id'])
         logger.info("Hiding {id} ['{name}'], last measure at {last}".format(id=station['_id'], name=station['short'],
                                                                             last=last.format('YYYY-MM-DD HH:mm:ssZZ')))
+        mongo_db.stations.update({'_id': station['_id']}, {'$set': {'status': Status.HIDDEN}})

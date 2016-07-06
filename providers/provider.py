@@ -111,12 +111,14 @@ class Provider(object):
             return self.mongo_db[station_id]
 
     def get_station_id(self, id):
+        if id is None:
+            raise ProviderException("Station id is none!")
         return self.provider_code + "-" + str(id)
 
     def __create_station(self, short_name, name, latitude, longitude, altitude, is_peak, status, tz, url=None):
 
         if any((not short_name, not name, altitude is None, latitude is None, longitude is None, not status, not tz)):
-            raise ProviderException("A mandatory value is null!")
+            raise ProviderException("A mandatory value is none!")
 
         station = {
             'pv-code': self.provider_code,

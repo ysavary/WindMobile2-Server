@@ -88,6 +88,7 @@ class Stations(APIView):
             - name: ids
               description: "Returns stations by ids"
               type: string
+              paramType: query
               allowMultiple: true
             - name: keys
               description: "List of keys to return"

@@ -13,8 +13,6 @@ from pymongo.errors import CollectionInvalid
 
 from settings import *
 
-max_data_age_in_days = 30
-
 
 class NoExceptionFormatter(logging.Formatter):
     def format(self, record):
@@ -322,8 +320,3 @@ class Provider(object):
         last_measure = self.measures_collection(station_id).find_one({'$query': {}, '$orderby': {'_id': -1}})
         if last_measure:
             self.stations_collection().update({'_id': station_id}, {'$set': {'last': last_measure}})
-            now = arrow.now().timestamp
-            if last_measure['_id'] < now - max_data_age_in_days * 24 * 3600:
-                self.stations_collection().update({'_id': station_id}, {'$set': {'status': Status.HIDDEN}})
-        else:
-            self.stations_collection().update({'_id': station_id}, {'$set': {'status': Status.HIDDEN}})

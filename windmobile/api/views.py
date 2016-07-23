@@ -117,7 +117,11 @@ class Stations(APIView):
         else:
             projection_dict = None
 
-        query = {'status': {'$ne': 'hidden'}}
+        now = datetime.now().timestamp()
+        query = {
+            'status': {'$ne': 'hidden'},
+            'last._id': {'$gt': now - 30 * 24 * 3600}
+        }
 
         if provider:
             query['pv-code'] = provider

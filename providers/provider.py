@@ -10,6 +10,7 @@ import redis
 import requests
 from pymongo import uri_parser, MongoClient, GEOSPHERE, ASCENDING
 from pymongo.errors import CollectionInvalid
+from raven import Client as RavenClient
 
 from settings import *
 
@@ -89,12 +90,13 @@ class Provider(object):
     connect_timeout = 7
     read_timeout = 30
 
-    def __init__(self, mongo_url, google_api_key):
-        uri = uri_parser.parse_uri(mongo_url)
+    def __init__(self):
+        uri = uri_parser.parse_uri(MONGODB_URL)
         client = MongoClient(uri['nodelist'][0][0], uri['nodelist'][0][1])
         self.mongo_db = client[uri['database']]
         self.redis = redis.StrictRedis(decode_responses=True)
-        self.google_api_key = google_api_key
+        self.google_api_key = GOOGLE_API_KEY
+        self.raven_client = RavenClient(SENTRY_URL)
 
     def stations_collection(self):
         collection = self.mongo_db.stations

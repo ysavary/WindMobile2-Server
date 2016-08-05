@@ -3,7 +3,6 @@ import dateutil
 import requests
 
 from provider import get_logger, Provider, ProviderException, Status
-from settings import *
 
 logger = get_logger('ffvl')
 
@@ -12,9 +11,6 @@ class Ffvl(Provider):
     provider_code = 'ffvl'
     provider_name = 'ffvl.fr'
     provider_url = 'http://www.balisemeteo.com'
-
-    def __init__(self, mongo_url, google_api_key):
-        super().__init__(mongo_url, google_api_key)
 
     def process_data(self):
         try:
@@ -88,5 +84,4 @@ class Ffvl(Provider):
 
         logger.info("...Done!")
 
-ffvl = Ffvl(MONGODB_URL, GOOGLE_API_KEY)
-ffvl.process_data()
+Ffvl().process_data()

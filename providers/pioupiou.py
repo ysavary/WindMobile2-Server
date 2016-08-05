@@ -4,8 +4,7 @@ import arrow
 import requests
 from arrow.parser import ParserError
 
-from provider import get_logger, Provider, Status
-from settings import *
+from provider import get_logger, Provider, Status, ProviderException
 
 logger = get_logger('pioupiou')
 
@@ -84,14 +83,17 @@ class Pioupiou(Provider):
                     self.insert_new_measures(measures_collection, station, new_measures, logger)
                     self.add_last_measure(station_id)
 
+                except ProviderException as e:
+                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
                 except Exception as e:
                     logger.error("Error while processing station '{0}': {1}".format(station_id, e))
+                    self.raven_client.captureException()
 
         except Exception as e:
-            logger.error("Error while processing PiouPiou: {0}".format(e))
+            logger.error("Error while processing Pioupiou: {0}".format(e))
+            self.raven_client.captureException()
 
         logger.info("Done !")
 
 
-pioupiou = Pioupiou(MONGODB_URL, GOOGLE_API_KEY)
-pioupiou.process_data()
+Pioupiou().process_data()

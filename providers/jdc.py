@@ -35,7 +35,7 @@ class Jdc(Provider):
             try:
                 jdc_stations = result.json()['Stations']
             except:
-                raise ProviderException("API does not return stations in JSON format")
+                raise Exception("API does not return stations in JSON format")
 
             for jdc_station in jdc_stations:
                 station_id = None
@@ -61,7 +61,7 @@ class Jdc(Provider):
                         try:
                             json = result.json()
                         except ValueError:
-                            raise ProviderException("Action=Data return invalid json response")
+                            raise Exception("Action=Data return invalid json response")
                         if json['ERROR'] == 'OK':
                             measures_collection = self.measures_collection(station_id)
 
@@ -87,22 +87,27 @@ class Jdc(Provider):
 
                             self.insert_new_measures(measures_collection, station, new_measures, logger)
                         else:
-                            raise ProviderException(
-                                "Action=Data return an error: '{0}'".format(json['ERROR']))
+                            raise ProviderException("Action=Data return an error: '{0}'".format(json['ERROR']))
 
+                    except ProviderException as e:
+                        logger.warn("Error while processing measures for station '{0}': {1}".format(station_id, e))
                     except Exception as e:
                         logger.error("Error while processing measures for station '{0}': {1}".format(station_id, e))
+                        self.raven_client.captureException()
 
                     self.add_last_measure(station_id)
 
+                except ProviderException as e:
+                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
                 except Exception as e:
                     logger.error("Error while processing station '{0}': {1}".format(station_id, e))
+                    self.raven_client.captureException()
 
         except Exception as e:
             logger.error("Error while processing JDC: {0}".format(e))
+            self.raven_client.captureException()
 
         logger.info("Done !")
 
 
-jdc = Jdc(MONGODB_URL, GOOGLE_API_KEY)
-jdc.process_data()
+Jdc().process_data()

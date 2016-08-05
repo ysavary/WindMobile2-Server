@@ -6,6 +6,8 @@ GOOGLE_API_KEY = ''
 
 WINDLINE_URL = ''
 
+SENTRY_URL = ''
+
 try:
     from local_settings import *
 except ImportError:

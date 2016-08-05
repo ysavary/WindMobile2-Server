@@ -7,7 +7,6 @@ import requests
 import xmltodict
 
 from provider import get_logger, Provider, Status, to_float
-from settings import *
 
 logger = get_logger('holfuy')
 
@@ -80,5 +79,4 @@ class Holfuy(Provider):
         logger.info("Done !")
 
 
-holfuy = Holfuy(MONGODB_URL, GOOGLE_API_KEY)
-holfuy.process_data()
+Holfuy().process_data()

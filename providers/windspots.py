@@ -4,7 +4,6 @@ import arrow
 import requests
 
 from provider import get_logger, Provider, ProviderException
-from settings import *
 
 logger = get_logger('windspots')
 
@@ -91,5 +90,4 @@ class Windspots(Provider):
         logger.info("Done !")
 
 
-windspots = Windspots(MONGODB_URL, GOOGLE_API_KEY)
-windspots.process_data()
+Windspots().process_data()

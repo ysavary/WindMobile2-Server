@@ -36,9 +36,9 @@ class Windline(Provider):
     temperature_type = 16400
     humidity_type = 16401
 
-    def __init__(self, mongo_url, google_api_key, windline_url):
-        super().__init__(mongo_url, google_api_key)
-        self.windline_url = windline_url
+    def __init__(self):
+        super().__init__()
+        self.windline_url = WINDLINE_URL
 
     # Windline status: offline, maintenance, demo or online
     def get_status(self, status):
@@ -222,5 +222,4 @@ class Windline(Provider):
 
         logger.info("Done !")
 
-windline = Windline(MONGODB_URL, GOOGLE_API_KEY, WINDLINE_URL)
-windline.process_data()
+Windline().process_data()

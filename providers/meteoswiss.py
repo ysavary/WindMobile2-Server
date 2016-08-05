@@ -6,7 +6,6 @@ import arrow
 import requests
 
 from provider import get_logger, Provider, Status
-from settings import *
 
 logger = get_logger('meteoswiss')
 
@@ -80,5 +79,4 @@ class MeteoSwiss(Provider):
 
         logger.info("...Done!")
 
-meteoswiss = MeteoSwiss(MONGODB_URL, GOOGLE_API_KEY)
-meteoswiss.process_data()
+MeteoSwiss().process_data()

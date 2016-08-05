@@ -178,8 +178,10 @@ class Provider(object):
             lat = to_float(latitude, 6)
             lon = to_float(longitude, 6)
 
-            if not lat and not lon:
+            if lat is None or lon is None:
                 raise ProviderException("No location provided")
+            if lat == 0 and lon == 0:
+                raise ProviderException("Location 0,0 provided")
 
             address_key = "address/{lat},{lon}".format(lat=lat, lon=lon)
             if (not short_name or not name) and not self.redis.exists(address_key):

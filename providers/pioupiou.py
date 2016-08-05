@@ -23,7 +23,7 @@ class Pioupiou(Provider):
                     logger.warn("'{0}': last known location date is {1}".format(station_id, location_date.humanize()))
                     up_to_date = False
             else:
-                logger.warn("'{0}': no last known location".format(station_id))
+                logger.error("'{0}': no last known location".format(station_id))
                 return Status.RED
 
             if location_status and up_to_date:
@@ -45,6 +45,11 @@ class Pioupiou(Provider):
                     station_id = self.get_station_id(piou_id)
 
                     location = piou_station['location']
+                    latitude = location.get('latitude')
+                    longitude = location.get('longitude')
+                    if (latitude is None or longitude is None) or (latitude == 0 and longitude == 0):
+                        continue
+
                     location_date = None
                     if location['date']:
                         try:
@@ -56,8 +61,8 @@ class Pioupiou(Provider):
                         station_id,
                         None,
                         None,
-                        piou_station['location']['latitude'],
-                        piou_station['location']['longitude'],
+                        latitude,
+                        longitude,
                         self.get_status(station_id, piou_station['status']['state'], location_date,
                                         location['success']),
                         url=urllib.parse.urljoin(self.provider_url, str(piou_id)))

@@ -38,6 +38,7 @@ class Jdc(Provider):
                 raise ProviderException("API does not return stations in JSON format")
 
             for jdc_station in jdc_stations:
+                station_id = None
                 try:
                     jdc_id = jdc_station['serial']
                     station_id = self.get_station_id(jdc_id)

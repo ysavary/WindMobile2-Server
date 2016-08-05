@@ -2,8 +2,9 @@ import urllib.parse
 
 import arrow
 import requests
+from arrow.parser import ParserError
 
-from provider import get_logger, Provider, ProviderException, Status
+from provider import get_logger, Provider, Status
 from settings import *
 
 logger = get_logger('pioupiou')
@@ -38,7 +39,7 @@ class Pioupiou(Provider):
             logger.info("Processing Pioupiou data...")
             result = requests.get("http://api.pioupiou.fr/v1/live-with-meta/all", timeout=(self.connect_timeout,
                                                                                            self.read_timeout))
-
+            station_id = None
             for piou_station in result.json()['data']:
                 try:
                     piou_id = piou_station['id']
@@ -49,7 +50,7 @@ class Pioupiou(Provider):
                     if location['date']:
                         try:
                             location_date = arrow.get(location['date'])
-                        except arrow.parser.ParserError:
+                        except ParserError:
                             pass
 
                     station = self.save_station(

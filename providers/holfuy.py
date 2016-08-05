@@ -1,4 +1,3 @@
-import json
 import re
 import urllib.parse
 from datetime import datetime, timedelta
@@ -29,6 +28,7 @@ class Holfuy(Provider):
                 markers_json = xmltodict.parse(markers_xml)['markers']['marker']
 
                 for holfuy_station in markers_json:
+                    station_id = None
                     try:
                         holfuy_id = holfuy_station['@station'][1:]
                         station_id = self.get_station_id(holfuy_id)
@@ -72,10 +72,10 @@ class Holfuy(Provider):
                         self.add_last_measure(station_id)
 
                     except Exception as e:
-                        logger.error("Error while processing station '{0}': {1}".format(json.dumps(holfuy_station), e))
+                        logger.error("Error while processing station '{0}': {1}".format(station_id, e))
 
         except Exception as e:
-            raise e
+            logger.error("Error while processing Holfuy: {0}".format(e))
 
         logger.info("Done !")
 

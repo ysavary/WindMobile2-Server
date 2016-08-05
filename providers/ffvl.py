@@ -24,6 +24,7 @@ class Ffvl(Provider):
                                                                                   self.read_timeout))
 
             for ffvl_station in result.json():
+                station_id = None
                 try:
                     ffvl_id = ffvl_station['idBalise']
                     station_id = self.get_station_id(ffvl_id)

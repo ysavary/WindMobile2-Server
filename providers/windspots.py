@@ -21,6 +21,7 @@ class Windspots(Provider):
                                   timeout=(self.connect_timeout, self.read_timeout))
 
             for windspots_station in result.json()['stationInfo']:
+                station_id = None
                 try:
                     windspots_id = windspots_station['@id'][10:]
                     station_id = self.get_station_id(windspots_id)

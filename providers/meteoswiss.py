@@ -29,6 +29,7 @@ class MeteoSwiss(Provider):
             keys = lines[2].strip().split('|')
 
             for line in lines[3:]:
+                station_id = None
                 try:
                     data = {}
                     for i, key in enumerate(keys):
@@ -75,7 +76,7 @@ class MeteoSwiss(Provider):
                     logger.error("Error while processing station '{0}': {1}".format(station_id, e))
 
         except Exception as e:
-            logger.error("Error while processing METEOSWISS: {0}".format(e))
+            logger.error("Error while processing MeteoSwiss: {0}".format(e))
 
         logger.info("...Done!")
 

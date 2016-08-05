@@ -137,6 +137,8 @@ class Windline(Provider):
                 short_name = row[2]
                 name = row[3]
                 status = row[4]
+
+                station_id = None
                 try:
                     station_id = self.get_station_id(windline_id)
                     station = self.save_station(
@@ -164,14 +166,14 @@ class Windline(Provider):
                             mysql_cursor, windline_id, self.humidity_type, start_date)
 
                         # The wind average measure is the time reference for a measure
-                        for row in wind_average_rows:
+                        for wind_average_row in wind_average_rows:
                             try:
-                                key = arrow.get(row[0]).timestamp
-                                if not key in [measure['_id'] for measure in new_measures] and \
+                                key = arrow.get(wind_average_row[0]).timestamp
+                                if key not in [measure['_id'] for measure in new_measures] and \
                                         not measures_collection.find_one(key):
-                                    wind_average = self.ms_to_kmh(row[1])
+                                    wind_average = self.ms_to_kmh(wind_average_row[1])
 
-                                    measure_date = row[0]
+                                    measure_date = wind_average_row[0]
 
                                     wind_maximum = self.ms_to_kmh(self.get_measure_value(
                                         wind_maximum_rows,
@@ -213,7 +215,7 @@ class Windline(Provider):
                     logger.error("Error while processing station '{0}': {1}".format(station_id, e))
 
         except Exception as e:
-            logger.error("Error while processing WINDLINE: {0}".format(e))
+            logger.error("Error while processing Windline: {0}".format(e))
         finally:
             mysql_cursor.close()
             mysql_connection.close()

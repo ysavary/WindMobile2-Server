@@ -43,7 +43,8 @@ def get_logger(name, level=logging.INFO):
             logger.addHandler(handler)
 
             handler = logging.handlers.RotatingFileHandler(
-                path.join(path.expanduser(WINDMOBILE_LOG_DIR), name + '.stacktraces.log'), maxBytes=50 * 10 ** 6)
+                path.join(path.expanduser(WINDMOBILE_LOG_DIR), name + '.stacktraces.log'), maxBytes=10 * 10 ** 6,
+                backupCount=2)
             fmt = logging.Formatter('%(asctime)s %(levelname)s [%(name)s]: %(message)s', '%Y-%m-%dT%H:%M:%S%z')
             handler.setFormatter(fmt)
             logger.addHandler(handler)

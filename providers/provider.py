@@ -165,12 +165,16 @@ class Provider(object):
             elevation = float(result.json()['results'][0]['elevation'])
             is_peak = False
             for result in result.json()['results'][1:]:
-                glide_ratio = radius / (elevation - float(result['elevation']))
+                try:
+                    glide_ratio = radius / (elevation - float(result['elevation']))
+                except ZeroDivisionError:
+                    glide_ratio = float('Infinity')
                 if 0 < glide_ratio < 6:
                     is_peak = True
                     break
             return elevation, is_peak
         except Exception:
+            self.raven_client.captureException()
             raise ProviderException("Unable to compute elevation")
 
     def save_station(self, _id, short_name, name, latitude, longitude, status, altitude=None, tz=None, url=None):

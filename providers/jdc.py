@@ -3,7 +3,6 @@ import urllib.parse
 import requests
 
 from provider import get_logger, Provider, ProviderException, Status
-from settings import *
 
 logger = get_logger('jdc')
 
@@ -35,7 +34,7 @@ class Jdc(Provider):
             try:
                 jdc_stations = result.json()['Stations']
             except:
-                raise Exception("API does not return stations in JSON format")
+                raise Exception("Action=StationView returns invalid json response")
 
             for jdc_station in jdc_stations:
                 station_id = None
@@ -54,14 +53,12 @@ class Jdc(Provider):
 
                     try:
                         # Asking 2 days of data
-                        result = requests.get(
-                            "http://meteo.jdc.ch/API/?Action=DataView&serial={jdc_id}&duration=172800"
-                            "&flags=offline|maintenance|test|online".format(jdc_id=jdc_id),
-                            timeout=(self.connect_timeout, self.read_timeout))
+                        result = requests.get("http://meteo.jdc.ch/API/?Action=DataView&serial={jdc_id}&duration=172800"
+                                              .format(jdc_id=jdc_id), timeout=(self.connect_timeout, self.read_timeout))
                         try:
                             json = result.json()
                         except ValueError:
-                            raise Exception("Action=Data return invalid json response")
+                            raise Exception("Action=DataView returns invalid json response")
                         if json['ERROR'] == 'OK':
                             measures_collection = self.measures_collection(station_id)
 
@@ -87,7 +84,7 @@ class Jdc(Provider):
 
                             self.insert_new_measures(measures_collection, station, new_measures, logger)
                         else:
-                            raise ProviderException("Action=Data return an error: '{0}'".format(json['ERROR']))
+                            raise ProviderException("Action=Data returns an error: '{0}'".format(json['ERROR']))
 
                     except ProviderException as e:
                         logger.warn("Error while processing measures for station '{0}': {1}".format(station_id, e))

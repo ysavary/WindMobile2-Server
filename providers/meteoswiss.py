@@ -48,7 +48,8 @@ class MeteoSwiss(Provider):
                         description['location']['lat'],
                         description['location']['lon'],
                         Status.GREEN,
-                        altitude=description['altitude'])
+                        altitude=description['altitude'],
+                        tz='Europe/Zurich')
 
                     key = arrow.get(data['time'], 'YYYYMMDDHHmm').timestamp
 

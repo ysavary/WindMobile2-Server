@@ -1,6 +1,6 @@
 import arrow
-import dateutil
 import requests
+from pytz import timezone
 
 from provider import get_logger, Provider, ProviderException, Status
 
@@ -45,7 +45,7 @@ class Ffvl(Provider):
             result = requests.get("http://data.ffvl.fr/json/relevesmeteo.json", timeout=(self.connect_timeout,
                                                                                          self.read_timeout))
 
-            ffvl_tz = dateutil.tz.gettz('Europe/Paris')
+            ffvl_tz = timezone('Europe/Paris')
             for ffvl_measure in result.json():
                 try:
                     ffvl_id = ffvl_measure['idbalise']

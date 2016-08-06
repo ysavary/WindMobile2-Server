@@ -90,6 +90,7 @@ def to_bool(value):
 class Provider(object):
     connect_timeout = 7
     read_timeout = 30
+    location_cache_duration = 2*24*3600
 
     def __init__(self):
         uri = uri_parser.parse_uri(MONGODB_URL)
@@ -161,7 +162,7 @@ class Provider(object):
             .format(path=path, key=self.google_api_key),
             timeout=(self.connect_timeout, self.read_timeout))
         if result.json()['status'] == 'OVER_QUERY_LIMIT':
-            raise ProviderException("googleapis usage limits exceeded")
+            raise ProviderException("Google Elevation API usage limits exceeded")
         try:
             elevation = float(result.json()['results'][0]['elevation'])
             is_peak = False
@@ -196,7 +197,7 @@ class Provider(object):
                     .format(lat=lat, lon=lon, key=self.google_api_key),
                     timeout=(self.connect_timeout, self.read_timeout))
                 if result.json()['status'] == 'OVER_QUERY_LIMIT':
-                    raise ProviderException("googleapis usage limits exceeded")
+                    raise ProviderException("Google Geocoding API usage limits exceeded")
                 try:
                     address_short_name = None
                     address_long_name = None
@@ -211,12 +212,12 @@ class Provider(object):
                     pipe = self.redis.pipeline()
                     pipe.hset(address_key, 'short', address_short_name)
                     pipe.hset(address_key, 'name', address_long_name)
-                    pipe.expire(address_key, 3*24*3600)
+                    pipe.expire(address_key, self.location_cache_duration)
                     pipe.execute()
                 except Exception:
                     pipe = self.redis.pipeline()
                     pipe.hset(address_key, 'status', 'error')
-                    pipe.expire(address_key, 3*24*3600)
+                    pipe.expire(address_key, self.location_cache_duration)
                     pipe.execute()
 
             alt_key = "alt/{lat},{lon}".format(lat=lat, lon=lon)
@@ -226,12 +227,12 @@ class Provider(object):
                     pipe = self.redis.pipeline()
                     pipe.hset(alt_key, 'alt', elevation)
                     pipe.hset(alt_key, 'is_peak', is_peak)
-                    pipe.expire(alt_key, 3*24*3600)
+                    pipe.expire(alt_key, self.location_cache_duration)
                     pipe.execute()
                 except ProviderException:
                     pipe = self.redis.pipeline()
                     pipe.hset(alt_key, 'status', 'error')
-                    pipe.expire(alt_key, 3*24*3600)
+                    pipe.expire(alt_key, self.location_cache_duration)
                     pipe.execute()
 
             tz_key = "tz/{lat},{lon}".format(lat=lat, lon=lon)
@@ -241,13 +242,13 @@ class Provider(object):
                     .format(lat=lat, lon=lon, utc=arrow.utcnow().timestamp, key=self.google_api_key),
                     timeout=(self.connect_timeout, self.read_timeout))
                 if result.json()['status'] == 'OVER_QUERY_LIMIT':
-                    raise ProviderException("googleapis usage limits exceeded")
+                    raise ProviderException("Google Time Zone API usage limits exceeded")
                 try:
                     tz = result.json()['timeZoneId']
                     dateutil.tz.gettz(tz)
-                    self.redis.setex(tz_key, 12*3600, tz)
+                    self.redis.setex(tz_key, self.location_cache_duration, tz)
                 except Exception:
-                    self.redis.setex(tz_key, 12*3600, 'error')
+                    self.redis.setex(tz_key, self.location_cache_duration, 'error')
 
             if not short_name:
                 if self.redis.hget(address_key, 'status') == 'error' or not self.redis.hexists(address_key, 'short'):

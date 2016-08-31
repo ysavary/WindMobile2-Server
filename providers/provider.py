@@ -99,6 +99,7 @@ class Provider(object):
         self.redis = redis.StrictRedis(decode_responses=True)
         self.google_api_key = GOOGLE_API_KEY
         self.raven_client = RavenClient(SENTRY_URL)
+        self.raven_client.tags_context({'provider': self.provider_name})
 
     def stations_collection(self):
         collection = self.mongo_db.stations
@@ -162,7 +163,7 @@ class Provider(object):
             .format(path=path, key=self.google_api_key),
             timeout=(self.connect_timeout, self.read_timeout))
         if result.json()['status'] == 'OVER_QUERY_LIMIT':
-            raise ProviderException("Google Elevation API usage limits exceeded")
+            raise ProviderException("Google Elevation API: usage limits exceeded")
         try:
             elevation = float(result.json()['results'][0]['elevation'])
             is_peak = False
@@ -197,7 +198,10 @@ class Provider(object):
                     .format(lat=lat, lon=lon, key=self.google_api_key),
                     timeout=(self.connect_timeout, self.read_timeout))
                 if result.json()['status'] == 'OVER_QUERY_LIMIT':
-                    raise ProviderException("Google Geocoding API usage limits exceeded")
+                    raise ProviderException("Google Geocoding API: usage limits exceeded")
+                elif result.json()['status'] == 'INVALID_REQUEST':
+                    raise ProviderException("Google Geocoding API: {message}"
+                                            .format(message=result.json()['error_message']))
                 try:
                     address_short_name = None
                     address_long_name = None
@@ -242,7 +246,9 @@ class Provider(object):
                     .format(lat=lat, lon=lon, utc=arrow.utcnow().timestamp, key=self.google_api_key),
                     timeout=(self.connect_timeout, self.read_timeout))
                 if result.json()['status'] == 'OVER_QUERY_LIMIT':
-                    raise ProviderException("Google Time Zone API usage limits exceeded")
+                    raise ProviderException("Google Time Zone API: usage limits exceeded")
+                elif result.json()['status'] == 'ZERO_RESULTS':
+                    raise ProviderException("Google Time Zone API: zero results")
                 try:
                     tz = result.json()['timeZoneId']
                     dateutil.tz.gettz(tz)

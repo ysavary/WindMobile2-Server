@@ -1,5 +1,5 @@
-import arrow
-import dateutil
+from datetime import datetime
+from pytz import timezone
 import requests
 
 from provider import get_logger, Provider, ProviderException, Status
@@ -45,7 +45,7 @@ class Ffvl(Provider):
             result = requests.get("http://data.ffvl.fr/json/relevesmeteo.json", timeout=(self.connect_timeout,
                                                                                          self.read_timeout))
 
-            ffvl_tz = dateutil.tz.gettz('Europe/Paris')
+            ffvl_tz = timezone('Europe/Paris')
             for ffvl_measure in result.json():
                 try:
                     ffvl_id = ffvl_measure['idbalise']
@@ -57,8 +57,9 @@ class Ffvl(Provider):
                     measures_collection = self.measures_collection(station_id)
                     new_measures = []
 
-                    key = arrow.get(ffvl_measure['date'], 'YYYY-MM-DD HH:mm:ss').replace(
-                        tzinfo=ffvl_tz).timestamp
+                    key = int(
+                        ffvl_tz.localize(datetime.strptime(ffvl_measure['date'], '%Y-%m-%d %H:%M:%S')).timestamp())
+
                     if not measures_collection.find_one(key):
                         measure = self.create_measure(
                             key,

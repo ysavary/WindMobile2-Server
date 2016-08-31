@@ -322,7 +322,6 @@ class Provider(object):
         if len(new_measures) > 0:
             measure_collection.insert(new_measures)
 
-            start_date = arrow.Arrow.fromtimestamp(new_measures[0]['_id'], dateutil.tz.gettz(station['tz']))
             end_date = arrow.Arrow.fromtimestamp(new_measures[-1]['_id'], dateutil.tz.gettz(station['tz']))
             logger.info(
                 "--> {end_date} ({end_date_local}), {name} ({id}): {nb} values inserted".format(

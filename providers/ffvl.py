@@ -1,6 +1,7 @@
 from datetime import datetime
-from pytz import timezone
+
 import requests
+from pytz import timezone
 
 from provider import get_logger, Provider, ProviderException, Status
 
@@ -17,7 +18,7 @@ class Ffvl(Provider):
             logger.info("Processing FFVL data...")
 
             result = requests.get("http://data.ffvl.fr/json/balises.json", timeout=(self.connect_timeout,
-                                                                                  self.read_timeout))
+                                                                                    self.read_timeout))
 
             for ffvl_station in result.json():
                 station_id = None
@@ -35,11 +36,17 @@ class Ffvl(Provider):
                         altitude=ffvl_station['altitude'],
                         url=ffvl_station['url'])
 
+                except ProviderException as e:
+                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
                 except Exception as e:
                     logger.error("Error while processing station '{0}': {1}".format(station_id, e))
+                    self.raven_client.captureException()
 
+        except ProviderException as e:
+            logger.warn("Error while processing stations: {0}".format(e))
         except Exception as e:
             logger.error("Error while processing stations: {0}".format(e))
+            self.raven_client.captureException()
 
         try:
             result = requests.get("http://data.ffvl.fr/json/relevesmeteo.json", timeout=(self.connect_timeout,
@@ -75,13 +82,19 @@ class Ffvl(Provider):
 
                     self.insert_new_measures(measures_collection, station, new_measures, logger)
 
+                except ProviderException as e:
+                    logger.warn("Error while processing measures for station '{0}': {1}".format(station_id, e))
                 except Exception as e:
                     logger.error("Error while processing measures for station '{0}': {1}".format(station_id, e))
+                    self.raven_client.captureException()
 
                 self.add_last_measure(station_id)
 
+        except ProviderException as e:
+            logger.warn("Error while processing FFVL: {0}", e)
         except Exception as e:
             logger.error("Error while processing FFVL: {0}", e)
+            self.raven_client.captureException()
 
         logger.info("...Done!")
 

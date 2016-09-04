@@ -344,6 +344,7 @@ class Provider(object):
         if rain is not None:
             measure['rain'] = to_float(rain, 1)
 
+        measure['time'] = arrow.now().timestamp
         return measure
 
     def insert_new_measures(self, measure_collection, station, new_measures, logger):

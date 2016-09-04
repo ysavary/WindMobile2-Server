@@ -6,7 +6,7 @@ import pytz
 import requests
 import xmltodict
 
-from provider import get_logger, Provider, Status, to_float
+from provider import get_logger, Provider, Status, to_float, ProviderException
 
 logger = get_logger('holfuy')
 
@@ -29,6 +29,8 @@ class Holfuy(Provider):
                 for holfuy_station in markers_json:
                     station_id = None
                     try:
+                        if '@station' not in holfuy_station:
+                            continue
                         holfuy_id = holfuy_station['@station'][1:]
                         station_id = self.get_station_id(holfuy_id)
                         name = holfuy_station['@place']
@@ -70,11 +72,17 @@ class Holfuy(Provider):
                         self.insert_new_measures(measures_collection, station, new_measures, logger)
                         self.add_last_measure(station_id)
 
+                    except ProviderException as e:
+                        logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
                     except Exception as e:
                         logger.error("Error while processing station '{0}': {1}".format(station_id, e))
+                        self.raven_client.captureException()
 
+        except ProviderException as e:
+            logger.warn("Error while processing Holfuy: {0}".format(e))
         except Exception as e:
             logger.error("Error while processing Holfuy: {0}".format(e))
+            self.raven_client.captureException()
 
         logger.info("Done !")
 

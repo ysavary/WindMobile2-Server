@@ -58,6 +58,10 @@ class ProviderException(Exception):
     pass
 
 
+class UsageLimitException(ProviderException):
+    pass
+
+
 class Status:
     HIDDEN = 'hidden'
     RED = 'red'
@@ -163,132 +167,156 @@ class Provider(object):
             .format(path=path, key=self.google_api_key),
             timeout=(self.connect_timeout, self.read_timeout))
         if result.json()['status'] == 'OVER_QUERY_LIMIT':
-            raise ProviderException("Google Elevation API: usage limits exceeded")
-        try:
-            elevation = float(result.json()['results'][0]['elevation'])
-            is_peak = False
-            for result in result.json()['results'][1:]:
-                try:
-                    glide_ratio = radius / (elevation - float(result['elevation']))
-                except ZeroDivisionError:
-                    glide_ratio = float('Infinity')
-                if 0 < glide_ratio < 6:
-                    is_peak = True
-                    break
-            return elevation, is_peak
-        except Exception:
-            self.raven_client.captureException()
-            raise ProviderException("Unable to compute elevation")
+            raise UsageLimitException("Google Elevation API")
+        elif result.json()['status'] == 'INVALID_REQUEST':
+            raise ProviderException("Google Elevation API: {message}"
+                                    .format(message=result.json()['error_message']))
+
+        elevation = float(result.json()['results'][0]['elevation'])
+        is_peak = False
+        for result in result.json()['results'][1:]:
+            try:
+                glide_ratio = radius / (elevation - float(result['elevation']))
+            except ZeroDivisionError:
+                glide_ratio = float('Infinity')
+            if 0 < glide_ratio < 6:
+                is_peak = True
+                break
+        return elevation, is_peak
 
     def save_station(self, _id, short_name, name, latitude, longitude, status, altitude=None, tz=None, url=None):
-        try:
-            lat = to_float(latitude, 6)
-            lon = to_float(longitude, 6)
+        lat = to_float(latitude, 6)
+        lon = to_float(longitude, 6)
 
-            if lat is None or lon is None:
-                raise ProviderException("No location provided")
-            if lat == 0 and lon == 0:
-                raise ProviderException("Location 0,0 provided")
+        if lat is None or lon is None:
+            raise ProviderException("No location provided")
+        if lat == 0 and lon == 0:
+            raise ProviderException("Location 0,0 provided")
 
-            address_key = "address/{lat},{lon}".format(lat=lat, lon=lon)
-            if (not short_name or not name) and not self.redis.exists(address_key):
+        address_key = "address/{lat},{lon}".format(lat=lat, lon=lon)
+        if (not short_name or not name) and not self.redis.exists(address_key):
+            try:
                 result = requests.get(
                     "https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lon}"
                     "&result_type=colloquial_area|locality|natural_feature|point_of_interest|neighborhood&key={key}"
                     .format(lat=lat, lon=lon, key=self.google_api_key),
                     timeout=(self.connect_timeout, self.read_timeout))
                 if result.json()['status'] == 'OVER_QUERY_LIMIT':
-                    raise ProviderException("Google Geocoding API: usage limits exceeded")
+                    raise UsageLimitException("Google Geocoding API")
                 elif result.json()['status'] == 'INVALID_REQUEST':
                     raise ProviderException("Google Geocoding API: {message}"
                                             .format(message=result.json()['error_message']))
-                try:
-                    address_short_name = None
-                    address_long_name = None
-                    for result in result.json()['results']:
-                        for component in result['address_components']:
-                            if 'postal_code' not in component['types']:
-                                address_short_name = component['short_name']
-                                address_long_name = component['long_name']
-                                break
-                    if not address_short_name or not address_long_name:
-                        raise Exception("No valid address name found")
-                    pipe = self.redis.pipeline()
-                    pipe.hset(address_key, 'short', address_short_name)
-                    pipe.hset(address_key, 'name', address_long_name)
-                    pipe.expire(address_key, self.location_cache_duration)
-                    pipe.execute()
-                except Exception:
-                    pipe = self.redis.pipeline()
-                    pipe.hset(address_key, 'status', 'error')
-                    pipe.expire(address_key, self.location_cache_duration)
-                    pipe.execute()
+                address_short_name = None
+                address_long_name = None
+                for result in result.json()['results']:
+                    for component in result['address_components']:
+                        if 'postal_code' not in component['types']:
+                            address_short_name = component['short_name']
+                            address_long_name = component['long_name']
+                            break
+                if not address_short_name or not address_long_name:
+                    raise ProviderException("Google Geocoding API: No valid address name found")
+                pipe = self.redis.pipeline()
+                pipe.hmset(address_key, {
+                    'short': address_short_name,
+                    'name': address_long_name
+                })
+                pipe.expire(address_key, self.location_cache_duration)
+                pipe.execute()
+            except (UsageLimitException, TimeoutError) as e:
+                raise e
+            except Exception as e:
+                if not isinstance(e, ProviderException):
+                    self.raven_client.captureException()
+                pipe = self.redis.pipeline()
+                pipe.hset(address_key, 'error', repr(e))
+                pipe.expire(address_key, self.location_cache_duration)
+                pipe.execute()
 
-            alt_key = "alt/{lat},{lon}".format(lat=lat, lon=lon)
-            if not self.redis.exists(alt_key):
-                try:
-                    elevation, is_peak = self.compute_elevation(lat, lon)
-                    pipe = self.redis.pipeline()
-                    pipe.hset(alt_key, 'alt', elevation)
-                    pipe.hset(alt_key, 'is_peak', is_peak)
-                    pipe.expire(alt_key, self.location_cache_duration)
-                    pipe.execute()
-                except ProviderException:
-                    pipe = self.redis.pipeline()
-                    pipe.hset(alt_key, 'status', 'error')
-                    pipe.expire(alt_key, self.location_cache_duration)
-                    pipe.execute()
+        alt_key = "alt/{lat},{lon}".format(lat=lat, lon=lon)
+        if not self.redis.exists(alt_key):
+            try:
+                elevation, is_peak = self.compute_elevation(lat, lon)
+                pipe = self.redis.pipeline()
+                pipe.hmset(alt_key, {
+                    'alt': elevation,
+                    'is_peak': is_peak
+                })
+                pipe.expire(alt_key, self.location_cache_duration)
+                pipe.execute()
+            except (UsageLimitException, TimeoutError) as e:
+                raise e
+            except Exception as e:
+                if not isinstance(e, ProviderException):
+                    self.raven_client.captureException()
+                pipe = self.redis.pipeline()
+                pipe.hset(alt_key, 'error', repr(e))
+                pipe.expire(alt_key, self.location_cache_duration)
+                pipe.execute()
 
-            tz_key = "tz/{lat},{lon}".format(lat=lat, lon=lon)
-            if not tz and not self.redis.exists(tz_key):
+        tz_key = "tz/{lat},{lon}".format(lat=lat, lon=lon)
+        if not tz and not self.redis.exists(tz_key):
+            try:
                 result = requests.get(
-                    "https://maps.googleapis.com/maps/api/timezone/json?location={lat},{lon}&timestamp={utc}&key={key}"
+                    "https://maps.googleapis.com/maps/api/timezone/json?location={lat},{lon}"
+                    "&timestamp={utc}&key={key}"
                     .format(lat=lat, lon=lon, utc=arrow.utcnow().timestamp, key=self.google_api_key),
                     timeout=(self.connect_timeout, self.read_timeout))
                 if result.json()['status'] == 'OVER_QUERY_LIMIT':
-                    raise ProviderException("Google Time Zone API: usage limits exceeded")
+                    raise UsageLimitException("Google Time Zone API")
+                elif result.json()['status'] == 'INVALID_REQUEST':
+                    raise ProviderException("Google Time Zone API: {message}"
+                                            .format(message=result.json()['error_message']))
                 elif result.json()['status'] == 'ZERO_RESULTS':
-                    raise ProviderException("Google Time Zone API: zero results")
-                try:
-                    tz = result.json()['timeZoneId']
-                    dateutil.tz.gettz(tz)
-                    self.redis.setex(tz_key, self.location_cache_duration, tz)
-                except Exception:
-                    self.redis.setex(tz_key, self.location_cache_duration, 'error')
-
-            if not short_name:
-                if self.redis.hget(address_key, 'status') == 'error' or not self.redis.hexists(address_key, 'short'):
-                    raise ProviderException("Unable to determine station 'short' value")
-                short_name = self.redis.hget(address_key, 'short')
-
-            if not name:
-                if self.redis.hget(alt_key, 'status') == 'error' or not self.redis.hexists(address_key, 'name'):
-                    raise ProviderException("Unable to determine station 'name' value")
-                name = self.redis.hget(address_key, 'name')
-
-            if not altitude:
-                if self.redis.hget(alt_key, 'status') == 'error' or not self.redis.hexists(alt_key, 'alt'):
-                    raise ProviderException("Unable to determine station 'alt' value")
-                altitude = self.redis.hget(alt_key, 'alt')
-
-            if self.redis.hget(alt_key, 'status') == 'error' or not self.redis.hexists(alt_key, 'is_peak'):
-                raise ProviderException("Unable to determine station 'peak' value")
-            is_peak = self.redis.hget(alt_key, 'is_peak')
-
-            if not tz:
-                if self.redis.get(tz_key) == 'error' or not self.redis.exists(tz_key):
-                    raise ProviderException("Unable to determine station 'tz' value")
-                tz = self.redis.get(tz_key)
-
-            station = self.__create_station(short_name, name, latitude, longitude, altitude, is_peak, status, tz, url)
-            self.stations_collection().update({'_id': _id}, {'$set': station}, upsert=True)
-            return self.stations_collection().find_one(_id)
-        except Exception as e:
-            # Unable to update the station based on the provided parameters: return the database version if available
-            station = self.stations_collection().find_one(_id)
-            if not station:
+                    raise ProviderException("Google Time Zone API: ZERO_RESULTS")
+                tz = result.json()['timeZoneId']
+                dateutil.tz.gettz(tz)
+                pipe = self.redis.pipeline()
+                pipe.hset(tz_key, 'tz', tz)
+                pipe.expire(tz_key, self.location_cache_duration)
+                pipe.execute()
+            except (UsageLimitException, TimeoutError) as e:
                 raise e
-            return station
+            except Exception as e:
+                if not isinstance(e, ProviderException):
+                    self.raven_client.captureException()
+                pipe = self.redis.pipeline()
+                pipe.hset(tz_key, 'error', repr(e))
+                pipe.expire(tz_key, self.location_cache_duration)
+                pipe.execute()
+
+        if not short_name:
+            if self.redis.hexists(address_key, 'error'):
+                raise ProviderException("Unable to determine station 'short': {message}".format(
+                    message=self.redis.hget(address_key, 'error')))
+            short_name = self.redis.hget(address_key, 'short')
+
+        if not name:
+            if self.redis.hexists(address_key, 'error'):
+                raise ProviderException("Unable to determine station 'name': {message}".format(
+                    message=self.redis.hget(address_key, 'error')))
+            name = self.redis.hget(address_key, 'name')
+
+        if not altitude:
+            if self.redis.hexists(alt_key, 'error'):
+                raise ProviderException("Unable to determine station 'alt': {message}".format(
+                    message=self.redis.hget(alt_key, 'error')))
+            altitude = self.redis.hget(alt_key, 'alt')
+
+        if self.redis.hexists(alt_key, 'error') == 'error':
+            raise ProviderException("Unable to determine station 'peak': {message}".format(
+                    message=self.redis.hget(alt_key, 'error')))
+        is_peak = self.redis.hget(alt_key, 'is_peak')
+
+        if not tz:
+            if self.redis.hexists(tz_key, 'error'):
+                raise ProviderException("Unable to determine station 'tz': {message}".format(
+                    message=self.redis.hget(tz_key, 'error')))
+            tz = self.redis.hget(tz_key, 'tz')
+
+        station = self.__create_station(short_name, name, latitude, longitude, altitude, is_peak, status, tz, url)
+        self.stations_collection().update({'_id': _id}, {'$set': station}, upsert=True)
+        return self.stations_collection().find_one(_id)
 
     def create_measure(self, _id, wind_direction, wind_average, wind_maximum,
                        temperature=None, humidity=None, pressure=None, luminosity=None, rain=None):

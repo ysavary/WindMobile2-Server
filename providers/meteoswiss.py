@@ -5,7 +5,7 @@ from os import path
 import arrow
 import requests
 
-from provider import get_logger, Provider, Status
+from provider import get_logger, Provider, Status, ProviderException
 
 logger = get_logger('meteoswiss')
 
@@ -17,7 +17,7 @@ class MeteoSwiss(Provider):
 
     def process_data(self):
         try:
-            logger.info("Processing METEOSWISS data...")
+            logger.info("Processing MeteoSwiss data...")
 
             with open(path.join(path.dirname(__file__), 'meteoswiss/vqha69.json')) as in_file:
                 descriptions = json.load(in_file)
@@ -72,11 +72,17 @@ class MeteoSwiss(Provider):
                     self.insert_new_measures(measures_collection, station, new_measures, logger)
                     self.add_last_measure(station_id)
 
+                except ProviderException as e:
+                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
                 except Exception as e:
                     logger.error("Error while processing station '{0}': {1}".format(station_id, e))
+                    self.raven_client.captureException()
 
+        except ProviderException as e:
+            logger.warn("Error while processing MeteoSwiss: {0}".format(e))
         except Exception as e:
             logger.error("Error while processing MeteoSwiss: {0}".format(e))
+            self.raven_client.captureException()
 
         logger.info("...Done!")
 

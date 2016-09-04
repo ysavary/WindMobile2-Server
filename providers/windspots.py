@@ -70,22 +70,35 @@ class Windspots(Provider):
                                     windspots_measure.get('airTemperature'),
                                     windspots_measure.get('airHumidity'))
                                 new_measures.append(measure)
+                            except ProviderException as e:
+                                logger.warn("Error while processing measure '{0}' for station '{1}': {2}"
+                                            .format(key, station_id, e))
                             except Exception as e:
                                 logger.error("Error while processing measure '{0}' for station '{1}': {2}"
                                              .format(key, station_id, e))
+                                self.raven_client.captureException()
 
                         self.insert_new_measures(measures_collection, station, new_measures, logger)
 
+                    except ProviderException as e:
+                        logger.warn("Error while processing measure for station '{0}': {1}".format(station_id, e))
                     except Exception as e:
                         logger.error("Error while processing measure for station '{0}': {1}".format(station_id, e))
+                        self.raven_client.captureException()
 
                     self.add_last_measure(station_id)
 
+                except ProviderException as e:
+                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
                 except Exception as e:
                     logger.error("Error while processing station '{0}': {1}".format(station_id, e))
+                    self.raven_client.captureException()
 
+        except ProviderException as e:
+            logger.warn("Error while processing Windspots: {0}".format(e))
         except Exception as e:
             logger.error("Error while processing Windspots: {0}".format(e))
+            self.raven_client.captureException()
 
         logger.info("Done !")
 

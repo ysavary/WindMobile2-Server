@@ -353,10 +353,11 @@ class Provider(object):
 
             end_date = arrow.Arrow.fromtimestamp(new_measures[-1]['_id'], dateutil.tz.gettz(station['tz']))
             logger.info(
-                "--> {end_date} ({end_date_local}), {name} ({id}): {nb} values inserted".format(
+                "--> {end_date} ({end_date_local}), {short}/{name} ({id}): {nb} values inserted".format(
                     end_date=end_date.format('YY-MM-DD HH:mm:ssZZ'),
                     end_date_local=end_date.to('local').format('YY-MM-DD HH:mm:ssZZ'),
-                    name=station['short'],
+                    short=station['short'],
+                    name=station['name'],
                     id=station['_id'],
                     nb=str(len(new_measures))))
 

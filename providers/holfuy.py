@@ -23,7 +23,7 @@ class Holfuy(Provider):
             result.encoding = 'utf-8'
 
             xml_files = re.split('<\?xml version=\"1.0\" encoding=\"UTF-8\"\?>', result.text)
-            for markers_xml in xml_files[1::]:
+            for markers_xml in xml_files[1:]:
                 markers_json = xmltodict.parse(markers_xml)['markers']['marker']
 
                 for holfuy_station in markers_json:

@@ -170,7 +170,7 @@ class Provider(object):
             raise UsageLimitException("Google Elevation API")
         elif result.json()['status'] == 'INVALID_REQUEST':
             raise ProviderException("Google Elevation API: {message}"
-                                    .format(message=result.json()['error_message']))
+                                    .format(message=result.json()['errorMessage']))
 
         elevation = float(result.json()['results'][0]['elevation'])
         is_peak = False
@@ -205,7 +205,7 @@ class Provider(object):
                     raise UsageLimitException("Google Geocoding API")
                 elif result.json()['status'] == 'INVALID_REQUEST':
                     raise ProviderException("Google Geocoding API: {message}"
-                                            .format(message=result.json()['error_message']))
+                                            .format(message=result.json()['errorMessage']))
                 address_short_name = None
                 address_long_name = None
                 for result in result.json()['results']:
@@ -266,7 +266,7 @@ class Provider(object):
                     raise UsageLimitException("Google Time Zone API")
                 elif result.json()['status'] == 'INVALID_REQUEST':
                     raise ProviderException("Google Time Zone API: {message}"
-                                            .format(message=result.json()['error_message']))
+                                            .format(message=result.json()['errorMessage']))
                 elif result.json()['status'] == 'ZERO_RESULTS':
                     raise ProviderException("Google Time Zone API: ZERO_RESULTS")
                 tz = result.json()['timeZoneId']

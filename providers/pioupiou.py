@@ -65,7 +65,8 @@ class Pioupiou(Provider):
                         longitude,
                         self.get_status(station_id, piou_station['status']['state'], location_date,
                                         location['success']),
-                        url=urllib.parse.urljoin(self.provider_url, str(piou_id)))
+                        url=urllib.parse.urljoin(self.provider_url, str(piou_id)),
+                        default_name=piou_station.get('meta', {}).get('name', None))
 
                     measures_collection = self.measures_collection(station_id)
                     new_measures = []

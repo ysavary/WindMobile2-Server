@@ -165,18 +165,21 @@ class Provider(object):
         result = requests.get(
             "https://maps.googleapis.com/maps/api/elevation/json?locations={path}&key={key}"
             .format(path=path, key=self.google_api_key),
-            timeout=(self.connect_timeout, self.read_timeout))
-        if result.json()['status'] == 'OVER_QUERY_LIMIT':
+            timeout=(self.connect_timeout, self.read_timeout)).json()
+        if result['status'] == 'OVER_QUERY_LIMIT':
             raise UsageLimitException("Google Elevation API")
-        elif result.json()['status'] == 'INVALID_REQUEST':
-            raise ProviderException("Google Elevation API: {message}"
-                                    .format(message=result.json()['errorMessage']))
+        elif result['status'] == 'INVALID_REQUEST':
+            raise ProviderException("Google Elevation API: INVALID_REQUEST {message}"
+                                    .format(message=result.get('error_message', '')))
+        elif result['status'] == 'ZERO_RESULTS':
+            raise ProviderException("Google Elevation API: ZERO_RESULTS {message}"
+                                    .format(message=result.get('error_message', '')))
 
-        elevation = float(result.json()['results'][0]['elevation'])
+        elevation = float(result['results'][0]['elevation'])
         is_peak = False
-        for result in result.json()['results'][1:]:
+        for point in result['results'][1:]:
             try:
-                glide_ratio = radius / (elevation - float(result['elevation']))
+                glide_ratio = radius / (elevation - float(point['elevation']))
             except ZeroDivisionError:
                 glide_ratio = float('Infinity')
             if 0 < glide_ratio < 6:
@@ -184,7 +187,8 @@ class Provider(object):
                 break
         return elevation, is_peak
 
-    def save_station(self, _id, short_name, name, latitude, longitude, status, altitude=None, tz=None, url=None):
+    def save_station(self, _id, short_name, name, latitude, longitude, status, altitude=None, tz=None, url=None,
+                     default_name=None):
         lat = to_float(latitude, 6)
         lon = to_float(longitude, 6)
 
@@ -200,15 +204,18 @@ class Provider(object):
                     "https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lon}"
                     "&result_type=colloquial_area|locality|natural_feature|point_of_interest|neighborhood&key={key}"
                     .format(lat=lat, lon=lon, key=self.google_api_key),
-                    timeout=(self.connect_timeout, self.read_timeout))
-                if result.json()['status'] == 'OVER_QUERY_LIMIT':
+                    timeout=(self.connect_timeout, self.read_timeout)).json()
+                if result['status'] == 'OVER_QUERY_LIMIT':
                     raise UsageLimitException("Google Geocoding API")
-                elif result.json()['status'] == 'INVALID_REQUEST':
-                    raise ProviderException("Google Geocoding API: {message}"
-                                            .format(message=result.json()['errorMessage']))
+                elif result['status'] == 'INVALID_REQUEST':
+                    raise ProviderException("Google Geocoding API: INVALID_REQUEST {message}"
+                                            .format(message=result.get('error_message', '')))
+                elif result['status'] == 'ZERO_RESULTS':
+                    raise ProviderException("Google Geocoding API: ZERO_RESULTS {message}"
+                                            .format(message=result.get('error_message', '')))
                 address_short_name = None
                 address_long_name = None
-                for result in result.json()['results']:
+                for result in result['results']:
                     for component in result['address_components']:
                         if 'postal_code' not in component['types']:
                             address_short_name = component['short_name']
@@ -261,15 +268,16 @@ class Provider(object):
                     "https://maps.googleapis.com/maps/api/timezone/json?location={lat},{lon}"
                     "&timestamp={utc}&key={key}"
                     .format(lat=lat, lon=lon, utc=arrow.utcnow().timestamp, key=self.google_api_key),
-                    timeout=(self.connect_timeout, self.read_timeout))
-                if result.json()['status'] == 'OVER_QUERY_LIMIT':
+                    timeout=(self.connect_timeout, self.read_timeout)).json()
+                if result['status'] == 'OVER_QUERY_LIMIT':
                     raise UsageLimitException("Google Time Zone API")
-                elif result.json()['status'] == 'INVALID_REQUEST':
-                    raise ProviderException("Google Time Zone API: {message}"
-                                            .format(message=result.json()['errorMessage']))
-                elif result.json()['status'] == 'ZERO_RESULTS':
-                    raise ProviderException("Google Time Zone API: ZERO_RESULTS")
-                tz = result.json()['timeZoneId']
+                elif result['status'] == 'INVALID_REQUEST':
+                    raise ProviderException("Google Time Zone API: INVALID_REQUEST {message}"
+                                            .format(message=result.get('error_message', '')))
+                elif result['status'] == 'ZERO_RESULTS':
+                    raise ProviderException("Google Time Zone API: ZERO_RESULTS {message}"
+                                            .format(message=result.get('error_message', '')))
+                tz = result['timeZoneId']
                 dateutil.tz.gettz(tz)
                 pipe = self.redis.pipeline()
                 pipe.hset(tz_key, 'tz', tz)
@@ -287,15 +295,23 @@ class Provider(object):
 
         if not short_name:
             if self.redis.hexists(address_key, 'error'):
-                raise ProviderException("Unable to determine station 'short': {message}".format(
-                    message=self.redis.hget(address_key, 'error')))
-            short_name = self.redis.hget(address_key, 'short')
+                if default_name:
+                    short_name = default_name
+                else:
+                    raise ProviderException("Unable to determine station 'short': {message}".format(
+                        message=self.redis.hget(address_key, 'error')))
+            else:
+                short_name = self.redis.hget(address_key, 'short')
 
         if not name:
             if self.redis.hexists(address_key, 'error'):
-                raise ProviderException("Unable to determine station 'name': {message}".format(
-                    message=self.redis.hget(address_key, 'error')))
-            name = self.redis.hget(address_key, 'name')
+                if default_name:
+                    name = default_name
+                else:
+                    raise ProviderException("Unable to determine station 'name': {message}".format(
+                        message=self.redis.hget(address_key, 'error')))
+            else:
+                name = self.redis.hget(address_key, 'name')
 
         if not altitude:
             if self.redis.hexists(alt_key, 'error'):

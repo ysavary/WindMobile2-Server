@@ -209,7 +209,7 @@ class Windline(Provider):
                     except ProviderException as e:
                         logger.warn("Error while processing measures for station '{0}': {1}".format(station_id, e))
                     except Exception as e:
-                        logger.error("Error while processing measures for station '{0}': {1}".format(station_id, e))
+                        logger.exception("Error while processing measures for station '{0}': {1}".format(station_id, e))
                         self.raven_client.captureException()
 
                     self.add_last_measure(station_id)
@@ -217,11 +217,11 @@ class Windline(Provider):
                 except ProviderException as e:
                     logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
                 except Exception as e:
-                    logger.error("Error while processing station '{0}': {1}".format(station_id, e))
+                    logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
                     self.raven_client.captureException()
 
         except Exception as e:
-            logger.error("Error while processing Windline: {0}".format(e))
+            logger.exception("Error while processing Windline: {0}".format(e))
             self.raven_client.captureException()
         finally:
             try:

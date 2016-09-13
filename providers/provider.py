@@ -1,13 +1,14 @@
 import logging
+import logging.config
 import logging.handlers
 import math
-import sys
 from os import path
 
 import arrow
 import dateutil
 import redis
 import requests
+import yaml
 from pymongo import uri_parser, MongoClient, GEOSPHERE, ASCENDING
 from pymongo.errors import CollectionInvalid
 from raven import Client as RavenClient
@@ -15,42 +16,17 @@ from raven import Client as RavenClient
 from settings import *
 
 
-class NoExceptionFormatter(logging.Formatter):
-    def format(self, record):
-        record.exc_text = ''  # ensure formatException gets called
-        return super(NoExceptionFormatter, self).format(record)
-
-    def formatException(self, record):
-        return ''
-
-
-def get_logger(name, level=logging.INFO):
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-
-    # Console
-    handler = logging.StreamHandler(sys.stdout)
-    fmt = logging.Formatter('%(levelname)s [%(name)s]: %(message)s')
-    handler.setFormatter(fmt)
-    logger.addHandler(handler)
-
+def get_logger(name):
     if WINDMOBILE_LOG_DIR:
-        try:
-            handler = logging.handlers.TimedRotatingFileHandler(
-                path.join(path.expanduser(WINDMOBILE_LOG_DIR), name + '.log'), when='midnight', backupCount=20)
-            fmt = NoExceptionFormatter('%(asctime)s %(levelname)s [%(name)s]: %(message)s', '%Y-%m-%dT%H:%M:%S%z')
-            handler.setFormatter(fmt)
-            logger.addHandler(handler)
+        with open('logging_file.yml') as f:
+            dict = yaml.load(f)
+            dict['handlers']['file']['filename'] = path.join(path.expanduser(WINDMOBILE_LOG_DIR), name + '.log')
+            logging.config.dictConfig(dict)
+    else:
+        with open('logging_console.yml') as f:
+            logging.config.dictConfig(yaml.load(f))
 
-            handler = logging.handlers.RotatingFileHandler(
-                path.join(path.expanduser(WINDMOBILE_LOG_DIR), name + '.stacktraces.log'), maxBytes=10 * 10 ** 6,
-                backupCount=2)
-            fmt = logging.Formatter('%(asctime)s %(levelname)s [%(name)s]: %(message)s', '%Y-%m-%dT%H:%M:%S%z')
-            handler.setFormatter(fmt)
-            logger.addHandler(handler)
-        except IOError:
-            logger.exception("Unable to create file logger")
-
+    logger = logging.getLogger(name)
     return logger
 
 

@@ -75,13 +75,13 @@ class Holfuy(Provider):
                     except ProviderException as e:
                         logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
                     except Exception as e:
-                        logger.error("Error while processing station '{0}': {1}".format(station_id, e))
+                        logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
                         self.raven_client.captureException()
 
         except ProviderException as e:
             logger.warn("Error while processing Holfuy: {0}".format(e))
         except Exception as e:
-            logger.error("Error while processing Holfuy: {0}".format(e))
+            logger.exception("Error while processing Holfuy: {0}".format(e))
             self.raven_client.captureException()
 
         logger.info("Done !")

@@ -78,9 +78,13 @@ class Jdc(Provider):
                                             pressure=jdc_measure.get('pressure', None),
                                             rain=jdc_measure.get('rain', None))
                                         new_measures.append(measure)
+                                    except ProviderException as e:
+                                        logger.warn("Error while processing measure '{0}' for station '{1}': {2}"
+                                                    .format(key, station_id, e))
                                     except Exception as e:
-                                        logger.error("Error while processing measure '{0}' for station '{1}': {2}"
-                                                     .format(key, station_id, e))
+                                        logger.exception("Error while processing measure '{0}' for station '{1}': {2}"
+                                                         .format(key, station_id, e))
+                                        self.raven_client.captureException()
 
                             self.insert_new_measures(measures_collection, station, new_measures, logger)
                         else:
@@ -89,7 +93,7 @@ class Jdc(Provider):
                     except ProviderException as e:
                         logger.warn("Error while processing measures for station '{0}': {1}".format(station_id, e))
                     except Exception as e:
-                        logger.error("Error while processing measures for station '{0}': {1}".format(station_id, e))
+                        logger.exception("Error while processing measures for station '{0}': {1}".format(station_id, e))
                         self.raven_client.captureException()
 
                     self.add_last_measure(station_id)
@@ -97,11 +101,11 @@ class Jdc(Provider):
                 except ProviderException as e:
                     logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
                 except Exception as e:
-                    logger.error("Error while processing station '{0}': {1}".format(station_id, e))
+                    logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
                     self.raven_client.captureException()
 
         except Exception as e:
-            logger.error("Error while processing JDC: {0}".format(e))
+            logger.exception("Error while processing JDC: {0}".format(e))
             self.raven_client.captureException()
 
         logger.info("Done !")

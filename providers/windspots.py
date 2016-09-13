@@ -51,7 +51,7 @@ class Windspots(Provider):
                         wind_direction_last = windspots_measure['windDirectionChart']['serie']['points'][0]
                         wind_direction_key = int(wind_direction_last['date']) / 1000
                         if key != wind_direction_key:
-                            logger.error(
+                            logger.warn(
                                 "{name} ({id}): wind direction '{direction}' is inconsistent with measure '{key}'"
                                 .format(
                                     name=station['short'],
@@ -74,7 +74,7 @@ class Windspots(Provider):
                                 logger.warn("Error while processing measure '{0}' for station '{1}': {2}"
                                             .format(key, station_id, e))
                             except Exception as e:
-                                logger.error("Error while processing measure '{0}' for station '{1}': {2}"
+                                logger.exception("Error while processing measure '{0}' for station '{1}': {2}"
                                              .format(key, station_id, e))
                                 self.raven_client.captureException()
 
@@ -83,7 +83,7 @@ class Windspots(Provider):
                     except ProviderException as e:
                         logger.warn("Error while processing measure for station '{0}': {1}".format(station_id, e))
                     except Exception as e:
-                        logger.error("Error while processing measure for station '{0}': {1}".format(station_id, e))
+                        logger.exception("Error while processing measure for station '{0}': {1}".format(station_id, e))
                         self.raven_client.captureException()
 
                     self.add_last_measure(station_id)
@@ -91,13 +91,13 @@ class Windspots(Provider):
                 except ProviderException as e:
                     logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
                 except Exception as e:
-                    logger.error("Error while processing station '{0}': {1}".format(station_id, e))
+                    logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
                     self.raven_client.captureException()
 
         except ProviderException as e:
             logger.warn("Error while processing Windspots: {0}".format(e))
         except Exception as e:
-            logger.error("Error while processing Windspots: {0}".format(e))
+            logger.exception("Error while processing Windspots: {0}".format(e))
             self.raven_client.captureException()
 
         logger.info("Done !")

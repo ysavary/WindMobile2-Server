@@ -18,12 +18,12 @@ from settings import *
 
 def get_logger(name):
     if WINDMOBILE_LOG_DIR:
-        with open('logging_file.yml') as f:
+        with open(path.join(path.dirname(path.abspath(__file__)), 'logging_file.yml')) as f:
             dict = yaml.load(f)
             dict['handlers']['file']['filename'] = path.join(path.expanduser(WINDMOBILE_LOG_DIR), name + '.log')
             logging.config.dictConfig(dict)
     else:
-        with open('logging_console.yml') as f:
+        with open(path.join(path.dirname(path.abspath(__file__)), 'logging_console.yml')) as f:
             logging.config.dictConfig(yaml.load(f))
 
     logger = logging.getLogger(name)

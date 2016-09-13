@@ -15,7 +15,7 @@ handlers:
     class: logging.handlers.TimedRotatingFileHandler
     formatter: file
     when: midnight
-    backupCount: 20
+    backupCount: 10
 
 root:
   handlers: [console, file]

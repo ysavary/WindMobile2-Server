@@ -2,6 +2,7 @@ import urllib.parse
 
 import arrow
 import requests
+from arrow.parser import ParserError
 
 from provider import get_logger, Provider, ProviderException
 
@@ -47,7 +48,11 @@ class Windspots(Provider):
                         measures_collection = self.measures_collection(station_id)
 
                         new_measures = []
-                        key = arrow.get(windspots_measure['@lastUpdate']).timestamp
+                        try:
+                            key = arrow.get(windspots_measure['@lastUpdate']).timestamp
+                        except ParserError:
+                            raise ProviderException("Unable to parse '@lastUpdate'")
+
                         wind_direction_last = windspots_measure['windDirectionChart']['serie']['points'][0]
                         wind_direction_key = int(wind_direction_last['date']) / 1000
                         if key != wind_direction_key:
@@ -75,7 +80,7 @@ class Windspots(Provider):
                                             .format(key, station_id, e))
                             except Exception as e:
                                 logger.exception("Error while processing measure '{0}' for station '{1}': {2}"
-                                             .format(key, station_id, e))
+                                                 .format(key, station_id, e))
                                 self.raven_client.captureException()
 
                         self.insert_new_measures(measures_collection, station, new_measures, logger)

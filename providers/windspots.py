@@ -1,8 +1,9 @@
 import urllib.parse
 
 import arrow
+import arrow.parser
 import requests
-from arrow.parser import ParserError
+from arrow import Arrow
 
 from provider import get_logger, Provider, ProviderException
 
@@ -50,20 +51,20 @@ class Windspots(Provider):
                         new_measures = []
                         try:
                             key = arrow.get(windspots_measure['@lastUpdate']).timestamp
-                        except ParserError:
-                            raise ProviderException("Unable to parse '@lastUpdate'")
+                        except arrow.parser.ParserError:
+                            raise ProviderException("Unable to parse measure date: '{0}".format(
+                                windspots_measure['@lastUpdate']))
 
                         wind_direction_last = windspots_measure['windDirectionChart']['serie']['points'][0]
                         wind_direction_key = int(wind_direction_last['date']) / 1000
                         if key != wind_direction_key:
                             logger.warn(
-                                "{name} ({id}): wind direction '{direction}' is inconsistent with measure '{key}'"
+                                "{name} ({id}): wind direction measure '{direction}' is inconsistent with key '{key}'"
                                 .format(
                                     name=station['short'],
                                     id=station_id,
-                                    key=windspots_measure['@lastUpdate'],
-                                    direction=arrow.Arrow.fromtimestamp(wind_direction_key).to('local').format(
-                                        'YY-MM-DD HH:mm:ssZZ')))
+                                    key=Arrow.fromtimestamp(key).format('DD-MM-YY HH:mm:ssZZ'),
+                                    direction=Arrow.fromtimestamp(wind_direction_key).format('DD-MM-YY HH:mm:ssZZ')))
 
                         if not measures_collection.find_one(key):
                             try:

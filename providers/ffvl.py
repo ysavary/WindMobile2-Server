@@ -19,8 +19,9 @@ class Ffvl(Provider):
 
             result = requests.get("http://data.ffvl.fr/json/balises.json", timeout=(self.connect_timeout,
                                                                                     self.read_timeout))
+            ffvl_stations = result.json()
 
-            for ffvl_station in result.json():
+            for ffvl_station in ffvl_stations:
                 station_id = None
                 try:
                     ffvl_id = ffvl_station['idBalise']
@@ -51,9 +52,10 @@ class Ffvl(Provider):
         try:
             result = requests.get("http://data.ffvl.fr/json/relevesmeteo.json", timeout=(self.connect_timeout,
                                                                                          self.read_timeout))
+            ffvl_measures = result.json()
 
             ffvl_tz = timezone('Europe/Paris')
-            for ffvl_measure in result.json():
+            for ffvl_measure in ffvl_measures:
                 try:
                     ffvl_id = ffvl_measure['idbalise']
                     station_id = self.get_station_id(ffvl_id)

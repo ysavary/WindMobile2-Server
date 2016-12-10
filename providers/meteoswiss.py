@@ -23,6 +23,7 @@ class MeteoSwiss(Provider):
                 descriptions = json.load(in_file)
 
             data_file = io.StringIO(requests.get("http://data.geo.admin.ch/ch.meteoschweiz.swissmetnet/VQHA69.csv",
+                                                 headers={'Accept': '*/*', 'User-Agent': 'winds.mobi'},
                                                  timeout=(self.connect_timeout, self.read_timeout)).text)
             lines = data_file.readlines()
             keys = lines[2].strip().split('|')

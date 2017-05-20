@@ -6,7 +6,7 @@ import arrow
 from cachetools import hashkey, cached
 
 import wgs84
-from provider import get_logger, Provider, ProviderException, Status
+from provider import get_logger, Provider, ProviderException, Status, ureg, Q_
 from settings import *
 
 logger = get_logger('windline')
@@ -109,9 +109,6 @@ class Windline(Provider):
                 return float(row[1])
         raise NoMeasure()
 
-    def ms_to_kmh(self, value):
-        return float(value) * 3.6
-
     def process_data(self):
         try:
             logger.info("Processing WINDLINE data...")
@@ -140,15 +137,15 @@ class Windline(Provider):
 
                 station_id = None
                 try:
-                    station_id = self.get_station_id(windline_id)
                     station = self.save_station(
-                        station_id,
+                        windline_id,
                         short_name,
                         name,
                         wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no, self.latitude_property_id)),
                         wgs84.parse_dms(self.get_property_value(mysql_cursor, station_no, self.longitude_property_id)),
                         self.get_status(status),
                         altitude=self.get_property_value(mysql_cursor, station_no, self.altitude_property_id))
+                    station_id = station['_id']
 
                     try:
                         measures_collection = self.measures_collection(station_id)
@@ -171,13 +168,15 @@ class Windline(Provider):
                                 key = arrow.get(wind_average_row[0]).timestamp
                                 if key not in [measure['_id'] for measure in new_measures] and \
                                         not measures_collection.find_one(key):
-                                    wind_average = self.ms_to_kmh(wind_average_row[1])
+                                    wind_average = Q_(float(wind_average_row[1]), ureg.meter / ureg.second)
 
                                     measure_date = wind_average_row[0]
 
-                                    wind_maximum = self.ms_to_kmh(self.get_measure_value(
-                                        wind_maximum_rows,
-                                        measure_date - timedelta(seconds=10), measure_date + timedelta(seconds=10)))
+                                    wind_maximum = Q_(float(
+                                        self.get_measure_value(wind_maximum_rows,
+                                                               measure_date - timedelta(seconds=10),
+                                                               measure_date + timedelta(seconds=10))),
+                                        ureg.meter / ureg.second)
 
                                     wind_direction = self.get_measure_value(
                                         wind_direction_rows,

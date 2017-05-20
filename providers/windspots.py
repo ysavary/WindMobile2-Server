@@ -25,9 +25,8 @@ class Windspots(Provider):
                 station_id = None
                 try:
                     windspots_id = windspots_station['@id'][10:]
-                    station_id = self.get_station_id(windspots_id)
                     station = self.save_station(
-                        station_id,
+                        windspots_id,
                         windspots_station['@shortName'],
                         windspots_station['@name'],
                         windspots_station['@wgs84Latitude'],
@@ -35,6 +34,7 @@ class Windspots(Provider):
                         windspots_station['@maintenanceStatus'],
                         altitude=windspots_station['@altitude'],
                         url=urllib.parse.urljoin(self.provider_url, "/spots"))
+                    station_id = station['_id']
 
                     try:
                         # Asking 2 days of data

@@ -22,7 +22,7 @@ class MeteoSwiss(Provider):
             with open(path.join(path.dirname(__file__), 'meteoswiss/vqha69.json')) as in_file:
                 descriptions = json.load(in_file)
 
-            data_file = io.StringIO(requests.get("http://data.geo.admin.ch/ch.meteoschweiz.swissmetnet/VQHA69.csv",
+            data_file = io.StringIO(requests.get('http://data.geo.admin.ch/ch.meteoschweiz.swissmetnet/VQHA69.csv',
                                                  headers={'Accept': '*/*', 'User-Agent': 'winds.mobi'},
                                                  timeout=(self.connect_timeout, self.read_timeout)).text)
             lines = data_file.readlines()
@@ -40,10 +40,8 @@ class MeteoSwiss(Provider):
                             data[key] = None
 
                     description = descriptions[data['stn']]
-
-                    station_id = self.get_station_id(data['stn'])
                     station = self.save_station(
-                        station_id,
+                        data['stn'],
                         description['name'],
                         description['name'],
                         description['location']['lat'],
@@ -51,6 +49,7 @@ class MeteoSwiss(Provider):
                         Status.GREEN,
                         altitude=description['altitude'],
                         tz='Europe/Zurich')
+                    station_id = station['_id']
 
                     key = arrow.get(data['time'], 'YYYYMMDDHHmm').timestamp
 
@@ -79,8 +78,6 @@ class MeteoSwiss(Provider):
                     logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
                     self.raven_client.captureException()
 
-        except ProviderException as e:
-            logger.warn("Error while processing MeteoSwiss: {0}".format(e))
         except Exception as e:
             logger.exception("Error while processing MeteoSwiss: {0}".format(e))
             self.raven_client.captureException()

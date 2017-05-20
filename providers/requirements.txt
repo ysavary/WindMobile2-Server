@@ -1,6 +1,8 @@
 arrow==0.6.0
 cachetools==1.1.3
+-e git+https://github.com/tomp/python-metar@1bb9fdeaf062ca31b4c73f2fb7f846b35357e0d6#egg=metar
 mysqlclient==1.3.6
+Pint==0.8
 pyaml==16.9.0
 pymongo==3.0.3
 pytz==2016.6.1

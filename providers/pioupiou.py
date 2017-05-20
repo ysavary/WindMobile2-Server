@@ -42,8 +42,6 @@ class Pioupiou(Provider):
             for piou_station in result.json()['data']:
                 try:
                     piou_id = piou_station['id']
-                    station_id = self.get_station_id(piou_id)
-
                     location = piou_station['location']
                     latitude = location.get('latitude')
                     longitude = location.get('longitude')
@@ -58,7 +56,7 @@ class Pioupiou(Provider):
                             pass
 
                     station = self.save_station(
-                        station_id,
+                        piou_id,
                         None,
                         None,
                         latitude,
@@ -67,6 +65,7 @@ class Pioupiou(Provider):
                                         location['success']),
                         url=urllib.parse.urljoin(self.provider_url, str(piou_id)),
                         default_name=piou_station.get('meta', {}).get('name', None))
+                    station_id = station['_id']
 
                     measures_collection = self.measures_collection(station_id)
                     new_measures = []

@@ -25,10 +25,8 @@ class Ffvl(Provider):
                 station_id = None
                 try:
                     ffvl_id = ffvl_station['idBalise']
-                    station_id = self.get_station_id(ffvl_id)
-
-                    self.save_station(
-                        station_id,
+                    station = self.save_station(
+                        ffvl_id,
                         ffvl_station['nom'],
                         ffvl_station['nom'],
                         ffvl_station['latitude'],
@@ -36,6 +34,7 @@ class Ffvl(Provider):
                         Status.GREEN,
                         altitude=ffvl_station['altitude'],
                         url=ffvl_station['url'])
+                    station_id = station['_id']
 
                 except ProviderException as e:
                     logger.warn("Error while processing station '{0}': {1}".format(station_id, e))

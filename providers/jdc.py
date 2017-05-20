@@ -40,9 +40,8 @@ class Jdc(Provider):
                 station_id = None
                 try:
                     jdc_id = jdc_station['serial']
-                    station_id = self.get_station_id(jdc_id)
                     station = self.save_station(
-                        station_id,
+                        jdc_id,
                         jdc_station['short-name'],
                         jdc_station['name'],
                         jdc_station['latitude'],
@@ -50,6 +49,7 @@ class Jdc(Provider):
                         self.get_status(jdc_station['status']),
                         altitude=jdc_station['altitude'],
                         url=urllib.parse.urljoin(self.provider_url, "/station/" + str(jdc_station['serial'])))
+                    station_id = station['_id']
 
                     try:
                         # Asking 2 days of data

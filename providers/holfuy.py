@@ -32,16 +32,16 @@ class Holfuy(Provider):
                         if '@station' not in holfuy_station:
                             continue
                         holfuy_id = holfuy_station['@station'][1:]
-                        station_id = self.get_station_id(holfuy_id)
                         name = holfuy_station['@place']
                         station = self.save_station(
-                            station_id,
+                            holfuy_id,
                             name,
                             name,
                             holfuy_station['@lat'],
                             holfuy_station['@lng'],
                             Status.GREEN,
                             url=urllib.parse.urljoin(self.provider_url, "/en/data/" + holfuy_id))
+                        station_id = station['_id']
 
                         measures_collection = self.measures_collection(station_id)
                         new_measures = []

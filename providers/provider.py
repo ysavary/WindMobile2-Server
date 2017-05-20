@@ -126,7 +126,7 @@ class Provider(object):
         except CollectionInvalid:
             return self.mongo_db[station_id]
 
-    def __get_station_id(self, id):
+    def get_station_id(self, id):
         if id is None:
             raise ProviderException('Station id is none!')
         return self.provider_code + "-" + str(id)
@@ -207,7 +207,7 @@ class Provider(object):
     def save_station(self, provider_id, short_name, name, latitude, longitude, status, altitude=None, tz=None, url=None,
                      default_name=None):
 
-        _id = self.__get_station_id(provider_id)
+        _id = self.get_station_id(provider_id)
         lat = to_float(latitude, 6)
         lon = to_float(longitude, 6)
 

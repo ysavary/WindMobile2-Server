@@ -58,7 +58,7 @@ class Holfuy(Provider):
                             else:
                                 break
                         key = date.timestamp()
-                        if not measures_collection.find_one(key):
+                        if not self.has_measure(measures_collection, key):
                             measure = self.create_measure(
                                 key,
                                 holfuy_station['@dir'],
@@ -70,7 +70,6 @@ class Holfuy(Provider):
                             new_measures.append(measure)
 
                         self.insert_new_measures(measures_collection, station, new_measures, logger)
-                        self.add_last_measure(station_id)
 
                     except ProviderException as e:
                         logger.warn("Error while processing station '{0}': {1}".format(station_id, e))

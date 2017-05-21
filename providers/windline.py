@@ -167,7 +167,7 @@ class Windline(Provider):
                             try:
                                 key = arrow.get(wind_average_row[0]).timestamp
                                 if key not in [measure['_id'] for measure in new_measures] and \
-                                        not measures_collection.find_one(key):
+                                        not self.has_measure(measures_collection, key):
                                     wind_average = Q_(float(wind_average_row[1]), ureg.meter / ureg.second)
 
                                     measure_date = wind_average_row[0]
@@ -210,8 +210,6 @@ class Windline(Provider):
                     except Exception as e:
                         logger.exception("Error while processing measures for station '{0}': {1}".format(station_id, e))
                         self.raven_client.captureException()
-
-                    self.add_last_measure(station_id)
 
                 except ProviderException as e:
                     logger.warn("Error while processing station '{0}': {1}".format(station_id, e))

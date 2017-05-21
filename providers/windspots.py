@@ -66,7 +66,7 @@ class Windspots(Provider):
                                     key=Arrow.fromtimestamp(key).format('DD-MM-YY HH:mm:ssZZ'),
                                     direction=Arrow.fromtimestamp(wind_direction_key).format('DD-MM-YY HH:mm:ssZZ')))
 
-                        if not measures_collection.find_one(key):
+                        if not self.has_measure(measures_collection, key):
                             try:
                                 measure = self.create_measure(
                                     key,
@@ -91,8 +91,6 @@ class Windspots(Provider):
                     except Exception as e:
                         logger.exception("Error while processing measure for station '{0}': {1}".format(station_id, e))
                         self.raven_client.captureException()
-
-                    self.add_last_measure(station_id)
 
                 except ProviderException as e:
                     logger.warn("Error while processing station '{0}': {1}".format(station_id, e))

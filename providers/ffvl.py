@@ -68,7 +68,7 @@ class Ffvl(Provider):
                     key = int(
                         ffvl_tz.localize(datetime.strptime(ffvl_measure['date'], '%Y-%m-%d %H:%M:%S')).timestamp())
 
-                    if not measures_collection.find_one(key):
+                    if not self.has_measure(measures_collection, key):
                         measure = self.create_measure(
                             key,
                             ffvl_measure['directVentMoy'],
@@ -88,8 +88,6 @@ class Ffvl(Provider):
                 except Exception as e:
                     logger.exception("Error while processing measures for station '{0}': {1}".format(station_id, e))
                     self.raven_client.captureException()
-
-                self.add_last_measure(station_id)
 
         except ProviderException as e:
             logger.warn("Error while processing FFVL: {0}", e)

@@ -56,7 +56,7 @@ class MeteoSwiss(Provider):
                     measures_collection = self.measures_collection(station_id)
                     new_measures = []
 
-                    if not measures_collection.find_one(key):
+                    if not self.has_measure(measures_collection, key):
                         measure = self.create_measure(
                             key,
                             data['dkl010z0'],
@@ -70,7 +70,6 @@ class MeteoSwiss(Provider):
                         new_measures.append(measure)
 
                     self.insert_new_measures(measures_collection, station, new_measures, logger)
-                    self.add_last_measure(station_id)
 
                 except ProviderException as e:
                     logger.warn("Error while processing station '{0}': {1}".format(station_id, e))

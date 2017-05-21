@@ -66,7 +66,7 @@ class Jdc(Provider):
                             new_measures = []
                             for jdc_measure in measures:
                                 key = jdc_measure['unix-time']
-                                if not measures_collection.find_one(key):
+                                if not self.has_measure(measures_collection, key):
                                     try:
                                         measure = self.create_measure(
                                             key,
@@ -95,8 +95,6 @@ class Jdc(Provider):
                     except Exception as e:
                         logger.exception("Error while processing measures for station '{0}': {1}".format(station_id, e))
                         self.raven_client.captureException()
-
-                    self.add_last_measure(station_id)
 
                 except ProviderException as e:
                     logger.warn("Error while processing station '{0}': {1}".format(station_id, e))

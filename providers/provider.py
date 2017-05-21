@@ -116,16 +116,16 @@ class Provider(object):
         uri = uri_parser.parse_uri(MONGODB_URL)
         client = MongoClient(uri['nodelist'][0][0], uri['nodelist'][0][1])
         self.mongo_db = client[uri['database']]
+        self.__stations_collection = self.mongo_db.stations
+        self.__stations_collection.create_index([('loc', GEOSPHERE), ('status', ASCENDING), ('pv-code', ASCENDING),
+                                                 ('short', ASCENDING), ('name', ASCENDING)])
         self.redis = redis.StrictRedis(decode_responses=True)
         self.google_api_key = GOOGLE_API_KEY
         self.raven_client = RavenClient(SENTRY_URL)
         self.raven_client.tags_context({'provider': self.provider_name})
 
     def stations_collection(self):
-        collection = self.mongo_db.stations
-        collection.create_index([('loc', GEOSPHERE), ('status', ASCENDING), ('pv-code', ASCENDING),
-                                 ('short', ASCENDING), ('name', ASCENDING)])
-        return collection
+        return self.__stations_collection
 
     def measures_collection(self, station_id):
         try:
@@ -431,8 +431,7 @@ class Provider(object):
             tz = self.redis.hget(tz_key, 'tz')
 
         station = self.__create_station(provider_id, short_name, name, lat, lon, altitude, is_peak, status, tz, url)
-        self.stations_collection().update({'_id': _id}, {'$set': station}, upsert=True)
-        return self.stations_collection().find_one(_id)
+        return self.stations_collection().find_one_and_update({'_id': _id}, {'$set': station}, upsert=True)
 
     def create_measure(self, _id, wind_direction, wind_average, wind_maximum,
                        temperature=None, humidity=None, pressure=None, luminosity=None, rain=None):
@@ -463,6 +462,9 @@ class Provider(object):
         measure['time'] = arrow.now().timestamp
         return measure
 
+    def has_measure(self, measure_collection, key):
+        return measure_collection.find({'_id': key}).count() > 0
+
     def insert_new_measures(self, measure_collection, station, new_measures, logger):
         if len(new_measures) > 0:
             measure_collection.insert(new_measures)
@@ -477,7 +479,9 @@ class Provider(object):
                     id=station['_id'],
                     nb=str(len(new_measures))))
 
-    def add_last_measure(self, station_id):
-        last_measure = self.measures_collection(station_id).find_one({'$query': {}, '$orderby': {'_id': -1}})
+            self.__add_last_measure(measure_collection, station['_id'])
+
+    def __add_last_measure(self, measure_collection, station_id):
+        last_measure = measure_collection.find_one({'$query': {}, '$orderby': {'_id': -1}})
         if last_measure:
             self.stations_collection().update({'_id': station_id}, {'$set': {'last': last_measure}})

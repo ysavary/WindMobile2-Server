@@ -210,7 +210,7 @@ class Provider(object):
                 break
         return elevation, is_peak
 
-    def __get_place(self, name):
+    def __get_place_autocomplete(self, name):
         results = requests.get(
             'https://maps.googleapis.com/maps/api/place/autocomplete/json?input={input}&key={key}'.format(
                 input=name, key=self.google_api_key),
@@ -231,6 +231,34 @@ class Provider(object):
                 place_id=place_id, key=self.google_api_key),
             timeout=(self.connect_timeout, self.read_timeout)).json()
 
+        if results['status'] == 'OVER_QUERY_LIMIT':
+            raise UsageLimitException('Google Geocoding API OVER_QUERY_LIMIT')
+        elif results['status'] == 'INVALID_REQUEST':
+            raise ProviderException('Google Geocoding API INVALID_REQUEST: {message}'.format(
+                message=results.get('error_message', '')))
+        elif results['status'] == 'ZERO_RESULTS':
+            raise ProviderException("Google Geocoding API ZERO_RESULTS for '{name}'".format(name=name))
+
+        lat = None
+        lon = None
+        address_long_name = None
+        for result in results['results']:
+            if result.get('geometry', {}).get('location'):
+                lat = result['geometry']['location']['lat']
+                lon = result['geometry']['location']['lng']
+                for component in result['address_components']:
+                    if 'postal_code' not in component['types']:
+                        address_long_name = component['long_name']
+                        break
+                break
+
+        return lat, lon, address_long_name
+
+    def __get_place_geocoding(self, name):
+        results = requests.get(
+            'https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={key}'.format(
+                address=name, key=self.google_api_key),
+            timeout=(self.connect_timeout, self.read_timeout)).json()
         if results['status'] == 'OVER_QUERY_LIMIT':
             raise UsageLimitException('Google Geocoding API OVER_QUERY_LIMIT')
         elif results['status'] == 'INVALID_REQUEST':
@@ -313,7 +341,7 @@ class Provider(object):
         if (lat is None and lon is None) or (lat == 0 and lon == 0):
             if not self.redis.exists(geolocation_key):
                 try:
-                    lat, lon, address_long_name = self.__get_place(address)
+                    lat, lon, address_long_name = self.__get_place_geocoding(address)
                     if not lat or not lon or not address_long_name:
                         raise ProviderException(
                             'Google Geocoding API: No valid geolocation found {address}'.format(address=address))
@@ -385,7 +413,7 @@ class Provider(object):
                         message=result.get('error_message', '')))
                 elif result['status'] == 'ZERO_RESULTS':
                     raise ProviderException('Google Time Zone API ZERO_RESULTS')
-                
+
                 tz = result['timeZoneId']
                 dateutil.tz.gettz(tz)
                 self.__add_redis_key(tz_key, {

@@ -92,7 +92,7 @@ class MetarNoaa(Provider):
                                     key = int(pytz.utc.localize(metar.time).timestamp())
                                     stations[metar.station_id][key] = metar
                             except Exception as e:
-                                logger.warn("Error while parsing METAR data '{0}'".format(e))
+                                logger.warn('Error while parsing METAR data: {e}'.format(e=e))
                                 continue
 
             for metar_id in stations:
@@ -100,18 +100,20 @@ class MetarNoaa(Provider):
                 try:
                     lat, lon = None, None
                     if metar.station_id in icao:
-                        lat = icao[metar.station_id].get('lat', None)
-                        lon = icao[metar.station_id].get('lon', None)
+                        lat = icao[metar.station_id]['lat']
+                        lon = icao[metar.station_id]['lon']
+                    if not lat and not lon:
+                        lat, lon = None, None
 
                     station = self.save_station(
                         metar.station_id,
-                        '{icao} airport'.format(icao=metar.station_id),
+                        '{icao} Airport ICAO'.format(icao=metar.station_id),
                         None,
                         lat,
                         lon,
                         Status.GREEN,
-                        url=os.path.join(
-                            self.provider_url, 'site?id={id}&db=metar'.format(id=metar.station_id)))
+                        url=os.path.join(self.provider_url, 'site?id={id}&db=metar'.format(id=metar.station_id)),
+                        default_name='{icao} Airport ICAO'.format(icao=metar.station_id))
                     station_id = station['_id']
 
                     measures_collection = self.measures_collection(station_id)
@@ -134,13 +136,13 @@ class MetarNoaa(Provider):
                     self.insert_new_measures(measures_collection, station, new_measures, logger)
 
                 except ProviderException as e:
-                    logger.warn("Error while processing station '{0}'".format(e))
+                    logger.warn("Error while processing station '{id}': {e}".format(id=metar_id, e=e))
                 except Exception as e:
-                    logger.exception("Error while processing station '{0}'".format(e))
+                    logger.exception("Error while processing station '{id}': {e}".format(id=metar_id, e=e))
                     self.raven_client.captureException()
 
         except Exception as e:
-            logger.exception("Error while processing Metar: {0}".format(e))
+            logger.exception('Error while processing Metar: {e}'.format(e=e))
             self.raven_client.captureException()
 
         logger.info('Done !')

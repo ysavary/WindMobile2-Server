@@ -3,6 +3,7 @@ import logging.config
 import logging.handlers
 import math
 from os import path
+from random import randint
 
 import arrow
 import dateutil
@@ -102,8 +103,14 @@ def to_pressure(value):
 class Provider(object):
     connect_timeout = 7
     read_timeout = 30
-    usage_limit_cache_duration = 25 * 3600
-    location_cache_duration = 10 * 24 * 3600
+
+    @property
+    def usage_limit_cache_duration(self):
+        return (12 + randint(-2, 2)) * 3600
+
+    @property
+    def location_cache_duration(self):
+        return (20 + randint(-2, 2)) * 24 * 3600
 
     def __init__(self):
         uri = uri_parser.parse_uri(MONGODB_URL)

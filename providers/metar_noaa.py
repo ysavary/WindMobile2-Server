@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 
@@ -58,6 +59,9 @@ class MetarNoaa(Provider):
         try:
             logger.info('Processing Metar data...')
 
+            with open(os.path.join(os.path.dirname(__file__), 'metar/icao.json')) as in_file:
+                icao = json.load(in_file)
+
             hour = int(datetime.utcnow().strftime('%H'))
             minute = int(datetime.utcnow().strftime('%M'))
             if minute < 45:
@@ -94,12 +98,17 @@ class MetarNoaa(Provider):
             for metar_id in stations:
                 metar = next(iter(stations[metar_id].values()))
                 try:
+                    lat, lon = None, None
+                    if metar.station_id in icao:
+                        lat = icao[metar.station_id].get('lat', None)
+                        lon = icao[metar.station_id].get('lon', None)
+
                     station = self.save_station(
                         metar.station_id,
                         '{icao} airport'.format(icao=metar.station_id),
                         None,
-                        None,
-                        None,
+                        lat,
+                        lon,
                         Status.GREEN,
                         url=os.path.join(
                             self.provider_url, 'site?id={id}&db=metar'.format(id=metar.station_id)))

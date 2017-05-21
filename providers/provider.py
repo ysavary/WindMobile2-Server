@@ -265,8 +265,8 @@ class Provider(object):
         if (not short_name or not name) and not self.redis.exists(address_key):
             try:
                 results = requests.get(
-                    'https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lon}'
-                    '&result_type=colloquial_area|locality|natural_feature|point_of_interest|neighborhood&key={key}'
+                    'https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lon}&result_type='
+                    'airport|colloquial_area|locality|natural_feature|point_of_interest|neighborhood&key={key}'
                     .format(lat=lat, lon=lon, key=self.google_api_key),
                     timeout=(self.connect_timeout, self.read_timeout)).json()
 

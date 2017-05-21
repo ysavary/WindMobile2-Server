@@ -431,7 +431,9 @@ class Provider(object):
             tz = self.redis.hget(tz_key, 'tz')
 
         station = self.__create_station(provider_id, short_name, name, lat, lon, altitude, is_peak, status, tz, url)
-        return self.stations_collection().find_one_and_update({'_id': _id}, {'$set': station}, upsert=True)
+        self.stations_collection().update({'_id': _id}, {'$set': station}, upsert=True)
+        station['_id'] = _id
+        return station
 
     def create_measure(self, _id, wind_direction, wind_average, wind_maximum,
                        temperature=None, humidity=None, pressure=None, luminosity=None, rain=None):

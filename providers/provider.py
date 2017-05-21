@@ -210,6 +210,20 @@ class Provider(object):
                 break
         return elevation, is_peak
 
+    def __get_place_geocoding_results(self, results):
+        lat, lon, address_long_name = None, None, None
+
+        for result in results['results']:
+            if result.get('geometry', {}).get('location'):
+                lat = result['geometry']['location']['lat']
+                lon = result['geometry']['location']['lng']
+                for component in result['address_components']:
+                    if 'postal_code' not in component['types']:
+                        address_long_name = component['long_name']
+                        break
+                break
+        return lat, lon, address_long_name
+
     def __get_place_autocomplete(self, name):
         results = requests.get(
             'https://maps.googleapis.com/maps/api/place/autocomplete/json?input={input}&key={key}'.format(
@@ -239,20 +253,7 @@ class Provider(object):
         elif results['status'] == 'ZERO_RESULTS':
             raise ProviderException("Google Geocoding API ZERO_RESULTS for '{name}'".format(name=name))
 
-        lat = None
-        lon = None
-        address_long_name = None
-        for result in results['results']:
-            if result.get('geometry', {}).get('location'):
-                lat = result['geometry']['location']['lat']
-                lon = result['geometry']['location']['lng']
-                for component in result['address_components']:
-                    if 'postal_code' not in component['types']:
-                        address_long_name = component['long_name']
-                        break
-                break
-
-        return lat, lon, address_long_name
+        return self.__get_place_geocoding_results(results)
 
     def __get_place_geocoding(self, name):
         results = requests.get(
@@ -267,20 +268,7 @@ class Provider(object):
         elif results['status'] == 'ZERO_RESULTS':
             raise ProviderException("Google Geocoding API ZERO_RESULTS for '{name}'".format(name=name))
 
-        lat = None
-        lon = None
-        address_long_name = None
-        for result in results['results']:
-            if result.get('geometry', {}).get('location'):
-                lat = result['geometry']['location']['lat']
-                lon = result['geometry']['location']['lng']
-                for component in result['address_components']:
-                    if 'postal_code' not in component['types']:
-                        address_long_name = component['long_name']
-                        break
-                break
-
-        return lat, lon, address_long_name
+        return self.__get_place_geocoding_results(results)
 
     def save_station(self, provider_id, short_name, name, latitude, longitude, status, altitude=None, tz=None, url=None,
                      default_name=None):

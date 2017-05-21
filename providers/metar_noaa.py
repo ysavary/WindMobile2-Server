@@ -78,8 +78,8 @@ class MetarNoaa(Provider):
                 request = requests.get(file, stream=True, timeout=(self.connect_timeout, self.read_timeout))
                 for line in request.iter_lines():
                     if line:
-                        data = line.decode('utf-8')
                         try:
+                            data = line.decode('iso-8859-1')
                             # Is this line a date with format "2017/05/12 23:55" ?
                             datetime.strptime(data, '%Y/%m/%d %H:%M')
                             continue

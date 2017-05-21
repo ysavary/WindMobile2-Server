@@ -191,13 +191,12 @@ class Provider(object):
                 path=path, key=self.google_api_key),
             timeout=(self.connect_timeout, self.read_timeout)).json()
         if result['status'] == 'OVER_QUERY_LIMIT':
-            raise UsageLimitException('Google Elevation API: OVER_QUERY_LIMIT')
+            raise UsageLimitException('Google Elevation API OVER_QUERY_LIMIT')
         elif result['status'] == 'INVALID_REQUEST':
-            raise ProviderException('Google Elevation API: INVALID_REQUEST {message}'
+            raise ProviderException('Google Elevation API INVALID_REQUEST: {message}'
                                     .format(message=result.get('error_message', '')))
         elif result['status'] == 'ZERO_RESULTS':
-            raise ProviderException('Google Elevation API: ZERO_RESULTS {message}'
-                                    .format(message=result.get('error_message', '')))
+            raise ProviderException('Google Elevation API ZERO_RESULTS')
 
         elevation = float(result['results'][0]['elevation'])
         is_peak = False
@@ -218,18 +217,14 @@ class Provider(object):
             timeout=(self.connect_timeout, self.read_timeout)).json()
 
         if results['status'] == 'OVER_QUERY_LIMIT':
-            raise UsageLimitException('Google Places API: OVER_QUERY_LIMIT')
+            raise UsageLimitException('Google Places API OVER_QUERY_LIMIT')
         elif results['status'] == 'INVALID_REQUEST':
-            raise ProviderException('Google Places API: INVALID_REQUEST {message}'.format(
+            raise ProviderException('Google Places API INVALID_REQUEST: {message}'.format(
                 message=results.get('error_message', '')))
         elif results['status'] == 'ZERO_RESULTS':
-            raise ProviderException('Google Places API: ZERO_RESULTS {message}'.format(
-                message=results.get('error_message', '')))
+            raise ProviderException("Google Places API ZERO_RESULTS for '{name}'".format(name=name))
 
-        try:
-            place_id = results['predictions'][0]['place_id']
-        except:
-            raise ProviderException('Google Places API: ZERO_RESULTS')
+        place_id = results['predictions'][0]['place_id']
 
         results = requests.get(
             'https://maps.googleapis.com/maps/api/geocode/json?place_id={place_id}&key={key}'.format(
@@ -237,13 +232,12 @@ class Provider(object):
             timeout=(self.connect_timeout, self.read_timeout)).json()
 
         if results['status'] == 'OVER_QUERY_LIMIT':
-            raise UsageLimitException('Google Geocoding API: OVER_QUERY_LIMIT')
+            raise UsageLimitException('Google Geocoding API OVER_QUERY_LIMIT')
         elif results['status'] == 'INVALID_REQUEST':
-            raise ProviderException('Google Geocoding API: INVALID_REQUEST {message}'.format(
+            raise ProviderException('Google Geocoding API INVALID_REQUEST: {message}'.format(
                 message=results.get('error_message', '')))
         elif results['status'] == 'ZERO_RESULTS':
-            raise ProviderException('Google Geocoding API: ZERO_RESULTS {message}'.format(
-                message=results.get('error_message', '')))
+            raise ProviderException("Google Geocoding API ZERO_RESULTS for '{name}'".format(name=name))
 
         lat = None
         lon = None
@@ -277,13 +271,13 @@ class Provider(object):
                     timeout=(self.connect_timeout, self.read_timeout)).json()
 
                 if results['status'] == 'OVER_QUERY_LIMIT':
-                    raise UsageLimitException('Google Geocoding API: OVER_QUERY_LIMIT')
+                    raise UsageLimitException('Google Geocoding API OVER_QUERY_LIMIT')
                 elif results['status'] == 'INVALID_REQUEST':
-                    raise ProviderException('Google Geocoding API: INVALID_REQUEST {message}'
+                    raise ProviderException('Google Geocoding API INVALID_REQUEST: {message}'
                                             .format(message=results.get('error_message', '')))
                 elif results['status'] == 'ZERO_RESULTS':
-                    raise ProviderException('Google Geocoding API: ZERO_RESULTS {message}'
-                                            .format(message=results.get('error_message', '')))
+                    raise ProviderException('Google Geocoding API ZERO_RESULTS')
+
                 address_short_name = None
                 address_long_name = None
                 for result in results['results']:
@@ -322,8 +316,7 @@ class Provider(object):
                     lat, lon, address_long_name = self.__get_place(address)
                     if not lat or not lon or not address_long_name:
                         raise ProviderException(
-                            'Google Geocoding API: No valid geolocation found {address}'.format(
-                                address=address))
+                            'Google Geocoding API: No valid geolocation found {address}'.format(address=address))
                     self.__add_redis_key(geolocation_key, {
                         '_id': _id,
                         'lat': lat,
@@ -384,14 +377,15 @@ class Provider(object):
                     '&timestamp={utc}&key={key}'
                     .format(lat=lat, lon=lon, utc=arrow.utcnow().timestamp, key=self.google_api_key),
                     timeout=(self.connect_timeout, self.read_timeout)).json()
+
                 if result['status'] == 'OVER_QUERY_LIMIT':
-                    raise UsageLimitException('Google Time Zone API: OVER_QUERY_LIMIT')
+                    raise UsageLimitException('Google Time Zone API OVER_QUERY_LIMIT')
                 elif result['status'] == 'INVALID_REQUEST':
-                    raise ProviderException('Google Time Zone API: INVALID_REQUEST {message}'.format(
+                    raise ProviderException('Google Time Zone API INVALID_REQUEST: {message}'.format(
                         message=result.get('error_message', '')))
                 elif result['status'] == 'ZERO_RESULTS':
-                    raise ProviderException('Google Time Zone API: ZERO_RESULTS {message}'.format(
-                        message=result.get('error_message', '')))
+                    raise ProviderException('Google Time Zone API ZERO_RESULTS')
+                
                 tz = result['timeZoneId']
                 dateutil.tz.gettz(tz)
                 self.__add_redis_key(tz_key, {

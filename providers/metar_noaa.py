@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 
+import metar
 import pytz
 import requests
 from metar.Metar import Metar
@@ -8,6 +9,13 @@ from metar.Metar import Metar
 from provider import get_logger, Provider, ProviderException, Status, ureg, Q_
 
 logger = get_logger('metar')
+
+
+def warn_unparsed_group(metar, group):
+    logger.warn("Unparsed '{group}'".format(group=group))
+
+
+metar.Metar._unparsedGroup = warn_unparsed_group
 
 
 class MetarNoaa(Provider):

@@ -1,7 +1,6 @@
-from datetime import datetime
-
+import arrow
 import requests
-from pytz import timezone
+from dateutil import tz
 
 from provider import get_logger, Provider, ProviderException, Status
 
@@ -15,9 +14,9 @@ class Ffvl(Provider):
 
     def process_data(self):
         try:
-            logger.info("Processing FFVL data...")
+            logger.info('Processing FFVL data...')
 
-            result = requests.get("http://data.ffvl.fr/json/balises.json", timeout=(self.connect_timeout,
+            result = requests.get('http://data.ffvl.fr/json/balises.json', timeout=(self.connect_timeout,
                                                                                     self.read_timeout))
             ffvl_stations = result.json()
 
@@ -43,17 +42,17 @@ class Ffvl(Provider):
                     self.raven_client.captureException()
 
         except ProviderException as e:
-            logger.warn("Error while processing stations: {0}".format(e))
+            logger.warn('Error while processing stations: {0}'.format(e))
         except Exception as e:
-            logger.exception("Error while processing stations: {0}".format(e))
+            logger.exception('Error while processing stations: {0}'.format(e))
             self.raven_client.captureException()
 
         try:
-            result = requests.get("http://data.ffvl.fr/json/relevesmeteo.json", timeout=(self.connect_timeout,
+            result = requests.get('http://data.ffvl.fr/json/relevesmeteo.json', timeout=(self.connect_timeout,
                                                                                          self.read_timeout))
             ffvl_measures = result.json()
 
-            ffvl_tz = timezone('Europe/Paris')
+            ffvl_tz = tz.gettz('Europe/Paris')
             for ffvl_measure in ffvl_measures:
                 try:
                     ffvl_id = ffvl_measure['idbalise']
@@ -65,8 +64,7 @@ class Ffvl(Provider):
                     measures_collection = self.measures_collection(station_id)
                     new_measures = []
 
-                    key = int(
-                        ffvl_tz.localize(datetime.strptime(ffvl_measure['date'], '%Y-%m-%d %H:%M:%S')).timestamp())
+                    key = arrow.get(ffvl_measure['date'], 'YYYY-MM-DD HH:mm:ss').replace(tzinfo=ffvl_tz).timestamp
 
                     if not self.has_measure(measures_collection, key):
                         measure = self.create_measure(
@@ -90,11 +88,12 @@ class Ffvl(Provider):
                     self.raven_client.captureException()
 
         except ProviderException as e:
-            logger.warn("Error while processing FFVL: {0}", e)
+            logger.warn('Error while processing FFVL: {0}', e)
         except Exception as e:
-            logger.exception("Error while processing FFVL: {0}", e)
+            logger.exception('Error while processing FFVL: {0}', e)
             self.raven_client.captureException()
 
-        logger.info("...Done!")
+        logger.info('...Done!')
+
 
 Ffvl().process_data()

@@ -1,9 +1,9 @@
 import json
 import os
-from datetime import datetime
 
+import arrow
+import arrow.parser
 import metar
-import pytz
 import requests
 from metar.Metar import Metar
 
@@ -62,8 +62,9 @@ class MetarNoaa(Provider):
             with open(os.path.join(os.path.dirname(__file__), 'metar/icao.json')) as in_file:
                 icao = json.load(in_file)
 
-            hour = int(datetime.utcnow().strftime('%H'))
-            minute = int(datetime.utcnow().strftime('%M'))
+            hour = arrow.utcnow().hour
+            minute = arrow.utcnow().minute
+
             if minute < 45:
                 current_cycle = hour
             else:
@@ -81,15 +82,15 @@ class MetarNoaa(Provider):
                         try:
                             data = line.decode('iso-8859-1')
                             # Is this line a date with format "2017/05/12 23:55" ?
-                            datetime.strptime(data, '%Y/%m/%d %H:%M')
+                            arrow.get(data, 'YYYY/MM/DD HH:mm')
                             continue
-                        except ValueError:
+                        except arrow.parser.ParserError:
                             try:
                                 metar = Metar(data)
                                 if metar.wind_dir and metar.wind_speed:
                                     if metar.station_id not in stations:
                                         stations[metar.station_id] = {}
-                                    key = int(pytz.utc.localize(metar.time).timestamp())
+                                    key = arrow.get(metar.time).timestamp
                                     stations[metar.station_id][key] = metar
                             except Exception as e:
                                 logger.warn('Error while parsing METAR data: {e}'.format(e=e))

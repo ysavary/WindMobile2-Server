@@ -133,39 +133,6 @@ class Provider(object):
         except CollectionInvalid:
             return self.mongo_db[station_id]
 
-    def get_station_id(self, _id):
-        if _id is None:
-            raise ProviderException('Station id is none!')
-        return self.provider_code + '-' + str(_id)
-
-    def __create_station(self, provider_id, short_name, name, latitude, longitude, altitude, is_peak, status, tz,
-                         url=None):
-
-        if any((not short_name, not name, altitude is None, latitude is None, longitude is None, not status, not tz)):
-            raise ProviderException('A mandatory value is none!')
-
-        station = {
-            'pv-id': provider_id,
-            'pv-code': self.provider_code,
-            'pv-name': self.provider_name,
-            'url': url or self.provider_url,
-            'short': short_name,
-            'name': name,
-            'alt': to_int(altitude),
-            'peak': to_bool(is_peak),
-            'loc': {
-                'type': 'Point',
-                'coordinates': [
-                    to_float(longitude, 6),
-                    to_float(latitude, 6)
-                ]
-            },
-            'status': status,
-            'tz': tz,
-            'seen': arrow.utcnow().timestamp
-        }
-        return station
-
     def __add_redis_key(self, key, values, cache_duration):
         pipe = self.redis.pipeline()
         pipe.hmset(key, values)
@@ -270,8 +237,41 @@ class Provider(object):
 
         return self.__get_place_geocoding_results(results)
 
+    def get_station_id(self, provider_id):
+        if provider_id is None:
+            raise ProviderException("'provider id' is none!")
+        return self.provider_code + '-' + str(provider_id)
+
+    def __create_station(self, provider_id, short_name, name, latitude, longitude, altitude, is_peak, status, tz,
+                         url=None):
+
+        if any((not short_name, not name, altitude is None, latitude is None, longitude is None, not status, not tz)):
+            raise ProviderException('A mandatory value is none!')
+
+        station = {
+            'pv-id': provider_id,
+            'pv-code': self.provider_code,
+            'pv-name': self.provider_name,
+            'url': url or self.provider_url,
+            'short': short_name,
+            'name': name,
+            'alt': to_int(altitude),
+            'peak': to_bool(is_peak),
+            'loc': {
+                'type': 'Point',
+                'coordinates': [
+                    to_float(longitude, 6),
+                    to_float(latitude, 6)
+                ]
+            },
+            'status': status,
+            'tz': tz,
+            'seen': arrow.utcnow().timestamp
+        }
+        return station
+
     def save_station(self, provider_id, short_name, name, latitude, longitude, status, altitude=None, tz=None, url=None,
-                     default_name=None):
+                     default_name=None, lookup_name=None):
 
         _id = self.get_station_id(provider_id)
         lat = to_float(latitude, 6)
@@ -324,7 +324,7 @@ class Provider(object):
                     'error': repr(e)
                 }, self.location_cache_duration)
 
-        address = name or short_name
+        address = lookup_name or name or short_name
         geolocation_key = 'geolocation/{address}'.format(address=address)
         if (lat is None and lon is None) or (lat == 0 and lon == 0):
             if not self.redis.exists(geolocation_key):

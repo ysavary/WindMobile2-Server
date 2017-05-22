@@ -107,13 +107,14 @@ class MetarNoaa(Provider):
 
                     station = self.save_station(
                         metar.station_id,
-                        '{icao} Airport ICAO'.format(icao=metar.station_id),
+                        None,
                         None,
                         lat,
                         lon,
                         Status.GREEN,
                         url=os.path.join(self.provider_url, 'site?id={id}&db=metar'.format(id=metar.station_id)),
-                        default_name='{icao} Airport ICAO'.format(icao=metar.station_id))
+                        default_name='{icao} Airport'.format(icao=metar.station_id),
+                        lookup_name='{icao} Airport ICAO'.format(icao=metar.station_id))
                     station_id = station['_id']
 
                     measures_collection = self.measures_collection(station_id)

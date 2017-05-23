@@ -59,7 +59,7 @@ class MetarNoaa(Provider):
         try:
             logger.info('Processing Metar data...')
 
-            with open(os.path.join(os.path.dirname(__file__), 'metar/icao.json')) as in_file:
+            with open(os.path.join(os.path.dirname(__file__), 'metar/stations.json')) as in_file:
                 icao = json.load(in_file)
 
             hour = arrow.utcnow().hour
@@ -99,24 +99,27 @@ class MetarNoaa(Provider):
             for metar_id in stations:
                 metar = next(iter(stations[metar_id].values()))
                 try:
-                    lat, lon = None, None
+                    lat, lon, default_name = None, None, None
                     if metar.station_id in icao:
                         lat = icao[metar.station_id]['lat']
                         lon = icao[metar.station_id]['lon']
-                    if not lat and not lon:
-                        lat, lon = None, None
+                        default_name = icao[metar.station_id]['name']
 
                     station = self.save_station(
                         metar.station_id,
-                        None,
+                        '{icao} Airport'.format(icao=metar.station_id),
                         None,
                         lat,
                         lon,
                         Status.GREEN,
                         url=os.path.join(self.provider_url, 'site?id={id}&db=metar'.format(id=metar.station_id)),
-                        default_name='{icao} Airport'.format(icao=metar.station_id),
+                        default_name=default_name or '{icao} Airport'.format(icao=metar.station_id),
                         lookup_name='{icao} Airport ICAO'.format(icao=metar.station_id))
                     station_id = station['_id']
+
+                    if metar.station_id not in icao:
+                        logger.warn("Missing '{icao}' ICAO in database. Is it '{name}'?".format(icao=metar.station_id,
+                                                                                                name=station['name']))
 
                     measures_collection = self.measures_collection(station_id)
                     new_measures = []

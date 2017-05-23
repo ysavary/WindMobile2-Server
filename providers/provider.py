@@ -238,8 +238,6 @@ class Provider(object):
         return self.__get_place_geocoding_results(results)
 
     def get_station_id(self, provider_id):
-        if provider_id is None:
-            raise ProviderException("'provider id' is none!")
         return self.provider_code + '-' + str(provider_id)
 
     def __create_station(self, provider_id, short_name, name, latitude, longitude, altitude, is_peak, status, tz,
@@ -273,6 +271,8 @@ class Provider(object):
     def save_station(self, provider_id, short_name, name, latitude, longitude, status, altitude=None, tz=None, url=None,
                      default_name=None, lookup_name=None):
 
+        if provider_id is None:
+            raise ProviderException("'provider id' is none!")
         _id = self.get_station_id(provider_id)
         lat = to_float(latitude, 6)
         lon = to_float(longitude, 6)
@@ -326,7 +326,7 @@ class Provider(object):
 
         address = lookup_name or name or short_name
         geolocation_key = 'geolocation/{address}'.format(address=address)
-        if (lat is None and lon is None) or (lat == 0 and lon == 0):
+        if (lat is None or lon is None) or (lat == 0 and lon == 0):
             if not self.redis.exists(geolocation_key):
                 try:
                     lat, lon, address_long_name = self.__get_place_geocoding(address)

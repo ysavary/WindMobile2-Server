@@ -1,6 +1,7 @@
 # coding=utf-8
 import logging
 from datetime import datetime, timedelta
+from math import sqrt
 
 import jwt
 from django.conf import settings
@@ -170,51 +171,37 @@ class Stations(APIView):
                 raise ParseError(e.details)
 
         if within_pt1_latitude and within_pt1_longitude and within_pt2_latitude and within_pt2_longitude:
-            result = []
+            x1 = float(within_pt1_longitude)
+            y1 = float(within_pt1_latitude)
+            x2 = float(within_pt2_longitude)
+            y2 = float(within_pt2_latitude)
 
-            def density_search(x1, y1, x2, y2, level=1):
-                sub_limit = limit // (pow(3, level - 1))
-                query['loc'] = {
-                    '$geoWithin': {
-                        '$geometry': {
-                            'type': 'Polygon',
-                            'coordinates': [[(x1, y1), (x2, y1), (x2, y2), (x1, y2), (x1, y1)]],
-                            # Resolves "Big polygon" issue, requires mongodb 3.x
-                            # http://docs.mongodb.org/manual/reference/operator/query/geometry/#op._S_geometry
-                            'crs': {
-                                'type': 'name',
-                                'properties': {'name': 'urn:x-mongodb:crs:strictwinding:EPSG:4326'}
-                            }
-                        }
-                    }
-                }
-                cursor = mongo_db.stations.find(query, projection_dict)
-                count = cursor.count()
-
-                if count > 0:
-                    if sub_limit == 0:
-                        result.extend(list(cursor.limit(1)))
-                    elif count <= sub_limit:
-                        result.extend(list(cursor))
-                    else:
-                        delta_x = (x2 - x1) / 2
-                        delta_y = (y2 - y1) / 2
-
-                        for i in range(0, 2):
-                            i1 = x1 + i * delta_x
-                            i2 = x1 + (i + 1) * delta_x
-                            for j in range(0, 2):
-                                j1 = y1 + j * delta_y
-                                j2 = y1 + (j + 1) * delta_y
-                                density_search(i1, j1, i2, j2, level + 1)
+            area = abs((x2 - x1) * (y2 - y1))
+            n_clusters = int((1 / sqrt(area)) * 10000)
+            # log.warning('{n} clusters for area {area:.2f}'.format(n=n_clusters, area=area))
 
             try:
-                density_search(
-                    float(within_pt1_longitude),
-                    float(within_pt1_latitude),
-                    float(within_pt2_longitude),
-                    float(within_pt2_latitude))
-                return Response(result)
+                query['clusters'] = {'$elemMatch': {'$lte': n_clusters}}
+                # query['loc'] = {
+                #     '$geoWithin': {
+                #         '$geometry': {
+                #             'type': 'Polygon',
+                #             'coordinates': [[(x1, y1), (x2, y1), (x2, y2), (x1, y2), (x1, y1)]],
+                #             # Resolves "Big polygon" issue, requires mongodb 3.x
+                #             # http://docs.mongodb.org/manual/reference/operator/query/geometry/#op._S_geometry
+                #             'crs': {
+                #                 'type': 'name',
+                #                 'properties': {'name': 'urn:x-mongodb:crs:strictwinding:EPSG:4326'}
+                #             }
+                #         }
+                #     }
+                # }
+                query['loc'] = {
+                    '$geoWithin': {
+                        '$box': [[x1, y1], [x2, y2]]
+                    }
+                }
+                return Response(list(mongo_db.stations.find(query, projection_dict)))
             except OperationFailure as e:
                 raise ParseError(e.details)
 

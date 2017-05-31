@@ -10,7 +10,8 @@ def dms2dd(degrees, minutes, direction):
     return dd
 
 with open('stations.json', 'w') as out_file:
-    request = requests.get('http://aviationweather.cp.ncep.noaa.gov/docs/metar/stations.txt', stream=True)
+    # Another maintained version here: http://weather.rap.ucar.edu/surface/stations.txt
+    request = requests.get('http://aviationweather.gov/docs/metar/stations.txt', stream=True)
     stations = {}
     for line in request.iter_lines():
         data = line.decode('ascii')

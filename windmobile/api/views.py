@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from stop_words import get_stop_words, StopWordError
 
+from windmobile.api.mongo_utils import generate_box_geometry
 from . import diacritics
 from .authentication import JWTAuthentication, IsJWTAuthenticated
 
@@ -182,23 +183,9 @@ class Stations(APIView):
 
             try:
                 query['clusters'] = {'$elemMatch': {'$lte': n_clusters}}
-                # query['loc'] = {
-                #     '$geoWithin': {
-                #         '$geometry': {
-                #             'type': 'Polygon',
-                #             'coordinates': [[(x1, y1), (x2, y1), (x2, y2), (x1, y2), (x1, y1)]],
-                #             # Resolves "Big polygon" issue, requires mongodb 3.x
-                #             # http://docs.mongodb.org/manual/reference/operator/query/geometry/#op._S_geometry
-                #             'crs': {
-                #                 'type': 'name',
-                #                 'properties': {'name': 'urn:x-mongodb:crs:strictwinding:EPSG:4326'}
-                #             }
-                #         }
-                #     }
-                # }
                 query['loc'] = {
                     '$geoWithin': {
-                        '$box': [[x1, y1], [x2, y2]]
+                        '$geometry': generate_box_geometry((x1, y1), (x2, y2))
                     }
                 }
                 return Response(list(mongo_db.stations.find(query, projection_dict)))

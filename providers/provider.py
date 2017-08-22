@@ -133,7 +133,7 @@ class Provider(object):
         except CollectionInvalid:
             return self.mongo_db[station_id]
 
-    def __add_redis_key(self, key, values, cache_duration):
+    def add_redis_key(self, key, values, cache_duration):
         pipe = self.redis.pipeline()
         pipe.hmset(key, values)
         pipe.expire(key, cache_duration)
@@ -304,7 +304,7 @@ class Provider(object):
                             break
                 if not address_short_name or not address_long_name:
                     raise ProviderException('Google Geocoding API: No valid address name found')
-                self.__add_redis_key(address_key, {
+                self.add_redis_key(address_key, {
                     '_id': _id,
                     'short': address_short_name,
                     'name': address_long_name
@@ -312,14 +312,14 @@ class Provider(object):
             except TimeoutError as e:
                 raise e
             except UsageLimitException as e:
-                self.__add_redis_key(address_key, {
+                self.add_redis_key(address_key, {
                     '_id': _id,
                     'error': repr(e)
                 }, self.usage_limit_cache_duration)
             except Exception as e:
                 if not isinstance(e, ProviderException):
                     self.raven_client.captureException()
-                self.__add_redis_key(address_key, {
+                self.add_redis_key(address_key, {
                     '_id': _id,
                     'error': repr(e)
                 }, self.location_cache_duration)
@@ -333,7 +333,7 @@ class Provider(object):
                     if not lat or not lon or not address_long_name:
                         raise ProviderException(
                             'Google Geocoding API: No valid geolocation found {address}'.format(address=address))
-                    self.__add_redis_key(geolocation_key, {
+                    self.add_redis_key(geolocation_key, {
                         '_id': _id,
                         'lat': lat,
                         'lon': lon,
@@ -342,14 +342,14 @@ class Provider(object):
                 except TimeoutError as e:
                     raise e
                 except UsageLimitException as e:
-                    self.__add_redis_key(geolocation_key, {
+                    self.add_redis_key(geolocation_key, {
                         '_id': _id,
                         'error': repr(e)
                     }, self.usage_limit_cache_duration)
                 except Exception as e:
                     if not isinstance(e, ProviderException):
                         self.raven_client.captureException()
-                    self.__add_redis_key(geolocation_key, {
+                    self.add_redis_key(geolocation_key, {
                         '_id': _id,
                         'error': repr(e)
                     }, self.location_cache_duration)
@@ -366,21 +366,21 @@ class Provider(object):
         if not self.redis.exists(alt_key):
             try:
                 elevation, is_peak = self.__compute_elevation(lat, lon)
-                self.__add_redis_key(alt_key, {
+                self.add_redis_key(alt_key, {
                     'alt': elevation,
                     'is_peak': is_peak
                 }, self.location_cache_duration)
             except TimeoutError as e:
                 raise e
             except UsageLimitException as e:
-                self.__add_redis_key(alt_key, {
+                self.add_redis_key(alt_key, {
                     '_id': _id,
                     'error': repr(e)
                 }, self.usage_limit_cache_duration)
             except Exception as e:
                 if not isinstance(e, ProviderException):
                     self.raven_client.captureException()
-                self.__add_redis_key(alt_key, {
+                self.add_redis_key(alt_key, {
                     '_id': _id,
                     'error': repr(e)
                 }, self.location_cache_duration)
@@ -404,21 +404,21 @@ class Provider(object):
 
                 tz = result['timeZoneId']
                 dateutil.tz.gettz(tz)
-                self.__add_redis_key(tz_key, {
+                self.add_redis_key(tz_key, {
                     '_id': _id,
                     'tz': tz
                 }, self.location_cache_duration)
             except TimeoutError as e:
                 raise e
             except UsageLimitException as e:
-                self.__add_redis_key(tz_key, {
+                self.add_redis_key(tz_key, {
                     '_id': _id,
                     'error': repr(e)
                 }, self.usage_limit_cache_duration)
             except Exception as e:
                 if not isinstance(e, ProviderException):
                     self.raven_client.captureException()
-                self.__add_redis_key(tz_key, {
+                self.add_redis_key(tz_key, {
                     '_id': _id,
                     'error': repr(e)
                 }, self.location_cache_duration)

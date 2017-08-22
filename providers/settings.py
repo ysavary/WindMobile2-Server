@@ -6,6 +6,8 @@ GOOGLE_API_KEY = ''
 
 WINDLINE_URL = ''
 
+CHECKWX_API_KEY = ''
+
 SENTRY_URL = ''
 
 try:

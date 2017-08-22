@@ -172,13 +172,13 @@ class Stations(APIView):
                 raise ParseError(e.details)
 
         if within_pt1_latitude and within_pt1_longitude and within_pt2_latitude and within_pt2_longitude:
-            x1 = float(within_pt1_longitude)
-            y1 = float(within_pt1_latitude)
-            x2 = float(within_pt2_longitude)
-            y2 = float(within_pt2_latitude)
+            x2 = float(within_pt1_longitude)
+            y2 = float(within_pt1_latitude)
+            x1 = float(within_pt2_longitude)
+            y1 = float(within_pt2_latitude)
 
             area = abs((x2 - x1) * (y2 - y1))
-            n_clusters = int((1 / sqrt(area)) * 10000)
+            n_clusters = int((1 / sqrt(area)) * 20000)
             # log.warning('{n} clusters for area {area:.2f}'.format(n=n_clusters, area=area))
 
             try:

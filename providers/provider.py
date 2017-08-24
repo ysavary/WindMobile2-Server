@@ -95,6 +95,7 @@ class Provider(object):
         self.__stations_collection = self.mongo_db.stations
         self.__stations_collection.create_index([('loc', GEOSPHERE), ('status', ASCENDING), ('pv-code', ASCENDING),
                                                  ('short', ASCENDING), ('name', ASCENDING)])
+        self.collection_names = self.mongo_db.collection_names()
         self.redis = redis.StrictRedis(decode_responses=True)
         self.google_api_key = GOOGLE_API_KEY
         self.raven_client = RavenClient(SENTRY_URL)
@@ -128,10 +129,10 @@ class Provider(object):
         return self.__stations_collection
 
     def measures_collection(self, station_id):
-        try:
-            return self.mongo_db.create_collection(station_id, **{'capped': True, 'size': 500000, 'max': 5000})
-        except CollectionInvalid:
-            return self.mongo_db[station_id]
+        if station_id not in self.collection_names:
+            self.mongo_db.create_collection(station_id, **{'capped': True, 'size': 500000, 'max': 5000})
+            self.collection_names.append(station_id)
+        return self.mongo_db[station_id]
 
     def add_redis_key(self, key, values, cache_duration):
         pipe = self.redis.pipeline()

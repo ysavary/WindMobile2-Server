@@ -499,7 +499,7 @@ class Provider(object):
 
     def insert_new_measures(self, measure_collection, station, new_measures, logger):
         if len(new_measures) > 0:
-            measure_collection.insert(new_measures)
+            measure_collection.insert(sorted(new_measures, key=lambda m: m['_id']))
 
             end_date = arrow.Arrow.fromtimestamp(new_measures[-1]['_id'], dateutil.tz.gettz(station['tz']))
             logger.info(

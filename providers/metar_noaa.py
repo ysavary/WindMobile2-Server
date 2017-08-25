@@ -161,7 +161,7 @@ class MetarNoaa(Provider):
                         lat = checkwx_data['latitude']
                         lon = checkwx_data['longitude']
                         tz = checkwx_data['tz']
-                        altitude = checkwx_data['elevation']
+                        altitude = Q_(checkwx_data['elevation'], ureg.feet)
 
                     if metar.station_id in icao:
                         lat = lat or icao[metar.station_id]['lat']
@@ -170,8 +170,8 @@ class MetarNoaa(Provider):
 
                     station = self.save_station(
                         metar.station_id,
-                        name,
                         short_name,
+                        name,
                         lat,
                         lon,
                         Status.GREEN,

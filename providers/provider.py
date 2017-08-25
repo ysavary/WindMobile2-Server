@@ -125,6 +125,12 @@ class Provider(object):
         else:
             return to_int(value)
 
+    def __to_altitude(self, value):
+        if isinstance(value, ureg.Quantity):
+            return to_int(value.to(ureg.meter).magnitude)
+        else:
+            return to_int(value)
+
     def stations_collection(self):
         return self.__stations_collection
 
@@ -254,7 +260,7 @@ class Provider(object):
             'url': url or self.provider_url,
             'short': short_name,
             'name': name,
-            'alt': to_int(altitude),
+            'alt': self.__to_altitude(altitude),
             'peak': to_bool(is_peak),
             'loc': {
                 'type': 'Point',

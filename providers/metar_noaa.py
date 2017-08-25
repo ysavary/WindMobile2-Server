@@ -155,9 +155,14 @@ class MetarNoaa(Provider):
 
                     if not self.redis.hexists(checkwx_key, 'error'):
                         checkwx_data = json.loads(self.redis.hget(checkwx_key, 'data'))
+                        station_type = checkwx_data['type']
 
-                        name = '{name} {type}'.format(name=checkwx_data['name'], type=checkwx_data['type'])
-                        short_name = '{city} {type}'.format(city=checkwx_data['city'], type=checkwx_data['type'])
+                        name = '{name} {type}'.format(name=checkwx_data['name'], type=station_type)
+                        city = checkwx_data['city']
+                        if city:
+                            short_name = '{city} {type}'.format(city=city, type=station_type)
+                        else:
+                            default_name = checkwx_data['name']
                         lat = checkwx_data['latitude']
                         lon = checkwx_data['longitude']
                         tz = checkwx_data['tz']
@@ -166,7 +171,7 @@ class MetarNoaa(Provider):
                     if metar.station_id in icao:
                         lat = lat or icao[metar.station_id]['lat']
                         lon = lon or icao[metar.station_id]['lon']
-                        default_name = icao[metar.station_id]['name']
+                        default_name = default_name or icao[metar.station_id]['name']
 
                     station = self.save_station(
                         metar.station_id,

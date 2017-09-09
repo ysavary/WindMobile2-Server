@@ -15,7 +15,7 @@ logger = get_logger('metar')
 
 
 def warn_unparsed_group(metar, group):
-    logger.warn("Unparsed '{group}'".format(group=group))
+    logger.warn("'{code}': unparsed group '{group}'".format(code=metar.code, group=group['group']))
 
 
 metar.Metar._unparsedGroup = warn_unparsed_group
@@ -64,6 +64,9 @@ class MetarNoaa(Provider):
     def get_direction(self, measure):
         if measure:
             return Q_(measure._degrees, self.direction_units['degree'])
+        else:
+            # For VaRiaBle direction, use a random value
+            return Q_(randint(0, 359), self.direction_units['degree'])
 
     def process_data(self):
         try:
@@ -101,7 +104,8 @@ class MetarNoaa(Provider):
                         except arrow.parser.ParserError:
                             try:
                                 metar = Metar(data)
-                                if metar.wind_dir and metar.wind_speed:
+                                # wind_dir could be NONE if 'dir' is 'VRB'
+                                if metar.wind_speed:
                                     if metar.station_id not in stations:
                                         stations[metar.station_id] = {}
                                     key = arrow.get(metar.time).timestamp

@@ -243,6 +243,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         station.fromNow = moment.unix(station.last._id).fromNow();
                         var status = utils.getStationStatus(station);
                         station.fromNowClass = utils.getStatusClass(status);
+                        stat
                     }
                 };
                 $scope.$on('onFromNowInterval', function () {
@@ -787,9 +788,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
             this.updateFromNow = function() {
                 if (self.station.last) {
-                    self.station.fromNow = moment.unix(self.station.last._id).fromNow();
+                    var time = moment.unix(self.station.last._id);
+                    self.station.fromNow = time.fromNow();
                     var status = utils.getStationStatus(self.station);
                     self.station.fromNowClass = utils.getStatusClass(status);
+                    self.station.updateTime = time.format('lll');
                 }
             };
             $scope.$on('onFromNowInterval', function() {

@@ -12,7 +12,7 @@
             <a class="btn" ng-click="detail.showOnList(detail.station)"><i class="material-icons md-18">view_module</i></a>
             <a class="btn" style="float:right; margin-left: 10px" data-dismiss="modal"><i class="material-icons md-18">cancel</i></a>
             <div class="wdm-info" style="float:right;">
-                <div class="wdm-last-update" style="float:right;" ng-class="detail.station.fromNowClass">{{ detail.station.fromNow }}</div>
+                <div class="wdm-last-update" style="float:right;" ng-class="detail.station.fromNowClass" title="{{ detail.station.updateTime }}">{{ detail.station.fromNow }}</div>
                 <a class="wdm-provider" style="clear:right;float:right;" href="{{ detail.station.url }}" target="_blank">{{ detail.station['pv-name'] }}</a>
             </div>
             <div class="wdm-altitude" style="clear:left;float:left;">{{ detail.station.alt }} <span translate>meters</span></div>

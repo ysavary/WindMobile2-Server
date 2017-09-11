@@ -665,11 +665,12 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     initialLon = lon;
                 }
             }
+            var defaultZoom = 10;
             if (zoom != undefined) {
                 initialZoom = zoom;
             } else {
                 var zoom = parseInt($location.search().zoom);
-                initialZoom = isNaN(zoom) ? 8 : zoom;
+                initialZoom = isNaN(zoom) ? defaultZoom : zoom;
             }
 
             if (initialLat == undefined && self.lon == undefined) {
@@ -682,7 +683,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     // Use last geolocation
                     initialLat = $scope.$app.lat;
                     initialLon = $scope.$app.lon;
-                    initialZoom = 8;
+                    initialZoom = defaultZoom;
                 } else {
                     // France and Switzerland by default
                     initialLat = 46.76;
@@ -693,7 +694,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
             $scope.$on('geoLocation', function (event, lat, lon) {
                 if (!ignoreNextGeolocation) {
-                    self.centerMap(lat, lon, 8);
+                    self.centerMap(lat, lon, defaultZoom);
                 } else {
                     ignoreNextGeolocation = false;
                 }

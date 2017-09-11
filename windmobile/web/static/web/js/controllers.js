@@ -477,8 +477,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     params['within-pt1-lon'] = bounds.getNorthEast().lng();
                     params['within-pt2-lat'] = bounds.getSouthWest().lat();
                     params['within-pt2-lon'] = bounds.getSouthWest().lng();
-                    // Max 20 markers for 100x100 pixels
-                    params['limit'] = Math.round($(window).width() * $(window).height() * (20 / 1000));
+                    // Max 3 markers for 100x100 pixels
+                    params['limit'] = Math.round($(window).width() * $(window).height() * (3 / 10000));
                 }
                 if (self.tenant) {
                     params.provider = self.tenant

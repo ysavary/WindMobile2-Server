@@ -476,14 +476,12 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     params['within-pt1-lon'] = bounds.getNorthEast().lng();
                     params['within-pt2-lat'] = bounds.getSouthWest().lat();
                     params['within-pt2-lon'] = bounds.getSouthWest().lng();
+                    // Max 20 markers for 100x100 pixels
+                    params['limit'] = Math.round($(window).width() * $(window).height() * (20 / 1000));
                 }
                 if (self.tenant) {
                     params.provider = self.tenant
                 }
-                params.search = self.search;
-                // 1000*1000 px windows should have a limit ~= 100
-                var map = $('#wdm-map');
-                params.limit = Math.round(map.width() * map.height() / (1000 * 1000 / 100));
 
                 $http({
                     method: 'GET',

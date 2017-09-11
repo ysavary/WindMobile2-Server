@@ -1,9 +1,9 @@
 # coding=utf-8
 import logging
 from datetime import datetime, timedelta
-from math import sqrt
 
 import jwt
+from cachetools.func import ttl_cache
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -14,6 +14,7 @@ from rest_framework import status
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from scipy import optimize
 from stop_words import get_stop_words, StopWordError
 
 from windmobile.api.mongo_utils import generate_box_geometry
@@ -21,6 +22,11 @@ from . import diacritics
 from .authentication import JWTAuthentication, IsJWTAuthenticated
 
 log = logging.getLogger(__name__)
+
+
+@ttl_cache(ttl=10 * 60)
+def get_collection_names():
+    return mongo_db.collection_names()
 
 
 class Stations(APIView):
@@ -98,7 +104,7 @@ class Stations(APIView):
               allowMultiple: true
               paramType: query
         """
-        limit = int(request.query_params.get('limit', 20))
+        limit = min(int(request.query_params.get('limit', 20)), 200)
         provider = request.query_params.get('provider')
         search = request.query_params.get('search')
         search_language = request.query_params.get('search-language')
@@ -172,23 +178,39 @@ class Stations(APIView):
                 raise ParseError(e.details)
 
         if within_pt1_latitude and within_pt1_longitude and within_pt2_latitude and within_pt2_longitude:
-            x2 = float(within_pt1_longitude)
-            y2 = float(within_pt1_latitude)
-            x1 = float(within_pt2_longitude)
-            y1 = float(within_pt2_latitude)
+            query['loc'] = {
+                '$geoWithin': {
+                    '$geometry': generate_box_geometry((float(within_pt2_longitude), float(within_pt2_latitude)),
+                                                       (float(within_pt1_longitude), float(within_pt1_latitude)))
+                }
+            }
 
-            area = abs((x2 - x1) * (y2 - y1))
-            n_clusters = int((1 / sqrt(area)) * 20000)
-            # log.warning('{n} clusters for area {area:.2f}'.format(n=n_clusters, area=area))
+            now = datetime.now().timestamp()
+            nb_stations = mongo_db.stations.count({
+                'status': {'$ne': 'hidden'},
+                'last._id': {'$gt': now - 30 * 24 * 3600}
+            })
+
+            def get_cluster_query(no_cluster):
+                cluster_query = query.copy()
+                cluster_query['clusters'] = {'$elemMatch': {'$lte': int(no_cluster)}}
+                return cluster_query
+
+            def count(x):
+                y = mongo_db.stations.count(get_cluster_query(x))
+                return y - limit
 
             try:
-                query['clusters'] = {'$elemMatch': {'$lte': n_clusters}}
-                query['loc'] = {
-                    '$geoWithin': {
-                        '$geometry': generate_box_geometry((x1, y1), (x2, y2))
-                    }
-                }
-                return Response(list(mongo_db.stations.find(query, projection_dict)))
+                no_cluster = optimize.brentq(count, 1, nb_stations, maxiter=2, disp=False)
+            except ValueError:
+                no_cluster = None
+
+            try:
+                if no_cluster:
+                    stations = list(mongo_db.stations.find(get_cluster_query(no_cluster), projection_dict))
+                else:
+                    stations = list(mongo_db.stations.find(query, projection_dict))
+                return Response(stations)
             except OperationFailure as e:
                 raise ParseError(e.details)
 
@@ -319,7 +341,7 @@ class StationHistoric(APIView):
         if not station:
             return Response({'detail': "No station with id '{0}'".format(station_id)}, status=status.HTTP_404_NOT_FOUND)
 
-        if 'last' not in station or station_id not in mongo_db.collection_names():
+        if 'last' not in station or station_id not in get_collection_names():
             return Response({'detail': "No historic data for station id '{0}'".format(station_id)},
                             status=status.HTTP_404_NOT_FOUND)
         last_time = station['last']['_id']

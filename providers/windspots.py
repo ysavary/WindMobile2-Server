@@ -32,8 +32,7 @@ class Windspots(Provider):
                         windspots_station['@wgs84Latitude'],
                         windspots_station['@wgs84Longitude'],
                         windspots_station['@maintenanceStatus'],
-                        altitude=windspots_station['@altitude'],
-                        url=urllib.parse.urljoin(self.provider_url, "/spots"))
+                        altitude=windspots_station['@altitude'])
                     station_id = station['_id']
 
                     try:

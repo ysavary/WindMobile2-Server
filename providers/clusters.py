@@ -1,12 +1,12 @@
 import argparse
+from datetime import datetime
 
 import numpy as np
+from provider import get_logger
 from pymongo import MongoClient, uri_parser
 from scipy.spatial import KDTree
-from sklearn.cluster import AgglomerativeClustering
-
-from provider import get_logger
 from settings import MONGODB_URL
+from sklearn.cluster import AgglomerativeClustering
 
 log = get_logger('clusters')
 
@@ -18,7 +18,11 @@ uri = uri_parser.parse_uri(MONGODB_URL)
 client = MongoClient(uri['nodelist'][0][0], uri['nodelist'][0][1])
 db = client.windmobile
 
-all_stations = list(db.stations.find())
+now = datetime.now().timestamp()
+all_stations = list(db.stations.find({
+    'status': {'$ne': 'hidden'},
+    'last._id': {'$gt': now - 30 * 24 * 3600}
+}))
 range_clusters = np.geomspace(20, len(all_stations), num=args['num'], dtype=np.int)
 
 ids = np.array([station['_id'] for station in all_stations])

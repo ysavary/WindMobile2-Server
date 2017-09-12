@@ -49,7 +49,7 @@ class Stations(APIView):
         ---
         parameters:
             - name: limit
-              description: "Nb stations to return (default=20)"
+              description: "Nb stations to return (default=20, max=500)"
               type: integer
               defaultValue: 20
               paramType: query
@@ -104,7 +104,9 @@ class Stations(APIView):
               allowMultiple: true
               paramType: query
         """
-        limit = min(int(request.query_params.get('limit', 20)), 200)
+        limit = int(request.query_params.get('limit', 20))
+        if not 1 <= limit <= 500:
+            limit = 500
         provider = request.query_params.get('provider')
         search = request.query_params.get('search')
         search_language = request.query_params.get('search-language')
@@ -208,8 +210,11 @@ class Stations(APIView):
             try:
                 if no_cluster:
                     stations = list(mongo_db.stations.find(get_cluster_query(no_cluster), projection_dict))
+                    log.debug('limit={limit}, no_cluster={no_cluster:.0f} => {size}'.format(
+                        limit=limit, no_cluster=no_cluster, size=len(stations)))
                 else:
                     stations = list(mongo_db.stations.find(query, projection_dict))
+                    log.debug('limit={limit} => {size}'.format(limit=limit, size=len(stations)))
                 return Response(stations)
             except OperationFailure as e:
                 raise ParseError(e.details)

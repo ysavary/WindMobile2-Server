@@ -146,7 +146,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     var keys = ['short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg',
                         'last.w-max'];
 
+                    var nbFavorites = 0;
                     if ($scope.$app.profile && $scope.$app.profile.favorites && $scope.$app.profile.favorites.length > 0) {
+                        nbFavorites = $scope.$app.profile.favorites.length;
                         var favoritesParam = {
                             keys: keys
                         };
@@ -154,7 +156,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                             favoritesParam.provider = self.tenant;
                         }
                         favoritesParam.search = self.search;
-                        favoritesParam.limit = 0;
+                        favoritesParam.limit = 30;
                         favoritesParam.ids = $scope.$app.profile.favorites;
                         var favoritesPromise = $http({
                             method: 'GET',
@@ -174,7 +176,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         defaultParam.provider = self.tenant;
                     }
                     defaultParam.search = self.search;
-                    defaultParam.limit = 12;
+                    defaultParam.limit = Math.max(12 - nbFavorites, 3);
                     var defaultPromise = $http({
                         method: 'GET',
                         url: '/api/2/stations/',
@@ -465,20 +467,23 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     }
                 }
             }
-            function search(bounds) {
+            function search(bounds, search) {
                 var params = {
                     keys: [
                         'short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max',
                         'peak'
                     ]
                 };
-                if (bounds) {
-                    params['within-pt1-lat'] = bounds.getNorthEast().lat();
-                    params['within-pt1-lon'] = bounds.getNorthEast().lng();
-                    params['within-pt2-lat'] = bounds.getSouthWest().lat();
-                    params['within-pt2-lon'] = bounds.getSouthWest().lng();
-                    // Max 3 markers for 100x100 pixels
-                    params['limit'] = Math.round($(window).width() * $(window).height() * (3 / 10000));
+                params['within-pt1-lat'] = bounds.getNorthEast().lat();
+                params['within-pt1-lon'] = bounds.getNorthEast().lng();
+                params['within-pt2-lat'] = bounds.getSouthWest().lat();
+                params['within-pt2-lon'] = bounds.getSouthWest().lng();
+
+                // Ask for ~15 markers for 300x300 pixels
+                params['limit'] = Math.round($(window).width() * $(window).height() * (15 / 90000));
+
+                if (search) {
+                    params['search'] = search;
                 }
                 if (self.tenant) {
                     params.provider = self.tenant
@@ -514,7 +519,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 $state.go('map.detail', {stationId: this.selectedStation._id});
             };
             this.doSearch = function () {
-                search(this.map.getBounds());
+                search(this.map.getBounds(), self.search);
             };
             this.clearSearch = function () {
                 this.search = null;

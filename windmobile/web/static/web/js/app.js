@@ -64,7 +64,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 .state('map.detail', {
                     url: '/:stationId',
                     views: {
-                        "detailView": {
+                        'detailView': {
                             templateUrl: '/static/web/templates/detail.html',
                             controller: 'DetailController as detail'
                         }
@@ -96,7 +96,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 .state('list.detail', {
                     url: '/:stationId',
                     views: {
-                        "detailView": {
+                        'detailView': {
                             templateUrl: '/static/web/templates/detail.html',
                             controller: 'DetailController as detail'
                         }

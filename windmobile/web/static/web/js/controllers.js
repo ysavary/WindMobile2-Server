@@ -14,8 +14,8 @@ var LocationEnum = {
 
 angular.module('windmobile.controllers', ['windmobile.services'])
 
-    .controller('AppController', ['$scope', '$state', '$stateParams', '$window', '$http', '$translate',
-        function ($scope, $state, $stateParams, $window, $http, $translate) {
+    .controller('AppController', ['$scope', '$state', '$stateParams', '$window', '$http', '$translate', 'utils', 'appConfig',
+        function ($scope, $state, $stateParams, $window, $http, $translate, utils, appConfig) {
             var self = this;
 
             this.getGeoLocation = function () {
@@ -128,7 +128,28 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     }
                 }
             };
-            this.logout = function() {
+
+            this.clickOnNavBar = function () {
+                if (!utils.inIframe()) {
+                    if (['map', 'list'].indexOf($state.current.name) != -1) {
+                        $state.go($state.current, {lat: undefined, lon: undefined, zoom: undefined}, {reload: true});
+                    } else {
+                        $state.go('map');
+                    }
+                } else {
+                    window.open(appConfig.url_absolute);
+                }
+            };
+            this.clickOnHelp = function () {
+                console.log('clickOnHelp()');
+                if (!utils.inIframe()) {
+                    $state.go('help');
+                } else {
+                    window.open(appConfig.url_absolute + '/stations/help');
+                }
+            };
+
+            this.logout = function () {
                 $window.localStorage.removeItem('token');
                 $state.go($state.current, {}, {reload: true});
             };
@@ -138,8 +159,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
         }])
 
     .controller('ListController',
-        ['$scope', '$state', '$http', '$location', '$q', 'utils', 'appConfig', 'lat', 'lon',
-            function ($scope, $state, $http, $location, $q, utils, appConfig, lat, lon) {
+        ['$scope', '$state', '$http', '$location', '$q', 'utils', 'lat', 'lon',
+            function ($scope, $state, $http, $location, $q, utils, lat, lon) {
                 var self = this;
 
                 function search() {
@@ -280,21 +301,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     }
                 });
 
-                this.clickOnNavBar = function () {
-                    if (!utils.inIframe()) {
-                        $state.go($state.current, {lat: undefined, lon: undefined}, {reload: true});
-                    } else {
-                        window.open(appConfig.url_absolute);
-                    }
-                };
-                this.clickOnHelp = function () {
-                    if (!utils.inIframe()) {
-                        $state.go('help');
-                    } else {
-                        window.open(appConfig.url_absolute + '/stations/help');
-                    }
-                };
-
                 this.tenant = utils.getTenant($location.host());
                 this.search = $location.search().search;
 
@@ -345,9 +351,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             }])
 
     .controller('MapController',
-        ['$scope', '$state', '$http', '$compile', '$templateCache', '$location', 'utils', 'appConfig',
+        ['$scope', '$state', '$http', '$compile', '$templateCache', '$location', 'utils',
             'lat', 'lon', 'zoom',
-        function ($scope, $state, $http, $compile, $templateCache, $location, utils, appConfig,
+        function ($scope, $state, $http, $compile, $templateCache, $location, utils,
                   lat, lon, zoom) {
             var self = this;
             var infoBox;
@@ -591,21 +597,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     return false;
                 }
             });
-
-            this.clickOnNavBar = function() {
-                if (!utils.inIframe()) {
-                    $state.go($state.current, {lat: undefined, lon: undefined, zoom: undefined}, {reload: true});
-                } else {
-                    window.open(appConfig.url_absolute);
-                }
-            };
-            this.clickOnHelp = function () {
-                if (!utils.inIframe()) {
-                    $state.go('help');
-                } else {
-                    window.open(appConfig.url_absolute + '/stations/help');
-                }
-            };
 
             this.tenant = utils.getTenant($location.host());
             this.search = $location.search().search;
@@ -900,8 +891,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             });
         }])
 
-    .controller('HelpController', ['$state', '$anchorScroll', 'utils', 'appConfig',
-        function ($state, $anchorScroll, utils, appConfig) {
+    .controller('HelpController', ['$state', '$anchorScroll', 'utils',
+        function ($state, $anchorScroll, utils) {
         this.example = {
             data: [{
                 "_id": 1444993200,
@@ -948,13 +939,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
         };
         this.getLegendColorStyle = function(value) {
             return {background: utils.getColorInRange(value, 50)};
-        };
-        this.clickOnNavBar = function () {
-            if (!utils.inIframe()) {
-                $state.go('map');
-            } else {
-                window.open(appConfig.url_absolute);
-            }
         };
         setTimeout(function () {
             $anchorScroll();

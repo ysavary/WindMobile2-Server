@@ -1,6 +1,7 @@
 import codecs
 import json
 import math
+from collections import OrderedDict
 
 
 def dm_to_dd(s):
@@ -50,11 +51,11 @@ def ch_to_wgs_lon(y, x):
     return lon
 
 
-stations = {}
+stations = OrderedDict({})
 with codecs.open('VQHA69_EN.txt', encoding='iso-8859-1') as in_file:
     with open('vqha69.json', 'w') as out_file:
         lines = in_file.readlines()
-        for i in range(17, 130):
+        for i in range(17, 131):
             lon, lat = lines[i][50:63].split('/')
             station = {
                 'name': lines[i][25:50].strip(),

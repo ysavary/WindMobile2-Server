@@ -216,9 +216,14 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 $rootScope.controller = toState.name.split('.')[0];
             });
         // https://stackoverflow.com/questions/31278781/material-design-lite-integration-with-angularjs
+        // https://getmdl.io/started/#dynamic
         $rootScope.$on('$viewContentLoaded', function () {
             $timeout(function () {
-                // https://getmdl.io/started/#dynamic
+                componentHandler.upgradeAllRegistered();
+            }, 0);
+        });
+        $rootScope.$on('$includeContentLoaded', function () {
+            $timeout(function () {
                 componentHandler.upgradeAllRegistered();
             }, 0);
         });

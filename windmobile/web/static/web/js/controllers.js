@@ -249,6 +249,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 };
                 this.clearSearch = function () {
                     this.search = null;
+                    // https://stackoverflow.com/questions/31638890/mdl-textfield-not-taking-ngmodel-changes-into-account/40781433
+                    $('#wdm-search-field-parent').removeClass('is-dirty');
                     $location.search('search', null);
                     this.doSearch();
                 };
@@ -529,6 +531,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             };
             this.clearSearch = function () {
                 this.search = null;
+                // https://stackoverflow.com/questions/31638890/mdl-textfield-not-taking-ngmodel-changes-into-account/40781433
+                $('#wdm-search-field-parent').removeClass('is-dirty');
                 $location.search('search', null);
                 this.doSearch();
             };

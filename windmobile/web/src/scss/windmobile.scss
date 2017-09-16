@@ -243,6 +243,16 @@ $humidity-color: $air-color;
     margin: -5px;
 }
 
+.mdl-navigation {
+    .wdm-small-action-btn {
+        padding: 0;
+    }
+
+    .wdm-expand-icon {
+        margin-left: -7px;
+    }
+}
+
 .wdm-nav-tabs {
     margin-top: 15px;
     padding-left: 10px;

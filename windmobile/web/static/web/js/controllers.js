@@ -187,29 +187,32 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         });
                     }
 
-                    var defaultParam = {
-                        keys: keys
-                    };
-                    if (self.lat != undefined && self.lon != undefined) {
-                        defaultParam['near-lat'] = self.lat;
-                        defaultParam['near-lon'] = self.lon;
+                    var hasGeoLoc = self.lat != undefined && self.lon != undefined;
+                    if (hasGeoLoc || nbFavorites === 0) {
+                        var listParam = {
+                            keys: keys
+                        };
+                        if (hasGeoLoc) {
+                            listParam['near-lat'] = self.lat;
+                            listParam['near-lon'] = self.lon;
+                        }
+                        if (self.tenant) {
+                            listParam.provider = self.tenant;
+                        }
+                        listParam.search = self.search;
+                        listParam.limit = Math.max(12 - nbFavorites, 3);
+                        var listPromise = $http({
+                            method: 'GET',
+                            url: '/api/2/stations/',
+                            params: listParam
+                        });
                     }
-                    if (self.tenant) {
-                        defaultParam.provider = self.tenant;
-                    }
-                    defaultParam.search = self.search;
-                    defaultParam.limit = Math.max(12 - nbFavorites, 3);
-                    var defaultPromise = $http({
-                        method: 'GET',
-                        url: '/api/2/stations/',
-                        params: defaultParam
-                    });
 
                     $q.all({
                         'favorites': favoritesPromise || $q.resolve([]),
-                        'default': defaultPromise
+                        'list': listPromise || $q.resolve([])
                     }).then(function (values) {
-                        self.stations = _unionBy(values.favorites.data, values.default.data, function (value) {
+                        self.stations = _unionBy(values.favorites.data, values.list.data, function (value) {
                             return value._id;
                         });
                         for (var i = 0; i < self.stations.length; i++) {

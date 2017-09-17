@@ -156,7 +156,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
             this.getGeoLocation();
             this.getProfile();
-        }])
+        }
+    ])
 
     .controller('ListController',
         ['$scope', '$state', '$http', '$location', '$q', 'utils', 'lat', 'lon',
@@ -350,7 +351,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 });
 
                 this.doSearch(initialLat, initialLon);
-            }])
+            }
+    ])
 
     .controller('MapController',
         ['$scope', '$state', '$http', '$compile', '$templateCache', '$location', 'utils',
@@ -708,7 +710,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             }, 500);
 
             this.centerMap(initialLat, initialLon, initialZoom);
-        }])
+        }
+    ])
 
     .controller('DetailController',
         ['$scope', '$state', '$stateParams', '$http', '$window', 'utils',
@@ -828,7 +831,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             };
 
             this.doDetail();
-        }])
+        }
+    ])
 
     .controller('SocialLoginController', ['$state', 'utils', 'appConfig',
         function ($state, utils, appConfig) {
@@ -839,7 +843,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     window.open(appConfig.url_absolute);
                 }
             };
-        }])
+        }
+    ])
 
     .controller('LoginController', ['$scope', '$http', '$state', '$window', '$translate', 'utils', 'appConfig',
         function ($scope, $http, $state, $window, $translate, utils, appConfig) {
@@ -893,12 +898,15 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             $scope.$watch('$ctrl.passwordError', function (newVal, oldVal) {
                 $('#password-error').css('visibility', self.passwordError ? 'visible' : 'hidden');
             });
-        }])
+        }
+    ])
 
-    .controller('HelpController', ['$state', '$anchorScroll', 'utils',
-        function ($state, $anchorScroll, utils) {
-        this.example = {
-            data: [{
+    .controller('HelpController', ['$state', '$anchorScroll', '$sce', '$translate', 'utils',
+        function ($state, $anchorScroll, $sce, $translate, utils) {
+            var self = this;
+
+            this.example = {
+                data: [{
                 "_id": 1444993200,
                 "w-dir": 305,
                 "w-avg": 10.2,
@@ -940,11 +948,19 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 "w-max": 13.2
             }],
             fromNow: moment().add(-1, 'hours').fromNow()
-        };
-        this.getLegendColorStyle = function(value) {
-            return {background: utils.getColorInRange(value, 50)};
-        };
-        setTimeout(function () {
-            $anchorScroll();
-        }, 300);
-    }]);
+            };
+            this.getLegendColorStyle = function(value) {
+                return {background: utils.getColorInRange(value, 50)};
+            };
+            (function () {
+                $translate('HELP_FAVORITES_TEXT_1').then(function (text) {
+                    text = text.replace('[[facebookLink]]', '<a href="/auth/facebook/oauth2callback/">Facebook</a>');
+                    text = text.replace('[[googleLink]]', '<a href="/auth/google/oauth2callback/">Google</a>');
+                    self.favoritesText1 = $sce.trustAsHtml(text);
+                });
+            })();
+            setTimeout(function () {
+                $anchorScroll();
+            }, 300);
+        }
+    ]);

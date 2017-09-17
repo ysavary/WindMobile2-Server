@@ -592,4 +592,4 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 });
             }
         }
-    });
+    })

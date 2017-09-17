@@ -45,6 +45,9 @@
         "Vous pouvez fixer le point de recherche ou la position de la carte avec les paramètres 'lat', 'lon' et 'zoom'.",
         'HELP_MAP_COLORS_TITLE': "Couleurs des balises en mode carte",
         'HELP_MAP_COLORS_TEXT': "Rafale [km/h]",
+        'HELP_FAVORITES': "Stations favorites",
+        'HELP_FAVORITES_TEXT_1': "Pour profiter de toutes les fonctionnalités de winds.mobi, se connecter à l'aide de votre compte [[facebookLink]] ou [[googleLink]]",
+        'HELP_FAVORITES_TEXT_2': "Cliquer pour ajouter ou enlever un station de vos favoris, elle apparaîtra alors en tête de la vue liste",
         'HELP_PROVIDERS_TITLE': "Liste des fournisseurs de données",
         'HELP_COMPATIBILITY_TITLE': "Compatibilité",
         'HELP_COMPATIBILITY_TEXT': "winds.mobi fonctionne sur les dernières versions des principaux navigateurs web " +

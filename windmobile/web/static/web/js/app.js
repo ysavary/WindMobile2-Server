@@ -25,9 +25,11 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 .useSanitizeValueStrategy('escape')
                 .translations('en', require('../locale/en.js'))
                 .translations('fr', require('../locale/fr.js'))
-                .registerAvailableLanguageKeys(['en', 'fr'], {
+                .translations('de', require('../locale/de.js'))
+                .registerAvailableLanguageKeys(['en', 'fr', 'de'], {
                     'en_*': 'en',
-                    'fr_*': 'fr'
+                    'fr_*': 'fr',
+                    'de_*': 'de'
                 })
                 .fallbackLanguage('en')
                 .determinePreferredLanguage();

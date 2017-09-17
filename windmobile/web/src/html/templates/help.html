@@ -5,8 +5,8 @@
         <div id="wdm-help" class="page-content">
             <h1><i class="material-icons">help</i> <span translate>Help</span></h1>
 
-            <h2 id="summary" translate>HELP_STATION_SUMMARY_TITLE</h2>
             <section class="wdm-section">
+                <h2 id="summary" translate>HELP_STATION_SUMMARY_TITLE</h2>
                 <div class="wdm-card-border wdm-card-layout wdm-card-summary-help">
                     <div class="wdm-name" style="float:left;" translate>HELP_STATION_NAME</div>
                     <div class="wdm-info" style="float:right;">
@@ -36,8 +36,8 @@
                 </ol>
             </section>
 
-            <h2 id="detail" translate>HELP_STATION_DETAIL_TITLE</h2>
             <section>
+                <h2 id="detail" translate>HELP_STATION_DETAIL_TITLE</h2>
                 <div class="wdm-card-border wdm-card-layout wdm-card-detail-help">
                     <div class="wdm-detail-layout" style="width: 100%; padding-left: 10px; padding-right: 10px">
                         <div class="wdm-name" style="float:left; width:130px;" translate>HELP_STATION_NAME</div>
@@ -60,9 +60,9 @@
                 </ol>
             </section>
 
-            <h2 id="map_colors" translate>HELP_MAP_COLORS_TITLE</h2>
             <section>
-                <p translate>HELP_MAP_COLORS_TEXT</p>
+                <h2 id="map_colors" translate>HELP_MAP_COLORS_TITLE</h2>
+                <div translate>HELP_MAP_COLORS_TEXT</div>
                 <table class="wdm-help-legend">
                     <tr>
                         <td ng-style="$ctrl.getLegendColorStyle(5);"></td>
@@ -91,8 +91,8 @@
                 </table>
             </section>
 
-            <h2 id="favorites" translate>HELP_FAVORITES</h2>
             <section>
+                <h2 id="favorites" translate>HELP_FAVORITES</h2>
                 <div style="position: relative; width: 300px; margin-left:5px; background-color: #a81717;" ui-sref="social-login">
                     <!-- Menu login large -->
                     <button class="mdl-button mdl-js-button mdl-button--accent" re>
@@ -117,8 +117,8 @@
                 </ol>
             </section>
 
-            <h2 id="iframe" translate>HELP_IFRAME_TITLE</h2>
             <section>
+                <h2 id="iframe" translate>HELP_IFRAME_TITLE</h2>
                 <iframe src="https://winds.mobi/stations/list?lat=45.3103&lon=5.8888" width="350" height="350" frameborder="0"></iframe>
                 <p translate>HELP_IFRAME_TEXT</p>
                 <ul>
@@ -127,8 +127,8 @@
                 </ul>
             </section>
 
-            <h2 id="providers" translate>HELP_PROVIDERS_TITLE</h2>
             <section>
+                <h2 id="providers" translate>HELP_PROVIDERS_TITLE</h2>
                 <ul>
                     <li><a href="http://www.balisemeteo.com" target="_blank">ffvl.fr</a></li>
                     <li><a href="http://holfuy.hu" target="_blank">holfuy.hu</a></li>
@@ -141,18 +141,32 @@
                 </ul>
             </section>
 
-            <h2 id="compatibility" translate>HELP_COMPATIBILITY_TITLE</h2>
             <section>
+                <h2 id="compatibility" translate>HELP_COMPATIBILITY_TITLE</h2>
                 <p translate translate-compile>HELP_COMPATIBILITY_TEXT</p>
             </section>
 
-            <h2 translate>HELP_CONTACT_TITLE</h2>
             <section>
-                <p translate translate-compile>HELP_CONTACT_TEXT</p>
-                <a href="mailto://yann@winds.mobi" target="_blank">yann@winds.mobi</a><br>
-                <a href="https://www.facebook.com/WindsMobi" target="_blank">www.facebook.com/WindsMobi</a><br>
-                <a href="https://plus.google.com/+WindsMobi_fr" target="_blank">plus.google.com/+WindsMobi_fr</a><br><br>
-                <a href="https://github.com/ysavary/WindMobile2-Server" target="_blank">github.com/ysavary/WindMobile2-Server</a>
+                <h2 translate>HELP_ABOUT_TITLE</h2>
+                <div class="wdm-paragraph">
+                    <span translate>HELP_ABOUT_TEXT</span>
+                    <ul>
+                        <li><a href="mailto://yann@winds.mobi" target="_blank">yann@winds.mobi</a></li>
+                        <li><a href="https://www.facebook.com/WindsMobi" target="_blank">www.facebook.com/WindsMobi</a></li>
+                        <li><a href="https://plus.google.com/+WindsMobi_fr" target="_blank">plus.google.com/+WindsMobi_fr</a></li>
+                    </ul>
+                </div>
+                <div class="wdm-paragraph">
+                    <span translate>HELP_ABOUT_CREDITS_TEXT</span>
+                    <ul>
+                        <li>Andy Jäggi for the German translation</li>
+                    </ul>
+                </div>
+                <p>
+                    <a href="https://github.com/ysavary/WindMobile2-Server" target="_blank">
+                        <img width="24" height="24" src="/static/web/img/GitHub-Mark-32px.png"><span style="margin-left: 5px">github.com/ysavary/WindMobile2-Server</span>
+                    </a>
+                </p>
             </section>
         </div>
     </main>

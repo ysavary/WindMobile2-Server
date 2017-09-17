@@ -376,11 +376,11 @@ $humidity-color: $air-color;
     section {
         margin-bottom: 30px;
     }
-    p {
+    p, div.wdm-paragraph {
         margin: 10px 0 10px 0;
     }
-    ol {
-        margin-top: 10px;
+    ul, ol {
+        margin-top: 5px;
     }
 }
 

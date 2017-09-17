@@ -824,7 +824,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.showOnMap = function (station) {
                 $state.go('map', {
                     lat: station.loc.coordinates[1], lon: station.loc.coordinates[0],
-                    zoom: 10
+                    zoom: 12
                 });
             };
             this.showOnList = function (station) {

@@ -480,7 +480,7 @@ class Provider(object):
 
         # Mandatory keys: json 'null' if not present
         measure = {
-            '_id': _id,
+            '_id': int(round(_id)),
             'w-dir': self.__to_wind_direction(wind_direction),
             'w-avg': self.__to_wind_speed(wind_average),
             'w-max': self.__to_wind_speed(wind_maximum)

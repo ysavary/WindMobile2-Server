@@ -1,5 +1,6 @@
 import collections
 import re
+from os import path
 from xml.etree import ElementTree
 
 import requests
@@ -36,7 +37,8 @@ class Slf(Provider):
             logger.info("Processing SLF data...")
 
             slf_metadata = {}
-            tree = ElementTree.parse('slf/SLF Messtationen Standorte.kml')
+            with open(path.join(path.dirname(__file__), 'slf/SLF Messtationen Standorte.kml')) as kml_file:
+                tree = ElementTree.parse(kml_file)
             ns = {'gis': 'http://www.opengis.net/kml/2.2'}
             for placemark in tree.getroot().findall('.//gis:Placemark', namespaces=ns):
                 id, name = re.search(

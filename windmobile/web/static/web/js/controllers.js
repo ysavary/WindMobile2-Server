@@ -165,8 +165,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 var self = this;
 
                 function search() {
-                    var keys = ['short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg',
-                        'last.w-max'];
+                    var keys = ['short', 'loc', 'status', 'pv-name', 'alt', 'peak', 'last._id', 'last.w-dir',
+                        'last.w-avg', 'last.w-max'];
 
                     var nbFavorites = 0;
                     if ($scope.$app.profile && $scope.$app.profile.favorites && $scope.$app.profile.favorites.length > 0) {

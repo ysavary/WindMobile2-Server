@@ -14,7 +14,9 @@
             <div class="wdm-last-update" style="float:right;" ng-class="main.selectedStation.fromNowClass">{{ main.selectedStation.fromNow }}</div>
             <div class="wdm-provider" style="clear:right;float:right;">{{ main.selectedStation['pv-name'] }}</div>
         </div>
-        <div class="wdm-altitude" style="clear:left;float:left;">{{ main.selectedStation.alt }} <span translate>meters</span></div>
+        <div class="wdm-altitude" style="clear:left;float:left;">{{ main.selectedStation.alt }} <span translate>meters</span>
+            <i ng-if="main.selectedStation.peak" class="material-icons" style="font-size: 18px; vertical-align: middle; margin-bottom: 3px;">terrain</i>
+        </div>
         <div class="wdm-wind-speed" style="clear:left;float:left;width: 50%;">
             <div class="wdm-wind-avg">{{ main.selectedStation.last['w-avg'].toFixed(1) }}</div>
             <div class="wdm-wind-max">{{ main.selectedStation.last['w-max'].toFixed(1) }}<span class="wdm-unit" translate>km/h</span></div>

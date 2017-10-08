@@ -13,7 +13,15 @@ logger = get_logger('slf')
 class Slf(Provider):
     provider_code = 'slf'
     provider_name = 'slf.ch'
-    provider_url = 'http://www.slf.ch/schneeinfo/messwerte/wt-daten/index_EN'
+    provider_url = 'http://www.slf.ch'
+
+    provider_urls = {
+        'default': 'http://www.slf.ch/schneeinfo/messwerte/wt-daten/index_EN',
+        'en': 'http://www.slf.ch/schneeinfo/messwerte/wt-daten/index_EN',
+        'de': 'http://www.slf.ch/schneeinfo/messwerte/wt-daten/index_DE',
+        'fr': 'http://www.slf.ch/schneeinfo/messwerte/wt-daten/index_FR',
+        'it': 'http://www.slf.ch/schneeinfo/messwerte/wt-daten/index_IT'
+    }
 
     station_metadata_name_regexp = r'(.{3}-[0-9]{1}) : (.*? - .*?) \(IMIS\)'
     station_name_regexp = r'(.*?)([0-9]{3,4}) m'
@@ -84,7 +92,8 @@ class Slf(Provider):
                         lat,
                         lon,
                         Status.GREEN,
-                        altitude=altitude)
+                        altitude=altitude,
+                        url=self.provider_urls)
                     station_id = station['_id']
 
                     measures = [self.parse_data(line) for line in data]

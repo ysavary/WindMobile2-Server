@@ -1,13 +1,14 @@
 arrow==0.10.0
 cachetools==1.1.3
 -e git+https://github.com/tomp/python-metar@1bb9fdeaf062ca31b4c73f2fb7f846b35357e0d6#egg=metar
+lxml==4.0.0
 mysqlclient==1.3.6
 numpy==1.12.1
 Pint==0.8
 pyaml==16.9.0
 pymongo==3.0.3
 pytz==2017.2
-raven==6.0.0
+raven==6.2.1
 redis==2.10.3
 requests==2.7.0
 scikit-learn==0.18.1

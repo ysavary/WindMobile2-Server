@@ -12,7 +12,6 @@ import requests
 import yaml
 from pint import UnitRegistry
 from pymongo import uri_parser, MongoClient, GEOSPHERE, ASCENDING
-from pymongo.errors import CollectionInvalid
 from raven import Client as RavenClient
 
 from settings import WINDMOBILE_LOG_DIR, MONGODB_URL, GOOGLE_API_KEY, SENTRY_URL
@@ -121,15 +120,21 @@ class Provider(object):
 
     def __to_pressure(self, value):
         if isinstance(value, ureg.Quantity):
-            return to_int(value.to(ureg.Pa * 100).magnitude)
+            return to_float(value.to(ureg.Pa * 100).magnitude)
         else:
-            return to_int(value)
+            return to_float(value)
 
     def __to_altitude(self, value):
         if isinstance(value, ureg.Quantity):
             return to_int(value.to(ureg.meter).magnitude)
         else:
             return to_int(value)
+
+    def __to_rain(self, value):
+        if isinstance(value, ureg.Quantity):
+            return to_float(value.to(ureg.liter / (ureg.meter ** 2)).magnitude, 1)
+        else:
+            return to_float(value, 1)
 
     def stations_collection(self):
         return self.__stations_collection
@@ -247,8 +252,7 @@ class Provider(object):
     def get_station_id(self, provider_id):
         return self.provider_code + '-' + str(provider_id)
 
-    def __create_station(self, provider_id, short_name, name, latitude, longitude, altitude, is_peak, status, tz,
-                         url=None):
+    def __create_station(self, provider_id, short_name, name, latitude, longitude, altitude, is_peak, status, tz, urls):
 
         if any((not short_name, not name, altitude is None, latitude is None, longitude is None, not status, not tz)):
             raise ProviderException('A mandatory value is none!')
@@ -257,7 +261,7 @@ class Provider(object):
             'pv-id': provider_id,
             'pv-code': self.provider_code,
             'pv-name': self.provider_name,
-            'url': url or self.provider_url,
+            'url': urls,
             'short': short_name,
             'name': name,
             'alt': self.__to_altitude(altitude),
@@ -467,7 +471,22 @@ class Provider(object):
                     message=self.redis.hget(tz_key, 'error')))
             tz = self.redis.hget(tz_key, 'tz')
 
-        station = self.__create_station(provider_id, short_name, name, lat, lon, altitude, is_peak, status, tz, url)
+        if not url:
+            urls = {
+                'default': self.provider_url
+            }
+        elif isinstance(url, str):
+            urls = {
+                'default': url
+            }
+        elif isinstance(url, dict):
+            if 'default' not in url:
+                raise ProviderException("No 'default' key in url")
+            urls = url
+        else:
+            raise ProviderException("Invalid url")
+
+        station = self.__create_station(provider_id, short_name, name, lat, lon, altitude, is_peak, status, tz, urls)
         self.stations_collection().update({'_id': _id}, {'$set': station}, upsert=True)
         station['_id'] = _id
         return station
@@ -496,7 +515,7 @@ class Provider(object):
         if luminosity is not None:
             measure['lum'] = to_int(luminosity)
         if rain is not None:
-            measure['rain'] = to_float(rain, 1)
+            measure['rain'] = self.__to_rain(rain)
 
         measure['time'] = arrow.now().timestamp
         return measure

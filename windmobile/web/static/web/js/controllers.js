@@ -727,8 +727,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
     ])
 
     .controller('DetailController',
-        ['$scope', '$state', '$stateParams', '$http', '$window', 'utils',
-        function ($scope, $state, $stateParams, $http, $window, utils) {
+        ['$scope', '$state', '$stateParams', '$http', '$window', '$translate', 'utils',
+        function ($scope, $state, $stateParams, $http, $window, $translate, utils) {
             var self = this;
 
             $('#detailModal').modal().on('hidden.bs.modal', function (e) {
@@ -772,6 +772,18 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     url: '/api/2/stations/' + $stateParams.stationId
                 }).success(function (data) {
                     self.station = data;
+
+                    try {
+                        var currentLanguage = $translate.use();
+                        if (currentLanguage in self.station.url) {
+                            self.station.url = self.station.url[currentLanguage]
+                        } else {
+                            self.station.url = self.station.url['default'];
+                        }
+                    } catch (e) {
+                        // Keep original url value
+                    }
+
                     self.updateFromNow();
                 });
             };

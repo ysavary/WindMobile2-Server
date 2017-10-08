@@ -83,4 +83,5 @@ class MeteoSwiss(Provider):
 
         logger.info("...Done!")
 
+
 MeteoSwiss().process_data()

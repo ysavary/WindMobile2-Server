@@ -180,6 +180,10 @@ class Stations(APIView):
                 raise ParseError(e.details)
 
         if within_pt1_latitude and within_pt1_longitude and within_pt2_latitude and within_pt2_longitude:
+            if within_pt1_latitude == within_pt2_latitude and within_pt1_longitude == within_pt2_longitude:
+                # Empty box
+                return Response([])
+
             query['loc'] = {
                 '$geoWithin': {
                     '$geometry': generate_box_geometry((float(within_pt2_longitude), float(within_pt2_latitude)),

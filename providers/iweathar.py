@@ -65,17 +65,19 @@ class IWeathar(Provider):
                     date = html_tree.xpath('//*[text()="Last Update:"]/../following::td')[0].text.strip()
                     key = arrow.get(date, 'YYYY-MM-DD HH:mm:ss').replace(tzinfo=iweathar_tz).timestamp
 
-                    dir_text = html_tree.xpath('//*[text()="Wind Direction:"]/../following::td/a')[0].text.strip()
-                    dir_match = dir_pattern.match(dir_text).groupdict()
-                    wind_dir = dir_match['dir']
+                    try:
+                        dir_text = html_tree.xpath('//*[text()="Wind Direction:"]/../following::td/a')[0].text.strip()
+                        dir_match = dir_pattern.match(dir_text).groupdict()
+                        wind_dir = dir_match['dir']
 
-                    speed_text = html_tree.xpath('//*[text()="Weather Summary:"]/../following::td')[0].text.strip()
-                    speed_match = speed_pattern.match(speed_text).groupdict()
-                    wind_avg = speed_match['avg']
-                    wind_max = speed_match['max']
+                        speed_text = html_tree.xpath('//*[text()="Weather Summary:"]/../following::td')[0].text.strip()
+                        speed_match = speed_pattern.match(speed_text).groupdict()
+                        wind_avg = speed_match['avg']
+                        wind_max = speed_match['max']
+                    except:
+                        raise ProviderException('Unable to get wind measures')
 
                     try:
-                        temp_label = html_tree.xpath('//*[text()="Temperature:"]')
                         temp_text = html_tree.xpath('//*[text()="Temperature:"]/../following::td/a')[0].text.strip()
                         temp_match = temp_pattern.match(temp_text).groupdict()
                         temp = temp_match['temp']
@@ -83,7 +85,6 @@ class IWeathar(Provider):
                         temp = None
 
                     try:
-                        hum_label = html_tree.xpath('//*[text()="Humidity:"]')
                         hum_text = html_tree.xpath('//*[text()="Humidity:"]/../following::td/a')[0].text.strip()
                         hum_match = hum_pattern.match(hum_text).groupdict()
                         hum = hum_match['hum']

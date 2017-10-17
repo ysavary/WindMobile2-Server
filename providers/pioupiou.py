@@ -79,10 +79,8 @@ class Pioupiou(Provider):
                             measure['wind_heading'],
                             measure['wind_speed_avg'],
                             measure['wind_speed_max'],
-                            None,
-                            None,
-                            pressure=measure['pressure'])
-
+                            pressure=measure['pressure'],
+                        )
                         new_measures.append(measure)
 
                     self.insert_new_measures(measures_collection, station, new_measures, logger)

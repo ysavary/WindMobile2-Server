@@ -72,8 +72,9 @@ class Windspots(Provider):
                                     wind_direction_last['value'],
                                     windspots_measure.get('windAverage'),
                                     windspots_measure.get('windMax'),
-                                    windspots_measure.get('airTemperature'),
-                                    windspots_measure.get('airHumidity'))
+                                    temperature=windspots_measure.get('airTemperature'),
+                                    humidity=windspots_measure.get('airHumidity'),
+                                )
                                 new_measures.append(measure)
                             except ProviderException as e:
                                 logger.warn("Error while processing measure '{0}' for station '{1}': {2}"

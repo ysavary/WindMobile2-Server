@@ -492,7 +492,7 @@ class Provider(object):
         return station
 
     def create_measure(self, _id, wind_direction, wind_average, wind_maximum,
-                       temperature=None, humidity=None, pressure=None, luminosity=None, rain=None):
+                       temperature=None, humidity=None, pressure=None, rain=None):
 
         if all((wind_direction is None, wind_average is None, wind_maximum is None)):
             raise ProviderException('All mandatory values are null!')
@@ -512,8 +512,6 @@ class Provider(object):
             measure['hum'] = to_float(humidity, 1)
         if pressure is not None:
             measure['pres'] = self.__to_pressure(pressure)
-        if luminosity is not None:
-            measure['lum'] = to_int(luminosity)
         if rain is not None:
             measure['rain'] = self.__to_rain(rain)
 

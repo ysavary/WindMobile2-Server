@@ -1,4 +1,5 @@
 import json
+import math
 import os
 from random import randint
 
@@ -67,6 +68,17 @@ class MetarNoaa(Provider):
         else:
             # For VaRiaBle direction, use a random value
             return Q_(randint(0, 359), self.direction_units['degree'])
+
+    def compute_humidity(self, dew_point, temp):
+        if not (dew_point and temp):
+            return None
+
+        a = 17.625
+        b = 243.04
+        td = dew_point.to(ureg.degC).magnitude
+        t = temp.to(ureg.degC).magnitude
+
+        return 100 * (math.exp((a * td) / (b + td))) / (math.exp((a * t) / (b + t)))
 
     def process_data(self):
         try:
@@ -200,16 +212,18 @@ class MetarNoaa(Provider):
                     for key in stations[metar_id]:
                         metar = stations[metar_id][key]
                         if not self.has_measure(measures_collection, key):
+                            temp = self.get_quantity(metar.temp, self.temperature_units)
+                            dew_point = self.get_quantity(metar.dewpt, self.temperature_units)
+                            humidity = self.compute_humidity(dew_point, temp)
                             measure = self.create_measure(
                                 key,
                                 self.get_direction(metar.wind_dir),
                                 self.get_quantity(metar.wind_speed, self.speed_units),
                                 self.get_quantity(metar.wind_gust or metar.wind_speed, self.speed_units),
-                                temperature=self.get_quantity(metar.temp, self.temperature_units),
-                                humidity=None,
+                                temperature=temp,
+                                humidity=humidity,
                                 pressure=self.get_quantity(metar.press, self.pressure_units),
-                                luminosity=None,
-                                rain=None)
+                            )
                             new_measures.append(measure)
 
                     self.insert_new_measures(measures_collection, station, new_measures, logger)

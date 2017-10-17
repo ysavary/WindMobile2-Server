@@ -150,7 +150,8 @@ class MeteoSwiss(Provider):
                             temperature=temp,
                             humidity=humidity,
                             pressure=pressure,
-                            rain=rain)
+                            rain=rain,
+                        )
                         new_measures.append(measure)
 
                     self.insert_new_measures(measures_collection, station, new_measures, logger)

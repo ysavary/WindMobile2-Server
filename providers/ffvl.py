@@ -72,11 +72,10 @@ class Ffvl(Provider):
                             ffvl_measure['directVentMoy'],
                             ffvl_measure['vitesseVentMoy'],
                             ffvl_measure['vitesseVentMax'],
-                            ffvl_measure['temperature'],
-                            ffvl_measure['hydrometrie'],
+                            temperature=ffvl_measure['temperature'],
+                            humidity=ffvl_measure['hydrometrie'],
                             pressure=ffvl_measure['pression'],
-                            luminosity=ffvl_measure['luminosite'])
-
+                        )
                         new_measures.append(measure)
 
                     self.insert_new_measures(measures_collection, station, new_measures, logger)

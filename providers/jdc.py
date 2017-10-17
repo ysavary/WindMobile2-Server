@@ -73,10 +73,11 @@ class Jdc(Provider):
                                             jdc_measure.get('wind-direction'),
                                             jdc_measure.get('wind-average'),
                                             jdc_measure.get('wind-maximum'),
-                                            jdc_measure.get('temperature'),
-                                            jdc_measure.get('humidity'),
+                                            temperature=jdc_measure.get('temperature'),
+                                            humidity=jdc_measure.get('humidity'),
                                             pressure=jdc_measure.get('pressure', None),
-                                            rain=jdc_measure.get('rain', None))
+                                            rain=jdc_measure.get('rain', None),
+                                        )
                                         new_measures.append(measure)
                                     except ProviderException as e:
                                         logger.warn("Error while processing measure '{0}' for station '{1}': {2}"

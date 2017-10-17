@@ -62,11 +62,11 @@ class MeteoSwiss(Provider):
                             data['dkl010z0'],
                             data['fu3010z0'],
                             data['fu3010z1'],
-                            data['tre200s0'],
-                            data['ure200s0'],
+                            temperature=data['tre200s0'],
+                            humidity=data['ure200s0'],
                             pressure=data['prestas0'],
                             rain=data['rre150z0'],
-                            luminosity=data['sre000z0'])
+                        )
                         new_measures.append(measure)
 
                     self.insert_new_measures(measures_collection, station, new_measures, logger)

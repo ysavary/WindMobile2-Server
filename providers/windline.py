@@ -197,8 +197,9 @@ class Windline(Provider):
                                         wind_direction,
                                         wind_average,
                                         wind_maximum,
-                                        temperature,
-                                        humidity)
+                                        temperature=temperature,
+                                        humidity=humidity,
+                                    )
                                     new_measures.append(measure)
                             except NoMeasure:
                                 pass

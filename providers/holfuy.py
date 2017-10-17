@@ -64,9 +64,8 @@ class Holfuy(Provider):
                                 holfuy_station['@dir'],
                                 to_float(holfuy_station['@speed'], 1) * 3.6,
                                 to_float(holfuy_station['@gust'], 1) * 3.6,
-                                holfuy_station['@temp'],
-                                None)
-
+                                temperature=holfuy_station['@temp'],
+                            )
                             new_measures.append(measure)
 
                         self.insert_new_measures(measures_collection, station, new_measures, logger)

@@ -109,8 +109,8 @@ class Slf(Provider):
                                     slf_measure.wind_direction,
                                     slf_measure.wind_average,
                                     slf_measure.wind_maximum,
-                                    slf_measure.temperature,
-                                    None)
+                                    temperature=slf_measure.temperature,
+                                )
                                 new_measures.append(measure)
                             except ProviderException as e:
                                 logger.warn("Error while processing measure '{0}' for station '{1}': {2}"

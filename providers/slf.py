@@ -42,7 +42,7 @@ class Slf(Provider):
 
     def process_data(self):
         try:
-            logger.info("Processing SLF data...")
+            logger.info('Processing SLF data...')
 
             slf_metadata = {}
             with open(path.join(path.dirname(__file__), 'slf/SLF Messtationen Standorte.kml')) as kml_file:
@@ -58,13 +58,9 @@ class Slf(Provider):
                     'lon': float(lon),
                 }
 
-            result = requests.get("http://odb.slf.ch/odb/api/v1/stations",
+            result = requests.get('http://odb.slf.ch/odb/api/v1/stations',
                                   timeout=(self.connect_timeout, self.read_timeout))
-
-            try:
-                slf_stations = result.json()
-            except:
-                raise Exception("Unable to get SLF station list")
+            slf_stations = result.json()
 
             for slf_station in slf_stations:
                 station_id = None

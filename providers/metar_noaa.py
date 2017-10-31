@@ -179,10 +179,10 @@ class MetarNoaa(Provider):
                             short_name = '{city} {type}'.format(city=city, type=station_type)
                         else:
                             default_name = checkwx_data['name']
-                        lat = checkwx_data['latitude']
-                        lon = checkwx_data['longitude']
-                        tz = checkwx_data['tz']
-                        altitude = Q_(checkwx_data['elevation'], ureg.feet)
+                        lat = checkwx_data['latitude']['decimal']
+                        lon = checkwx_data['longitude']['decimal']
+                        tz = checkwx_data['timezone']['tzid']
+                        altitude = Q_(checkwx_data['elevation']['feet'], ureg.feet)
 
                     if metar.station_id in icao:
                         lat = lat or icao[metar.station_id]['lat']

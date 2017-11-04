@@ -253,7 +253,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                             maxX = Math.max.apply(null, windKeys),
                             minY = Math.min.apply(null, windValues),
                             maxY = Math.max.apply(null, windValues);
-                        if (!minX || !maxX || (minY <= 0 && maxY <= 0)) {
+                        if (!minX || !maxX) {
                             return;
                         }
                         var scaleX = width / (maxX - minX);
@@ -261,9 +261,12 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         if (minY === 0) {
                             offsetY = 0;
                         } else {
-                            offsetY = 5;
+                            offsetY = 10;
                         }
                         var scaleY = (height - offsetY) / (maxY - minY);
+                        if (!isFinite(scaleY)) {
+                            scaleY = 1;
+                        }
 
                         var points = [0, height];
                         for (var i = 0; i < windKeys.length - 1; i++) {

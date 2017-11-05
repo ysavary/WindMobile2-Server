@@ -1,9 +1,6 @@
-import urllib.parse
-
 import arrow
 import arrow.parser
 import requests
-from arrow import Arrow
 
 from provider import get_logger, Provider, ProviderException
 
@@ -38,7 +35,7 @@ class Windspots(Provider):
                     try:
                         # Asking 2 days of data
                         result = requests.get(
-                            "http://api.windspots.com/windmobile/stationdatas/windspots:{windspots_id}/60"
+                            "http://api.windspots.com/windmobile/stationdatas/windspots:{windspots_id}"
                             .format(windspots_id=windspots_id), timeout=(self.connect_timeout, self.read_timeout))
                         try:
                             windspots_measure = result.json()
@@ -49,21 +46,23 @@ class Windspots(Provider):
 
                         new_measures = []
                         try:
-                            key = arrow.get(windspots_measure['@lastUpdate']).timestamp
+                            # Weird, there are timezone mistakes in windspots provider!
+                            key = arrow.get(windspots_measure['@lastUpdate']).replace(tzinfo='Europe/Zurich').timestamp
                         except arrow.parser.ParserError:
                             raise ProviderException("Unable to parse measure date: '{0}".format(
                                 windspots_measure['@lastUpdate']))
 
                         wind_direction_last = windspots_measure['windDirectionChart']['serie']['points'][0]
-                        wind_direction_key = int(wind_direction_last['date']) / 1000
-                        if key != wind_direction_key:
+                        wind_direction_key = int(wind_direction_last['date']) // 1000
+                        if arrow.get(key).minute != arrow.get(wind_direction_key).minute:
                             logger.warn(
-                                "{name} ({id}): wind direction measure '{direction}' is inconsistent with key '{key}'"
+                                "{name} ({id}): wind direction time '{direction}' is inconsistent with measure "
+                                "time '{key}'"
                                 .format(
                                     name=station['short'],
                                     id=station_id,
-                                    key=Arrow.fromtimestamp(key).format('DD-MM-YY HH:mm:ssZZ'),
-                                    direction=Arrow.fromtimestamp(wind_direction_key).format('DD-MM-YY HH:mm:ssZZ')))
+                                    key=arrow.get(key).to('local').format('YY-MM-DD HH:mm:ssZZ'),
+                                    direction=arrow.get(wind_direction_key).to('local').format('YY-MM-DD HH:mm:ssZZ')))
 
                         if not self.has_measure(measures_collection, key):
                             try:

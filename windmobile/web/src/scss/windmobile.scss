@@ -92,7 +92,6 @@ body.modal-open #wdm-list-content {
     font-size: $font-size;
     line-height: 1.428571429;
     text-align: left;
-    cursor: pointer;
 
     a {
         color: $text-color;
@@ -103,6 +102,9 @@ body.modal-open #wdm-list-content {
         &:focus {
             outline: none;
         }
+    }
+    .wdm-btn {
+        cursor: pointer;
     }
     .wdm-name {
         i {
@@ -229,6 +231,7 @@ $humidity-color: $air-color;
         max-width: 200px;
     }
     max-width: 230px;
+    cursor: pointer;
 }
 
 .wdm-card-list {
@@ -236,6 +239,7 @@ $humidity-color: $air-color;
     min-width: 145px;
     max-width: 250px;
     background-color: #151515;
+    cursor: pointer;
 }
 
 .wdm-modal {

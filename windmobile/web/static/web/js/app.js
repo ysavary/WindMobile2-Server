@@ -127,11 +127,35 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 });
             $urlRouterProvider.otherwise('/map');
         }])
-    .run(['$rootScope', '$location', '$window', '$interval', '$timeout', 'visibilityBroadcaster',
-        function ($rootScope, $location, $window, $interval, $timeout) {
+    .run(['$rootScope', '$location', '$window', '$interval', '$timeout', '$translate', 'visibilityBroadcaster',
+        function ($rootScope, $location, $window, $interval, $timeout, $translate) {
         var self = this;
 
         $rootScope.$on('ocLazyLoad.fileLoaded', function (event, file) {
+            var lang;
+            switch ($translate.use()) {
+                case 'fr':
+                    lang = {
+                        weekdays: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+                        shortMonths: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jui', 'Aoû', 'Sep', 'Oct', 'Nov',
+                            'Déc'],
+                        resetZoom: 'Réinitialiser'
+                    };
+                    break;
+                case 'de':
+                    lang = {
+                        weekdays: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+                        shortMonths: ['Jan ', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov',
+                            'Dez'],
+                        resetZoom: 'Zurücksetzen'
+                    };
+                    break;
+            }
+            if (lang) {
+                Highcharts.setOptions({
+                    lang: lang
+                });
+            }
             Highcharts.setOptions({
                 global: {
                     useUTC: false
@@ -139,6 +163,11 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 chart: {
                     backgroundColor: null,
                     resetZoomButton: {
+                        position: {
+                            x: -7,
+                            y: 7
+                        },
+                        relativeTo: 'chart',
                         theme: {
                             fill: 'none',
                             stroke: '#666',
@@ -170,22 +199,20 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     ],
                     selected: 4,
                     buttonTheme: {
-                        width: 35,
-                        fill: 'none',
-                        stroke: 'none',
-                        'stroke-width': 0,
-                        r: 8,
+                        width: 30,
+                        fill: 'transparent',
                         style: {color: '#8d8d8d'},
                         states: {
                             hover: {
-                                fill: 'none',
+                                fill: 'transparent',
                                 style: {color: '#ddd'}
                             },
                             select: {
-                                fill: 'none',
+                                fill: 'transparent',
                                 style: {color: '#ddd'}
                             },
                             disabled: {
+                                fill: 'transparent',
                                 style: {color: '#666'}
                             }
                         }
@@ -447,14 +474,17 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                                 windDir[this.x]
                             );
                         },
-                        color: '#666',
-                        style: {textShadow: false}
+                        style: {
+                            color: '#888',
+                            textOutline: null
+                        }
                     }
                 };
                 $(element).highcharts('StockChart', {
                     tooltip: {
                         enabled: false,
-                        crosshairs: false
+                        crosshairs: false,
+                        followTouchMove: false
                     },
                     navigator: {
                         enabled: false
@@ -467,7 +497,11 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         lineColor: '#666',
                         tickColor: '#666',
                         gridLineWidth: 0.5,
-                        gridLineColor: '#666'
+                        gridLineColor: '#666',
+                        dateTimeLabelFormats: {
+                            hour: '%H:%M<br\>%a',
+                            minute: '%H:%M<br\>%a'
+                        }
                     },
                     yAxis: {
                         opposite: false,
@@ -541,7 +575,8 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 $(element).highcharts('StockChart', {
                     tooltip: {
                         enabled: false,
-                        crosshairs: false
+                        crosshairs: false,
+                        followTouchMove: false
                     },
                     navigator: {
                         enabled: false
@@ -551,7 +586,11 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     },
                     xAxis: {
                         type: 'datetime',
-                        lineColor: '#666'
+                        lineColor: '#666',
+                        dateTimeLabelFormats: {
+                            hour: '%H:%M<br\>%a',
+                            minute: '%H:%M<br\>%a'
+                        }
                     },
                     yAxis: [{
                         opposite: false,

@@ -784,6 +784,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         // Keep original url value
                     }
 
+                    self.station.directionLabel = utils.getWindDirectionLabel(
+                        ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
+                        self.station.last['w-dir']
+                    );
+
                     self.updateFromNow();
                 });
             };

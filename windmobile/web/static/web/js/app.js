@@ -150,13 +150,16 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         resetZoom: 'Zurücksetzen'
                     };
                     break;
-            }
-            if (lang) {
-                Highcharts.setOptions({
-                    lang: lang
-                });
+                default:
+                    lang = {
+                        weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                        shortMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov',
+                            'Dec'],
+                        resetZoom: 'Reset'
+                    };
             }
             Highcharts.setOptions({
+                lang: lang,
                 global: {
                     useUTC: false
                 },
@@ -169,9 +172,16 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         },
                         relativeTo: 'chart',
                         theme: {
-                            fill: 'none',
-                            stroke: '#666',
-                            style: {color: '#8d8d8d'}
+                            fill: 'transparent',
+                            style: {color: '#8d8d8d'},
+                            stroke: '#8d8d8d',
+                            states: {
+                                hover: {
+                                    fill: 'transparent',
+                                    style: {color: '#ddd'},
+                                    stroke: '#ddd'
+                                }
+                            }
                         }
                     }
                 },
@@ -394,12 +404,12 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
             }
         }
     }])
-    .directive('wdmWindChart', ['utils', function (utils) {
+    .directive('wdmWindChart', ['$translate', 'utils', function ($translate, utils) {
         return {
             restrict: "C",
             link: function (scope, element, attrs) {
                 var windAvgSerie = {
-                    name: 'windAvg',
+                    id: 'windAvgSerie',
                     type: 'areaspline',
                     lineColor: '#b4b400',
                     lineWidth: 1.5,
@@ -410,7 +420,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 };
                 var windDir = {};
                 var windMaxSerie = {
-                    name: 'windMax',
+                    id: 'windMaxSerie',
                     type: 'spline',
                     color: '#b4b400',
                     lineWidth: 1.5,
@@ -420,9 +430,6 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     dataLabels: {
                         enabled: true,
                         formatter: function () {
-                            if (!this.y) {
-                                return null;
-                            }
                             // Display a label only if this current point is the highest value of its neighbors
                             for (var i = 0; i < this.series.xData.length; i++) {
                                 if (this.series.xData[i] === this.x) {
@@ -480,11 +487,34 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         }
                     }
                 };
-                $(element).highcharts('StockChart', {
+                var windUnit = $translate.instant('km/h');
+                var chart = Highcharts.stockChart(element[0], {
                     tooltip: {
-                        enabled: false,
-                        crosshairs: false,
-                        followTouchMove: false
+                        followTouchMove: false,
+                        shared: true,
+                        backgroundColor: 'rgba(21,21,21,0.9)',
+                        borderColor: '#888',
+                        borderRadius: 10,
+                        borderWidth: 1.5,
+                        style: {
+                            fontSize: '13px',
+                            color: '#999'
+                        },
+                        formatter: function () {
+                            var content = Highcharts.dateFormat('%a %e %b %H:%M', this.x) + '<br/>';
+                            var dir = windDir[this.x];
+                            if (dir != null) {
+                                var directionLabel = utils.getWindDirectionLabel(
+                                    ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
+                                    windDir[this.x]
+                                );
+                                content += directionLabel + ' (' + windDir[this.x] + '°)<br/>';
+                            }
+                            content += Highcharts.format('{y:.1f} ', {y: this.points[0].y}) + windUnit + '<br/>';
+                            content += Highcharts.format('{y:.1f} ', {y: this.points[1].y}) + windUnit + '<br/>';
+                            return content;
+                        },
+                        hideDelay: 0
                     },
                     navigator: {
                         enabled: false
@@ -499,8 +529,38 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         gridLineWidth: 0.5,
                         gridLineColor: '#666',
                         dateTimeLabelFormats: {
+                            minute: '%H:%M<br\>%a',
                             hour: '%H:%M<br\>%a',
-                            minute: '%H:%M<br\>%a'
+                            day: '%e %b'
+                        },
+                        crosshair: {
+                            color: '#888',
+                            zIndex: 3
+                        },
+                        events: {
+                            setExtremes: function (e) {
+                                if (typeof(e.trigger) == 'undefined') {
+                                    // setExtremes() event
+                                    return;
+                                }
+                                if (e.trigger === 'zoom' && typeof(e.min) == 'undefined' && typeof(e.max) == 'undefined') {
+                                    var min = this.dataMax - 6 * 60 * 60 * 1000;
+                                    var max = this.dataMax;
+                                    setTimeout(function () {
+                                        chart.xAxis[0].setExtremes(min, max);
+                                    }, 1);
+                                } else if (e.trigger != 'rangeSelectorButton') {
+                                    if (!chart.resetZoomButton) {
+                                        chart.showResetZoom();
+                                    } else {
+                                        chart.resetZoomButton.show();
+                                    }
+                                } else {
+                                    if (chart.resetZoomButton) {
+                                        chart.resetZoomButton.hide();
+                                    }
+                                }
+                            }
                         }
                     },
                     yAxis: {
@@ -514,36 +574,35 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         minRange: 10,
                         floor: 0
                     },
-                    series: [windAvgSerie, windMaxSerie]
+                    series: [windMaxSerie, windAvgSerie]
                 });
-                element.highcharts().showLoading();
+                chart.showLoading();
 
                 scope.$watch(element.attr('data-scope-watch'), function (value) {
                     if (value) {
-                        var chart = element.highcharts();
                         chart.hideLoading();
-                        var serie0 = [], serie1 = [];
+                        var windAvgData = [], windMaxData = [];
                         for (var i = value.length - 1; i >= 0; i--) {
                             var date = value[i]['_id'] * 1000;
 
-                            serie0.push([date, value[i]['w-avg']]);
-                            serie1.push([date, value[i]['w-max']]);
+                            windAvgData.push([date, value[i]['w-avg']]);
+                            windMaxData.push([date, value[i]['w-max']]);
                             windDir[date] = value[i]['w-dir'];
                         }
-                        chart.series[0].setData(serie0, false);
-                        chart.series[1].setData(serie1, false);
+                        chart.get('windAvgSerie').setData(windAvgData, false);
+                        chart.get('windMaxSerie').setData(windMaxData, false);
                         chart.redraw(false);
                     }
                 });
             }
         }
     }])
-    .directive('wdmAirChart', function () {
+    .directive('wdmAirChart', ['$translate', function ($translate) {
         return {
             restrict: "C",
             link: function (scope, element, attrs) {
                 var rainSerie = {
-                    name: 'rain',
+                    id: 'rainSerie',
                     type: 'column',
                     borderColor: '#444',
                     borderWidth: 0.5,
@@ -551,32 +610,59 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     marker: {
                         enabled: false
                     },
-                    yAxis: 2
+                    yAxis: 2,
+                    zIndex: 0
                 };
                 var temperatureSerie = {
-                    name: 'temperature',
+                    id: 'temperatureSerie',
                     type: 'spline',
                     color: '#cd1717',
                     lineWidth: 1.5,
                     marker: {
                         enabled: false
-                    }
+                    },
+                    zIndex: 2
                 };
                 var humiditySerie = {
-                    name: 'humidity',
+                    id: 'humiditySerie',
                     type: 'spline',
                     color: '#1989c6',
                     lineWidth: 1.5,
                     marker: {
                         enabled: false
                     },
-                    yAxis: 1
+                    yAxis: 1,
+                    zIndex: 1
                 };
-                $(element).highcharts('StockChart', {
+                var temperatureUnit = $translate.instant('°C');
+                var humidityUnit = $translate.instant('% rel');
+                var rainUnit = $translate.instant('l/m²');
+                var chart = Highcharts.stockChart(element[0], {
                     tooltip: {
-                        enabled: false,
-                        crosshairs: false,
-                        followTouchMove: false
+                        followTouchMove: false,
+                        shared: true,
+                        backgroundColor: 'rgba(21,21,21,0.9)',
+                        borderColor: '#888',
+                        borderRadius: 10,
+                        borderWidth: 1.5,
+                        style: {
+                            fontSize: '13px',
+                            color: '#999'
+                        },
+                        formatter: function () {
+                            var content = Highcharts.dateFormat('%a %e %b %H:%M', this.x) + '<br/>';
+                            if (this.points[0] != null) {
+                                content += Highcharts.format('{y:.1f} ', {y: this.points[0].y}) + temperatureUnit + '<br/>';
+                            }
+                            if (this.points[1] != null) {
+                                content += Highcharts.format('{y:.1f} ', {y: this.points[1].y}) + humidityUnit + '<br/>';
+                            }
+                            if (this.points[2] != null) {
+                                content += Highcharts.format('{y:.1f} ', {y: this.points[2].y}) + rainUnit + '<br/>';
+                            }
+                            return content;
+                        },
+                        hideDelay: 0
                     },
                     navigator: {
                         enabled: false
@@ -588,8 +674,38 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         type: 'datetime',
                         lineColor: '#666',
                         dateTimeLabelFormats: {
+                            minute: '%H:%M<br\>%a',
                             hour: '%H:%M<br\>%a',
-                            minute: '%H:%M<br\>%a'
+                            day: '%e %b'
+                        },
+                        crosshair: {
+                            color: '#888',
+                            zIndex: 3
+                        },
+                        events: {
+                            setExtremes: function (e) {
+                                if (typeof(e.trigger) == 'undefined') {
+                                    // setExtremes() event
+                                    return;
+                                }
+                                if (e.trigger === 'zoom' && typeof(e.min) == 'undefined' && typeof(e.max) == 'undefined') {
+                                    var min = this.dataMax - 6 * 60 * 60 * 1000;
+                                    var max = this.dataMax;
+                                    setTimeout(function () {
+                                        chart.xAxis[0].setExtremes(min, max);
+                                    }, 1);
+                                } else if (e.trigger != 'rangeSelectorButton') {
+                                    if (!chart.resetZoomButton) {
+                                        chart.showResetZoom();
+                                    } else {
+                                        chart.resetZoomButton.show();
+                                    }
+                                } else {
+                                    if (chart.resetZoomButton) {
+                                        chart.resetZoomButton.hide();
+                                    }
+                                }
+                            }
                         }
                     },
                     yAxis: [{
@@ -612,28 +728,27 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                             enabled: false
                         }
                     }],
-                    series: [rainSerie, temperatureSerie, humiditySerie]
+                    series: [temperatureSerie, humiditySerie, rainSerie]
                 });
-                element.highcharts().showLoading();
+                chart.showLoading();
 
                 scope.$watch(element.attr('data-scope-watch'), function (value) {
                     if (value) {
-                        var chart = element.highcharts();
                         chart.hideLoading();
-                        var serie0 = [], serie1 = [], serie2 = [];
+                        var rainData = [], temperatureData = [], humidityData = [];
                         for (var i = value.length - 1; i >= 0; i--) {
                             var date = value[i]['_id'] * 1000;
 
-                            serie0.push([date, value[i]['rain']]);
-                            serie1.push([date, value[i]['temp']]);
-                            serie2.push([date, value[i]['hum']]);
+                            rainData.push([date, value[i]['rain']]);
+                            temperatureData.push([date, value[i]['temp']]);
+                            humidityData.push([date, value[i]['hum']]);
                         }
-                        chart.series[0].setData(serie0, false);
-                        chart.series[1].setData(serie1, false);
-                        chart.series[2].setData(serie2, false);
+                        chart.get('rainSerie').setData(rainData, false);
+                        chart.get('temperatureSerie').setData(temperatureData, false);
+                        chart.get('humiditySerie').setData(humidityData, false);
                         chart.redraw(false);
                     }
                 });
             }
         }
-    })
+    }]);

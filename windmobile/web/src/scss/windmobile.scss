@@ -8,8 +8,11 @@ html {
 
 // Material Design Lite customization
 $layout-header-mobile-row-height: 52px;
+$layout-header-mobile-baseline: 50px;
+$layout-header-mobile-indent: 8px;
 $layout-header-desktop-row-height: 60px;
-$layout-header-mobile-baseline: 55px;
+$layout-header-desktop-baseline: 50px;
+$layout-header-desktop-indent: 16px;
 $color-primary: 168, 23, 23;
 $color-accent: 240, 240, 240;
 $text-link-color: rgb(91, 0, 0);
@@ -249,18 +252,22 @@ $humidity-color: $air-color;
 
 .mdl-navigation {
     .wdm-small-action-btn {
+        // Extending touch zone
+        padding: 20px;
+    }
+    .wdm-compact-action-btn {
         padding: 0;
     }
 
-    .mdl-layout--small-screen-only {
-        .wdm-expand-icon {
-            margin-left: -7px;
-        }
+    .wdm-expand-icon {
+        margin-left: -7px;
+        margin-right: -7px;
     }
-    .mdl-layout--large-screen-only {
-        .wdm-expand-icon {
-            margin-left: -3px;
-        }
+
+    .wdm-profile-icon {
+        height: 32px;
+        width: 32px;
+        border-radius: 50%;
     }
 }
 

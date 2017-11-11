@@ -2,6 +2,7 @@
     de = {
         'Center': "Standort",
         'List': "Liste",
+        'Favorites': "Favoriten",
         'Map': "Karte",
         'Help': "Hilfe",
         'Login': "Anmelden",

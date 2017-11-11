@@ -91,6 +91,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     self.profile = undefined;
                 }
             };
+            this.hasFavorites = function () {
+                return self.profile && self.profile.favorites && self.profile.favorites.length > 0
+            };
             this.toogleFavorite = function(stationId, event) {
                 // Prevent opening detail view
                 event.stopImmediatePropagation();
@@ -168,31 +171,32 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     var keys = ['short', 'loc', 'status', 'pv-name', 'alt', 'peak', 'last._id', 'last.w-dir',
                         'last.w-avg', 'last.w-max'];
 
-                    var nbFavorites = 0;
-                    if ($scope.$app.profile && $scope.$app.profile.favorites && $scope.$app.profile.favorites.length > 0) {
-                        nbFavorites = $scope.$app.profile.favorites.length;
+                    if (self.listFavorites) {
                         var favoritesParam = {
                             keys: keys
                         };
-                        if (self.tenant) {
-                            favoritesParam.provider = self.tenant;
-                        }
                         favoritesParam.search = self.search;
                         favoritesParam.limit = 30;
                         favoritesParam.ids = $scope.$app.profile.favorites;
-                        var favoritesPromise = $http({
+                        $http({
                             method: 'GET',
                             url: '/api/2/stations/',
                             params: favoritesParam
+                        }).success(function (data) {
+                            self.stations = data;
+                            for (var i = 0; i < self.stations.length; i++) {
+                                var station = self.stations[i];
+                                if (station.last) {
+                                    self.updateFromNow(station);
+                                    self.getHistoric(station);
+                                }
+                            }
                         });
-                    }
-
-                    var hasGeoLoc = self.lat != undefined && self.lon != undefined;
-                    if (hasGeoLoc || nbFavorites === 0) {
+                    } else {
                         var listParam = {
                             keys: keys
                         };
-                        if (hasGeoLoc) {
+                        if (self.lat != null && self.lon != null) {
                             listParam['near-lat'] = self.lat;
                             listParam['near-lon'] = self.lon;
                         }
@@ -200,29 +204,22 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                             listParam.provider = self.tenant;
                         }
                         listParam.search = self.search;
-                        listParam.limit = Math.max(12 - nbFavorites, 3);
+                        listParam.limit = 12;
                         var listPromise = $http({
                             method: 'GET',
                             url: '/api/2/stations/',
                             params: listParam
+                        }).success(function (data) {
+                            self.stations = data;
+                            for (var i = 0; i < self.stations.length; i++) {
+                                var station = self.stations[i];
+                                if (station.last) {
+                                    self.updateFromNow(station);
+                                    self.getHistoric(station);
+                                }
+                            }
                         });
                     }
-
-                    $q.all({
-                        'favorites': favoritesPromise || $q.resolve([]),
-                        'list': listPromise || $q.resolve([])
-                    }).then(function (values) {
-                        self.stations = _unionBy(values.favorites.data, values.list.data, function (value) {
-                            return value._id;
-                        });
-                        for (var i = 0; i < self.stations.length; i++) {
-                            var station = self.stations[i];
-                            if (station.last) {
-                                self.updateFromNow(station);
-                                self.getHistoric(station);
-                            }
-                        }
-                    });
                 }
 
                 this.getHistoric = function (station) {
@@ -265,6 +262,19 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         }
                     }
                     return $scope.$app.location;
+                };
+                this.favoritesIcons = {
+                    true: 'favorite',
+                    false: 'favorite_border'
+                };
+                this.listFavorites = false;
+                this.toogleFavorites = function () {
+                    if ($scope.$app.hasFavorites()) {
+                        this.listFavorites = !self.listFavorites;
+                        self.doSearch();
+                    } else {
+                        $state.go('social-login');
+                    }
                 };
 
                 this.updateFromNow = function (station) {
@@ -355,7 +365,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     }
                 });
                 $scope.$on('profile', function (event) {
-                    self.doSearch();
+                    if (self.listFavorites) {
+                        self.doSearch();
+                    }
                 });
 
                 this.doSearch(initialLat, initialLon);
@@ -487,10 +499,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             }
             function search(bounds, search) {
                 var params = {
-                    keys: [
-                        'short', 'loc', 'status', 'pv-name', 'alt', 'last._id', 'last.w-dir', 'last.w-avg', 'last.w-max',
-                        'peak'
-                    ]
+                    keys: ['short', 'loc', 'status', 'pv-name', 'alt', 'peak', 'last._id', 'last.w-dir',
+                        'last.w-avg', 'last.w-max']
                 };
                 params['within-pt1-lat'] = bounds.getNorthEast().lat();
                 params['within-pt1-lon'] = bounds.getNorthEast().lng();

@@ -2,6 +2,7 @@
     fr = {
         'Center': "Centrer",
         'List': "Liste",
+        'Favorites': "Favoris",
         'Map': "Carte",
         'Help': "Aide",
         'Login': "Se connecter",

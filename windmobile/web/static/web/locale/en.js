@@ -2,6 +2,7 @@
     en = {
         'Center': "Center",
         'List': "List",
+        'Favorites': "Favorites",
         'Map': "Map",
         'Help': "Help",
         'Login': "Login",

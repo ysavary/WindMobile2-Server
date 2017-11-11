@@ -17,8 +17,8 @@
         </button>
         <div ng-show="$app.profile">
             <!-- Menu profile small -->
-            <button id="menu_profile_small" class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent wdm-small-action-btn">
-                <img ng-if="$app.profile.picture" height="32" width="32" src="{{ $app.profile.picture }}">
+            <button id="menu_profile_small" class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent wdm-compact-action-btn">
+                <img class="wdm-profile-icon" ng-if="$app.profile.picture" src="{{ $app.profile.picture }}">
                 <span ng-if="!$app.profile.picture">{{ $app.profile.name }}</span>
                 <i class="material-icons wdm-expand-icon">expand_more</i>
             </button>
@@ -27,7 +27,7 @@
             </ul>
             <!-- Menu profile large -->
             <button id="menu_profile_large" class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect">
-                <img ng-if="$app.profile.picture" height="32" width="32" src="{{ $app.profile.picture }}">
+                <img class="wdm-profile-icon" ng-if="$app.profile.picture" src="{{ $app.profile.picture }}">
                 <span>{{ $app.profile.name }}</span>
                 <i class="material-icons wdm-expand-icon">expand_more</i>
             </button>
@@ -37,20 +37,11 @@
         </div>
         <div ng-hide="$app.profile">
             <!-- Menu login small -->
-            <button id="menu_login_small" class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent wdm-small-action-btn">
+            <button id="menu_login_small" class="mdl-button mdl-js-button mdl-button--accent wdm-compact-action-btn">
                 <i class="material-icons">account_box</i>
                 <i class="material-icons wdm-expand-icon">expand_more</i>
             </button>
             <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu_login_small">
-                <li class="mdl-menu__item" ui-sref="social-login"><i class="material-icons">account_box</i> <span translate>Login</span></li>
-            </ul>
-            <!-- Menu login large -->
-            <button id="menu_login_large" class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect">
-                <i class="material-icons">account_box</i>
-                <span translate>Login</span>
-                <i class="material-icons wdm-expand-icon">expand_more</i>
-            </button>
-            <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu_login_large">
                 <li class="mdl-menu__item" ui-sref="social-login"><i class="material-icons">account_box</i> <span translate>Login</span></li>
             </ul>
         </div>

@@ -20,7 +20,7 @@
     <div class="mdl-layout-spacer"></div>
     <nav class="mdl-navigation">
         <!-- Action center small -->
-        <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon" ng-click="$app.getGeoLocation()"
+        <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon wdm-small-action-btn" ng-click="$app.getGeoLocation()"
                 ng-disabled="$app.location === -2">
             <span ng-switch="main.getGeoStatus()">
                 <i ng-switch-when="2" class="material-icons">gps_fixed</i>
@@ -42,6 +42,17 @@
             </span>
             <span translate>Center</span>
         </button>
+        <div ng-show="$root.controller == 'list'">
+            <!-- Favorites small -->
+            <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon wdm-small-action-btn" ng-click="main.toogleFavorites()">
+              <i class="material-icons">{{ main.favoritesIcons[main.listFavorites]}}</i>
+            </button>
+            <!-- Favorites large -->
+            <button class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ng-click="main.toogleFavorites()">
+              <i class="material-icons">{{ main.favoritesIcons[main.listFavorites]}}</i>
+                <span translate>Favorites</span>
+            </button>
+        </div>
         <div ng-show="$root.controller == 'list'">
             <!-- Action map small -->
             <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon wdm-small-action-btn" ui-sref="map">
@@ -66,8 +77,8 @@
         </div>
         <div ng-show="$app.profile">
             <!-- Menu profile small -->
-            <button id="menu_profile_small" class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent wdm-small-action-btn">
-                <img ng-if="$app.profile.picture" height="32" width="32" src="{{ $app.profile.picture }}">
+            <button id="menu_profile_small" class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent wdm-compact-action-btn">
+                <img class="wdm-profile-icon" ng-if="$app.profile.picture" src="{{ $app.profile.picture }}">
                 <span ng-if="!$app.profile.picture">{{ $app.profile.name }}</span>
                 <i class="material-icons wdm-expand-icon">expand_more</i>
             </button>
@@ -77,7 +88,7 @@
             </ul>
             <!-- Menu profile large -->
             <button id="menu_profile_large" class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect">
-                <img ng-if="$app.profile.picture" height="32" width="32" src="{{ $app.profile.picture }}">
+                <img class="wdm-profile-icon" ng-if="$app.profile.picture" src="{{ $app.profile.picture }}">
                 <span>{{ $app.profile.name }}</span>
                 <i class="material-icons wdm-expand-icon">expand_more</i>
             </button>
@@ -88,21 +99,11 @@
         </div>
         <div ng-hide="$app.profile">
             <!-- Menu login small -->
-            <button id="menu_login_small" class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent wdm-small-action-btn">
+            <button id="menu_login_small" class="mdl-button mdl-js-button mdl-button--accent wdm-compact-action-btn">
                 <i class="material-icons">account_box</i>
                 <i class="material-icons wdm-expand-icon">expand_more</i>
             </button>
             <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu_login_small">
-                <li class="mdl-menu__item mdl-menu__item--full-bleed-divider" ui-sref="social-login"><i class="material-icons">account_box</i> <span translate>Login</span></li>
-                <li class="mdl-menu__item" ng-click="$app.clickOnHelp()"><i class="material-icons">help</i> <span translate>Help</span></li>
-            </ul>
-            <!-- Menu login large -->
-            <button id="menu_login_large" class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect">
-                <i class="material-icons">account_box</i>
-                <span translate>Login</span>
-                <i class="material-icons wdm-expand-icon">expand_more</i>
-            </button>
-            <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu_login_large">
                 <li class="mdl-menu__item mdl-menu__item--full-bleed-divider" ui-sref="social-login"><i class="material-icons">account_box</i> <span translate>Login</span></li>
                 <li class="mdl-menu__item" ng-click="$app.clickOnHelp()"><i class="material-icons">help</i> <span translate>Help</span></li>
             </ul>

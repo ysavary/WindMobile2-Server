@@ -42,7 +42,7 @@
             </span>
             <span translate>Center</span>
         </button>
-        <div ng-show="$root.controller == 'list'">
+        <div ng-if="$root.controller == 'list'">
             <!-- Favorites small -->
             <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon wdm-small-action-btn" ng-click="main.toogleFavorites()">
               <i class="material-icons">{{ main.favoritesIcons[main.listFavorites]}}</i>
@@ -53,7 +53,7 @@
                 <span translate>Favorites</span>
             </button>
         </div>
-        <div ng-show="$root.controller == 'list'">
+        <div ng-if="$root.controller == 'list'">
             <!-- Action map small -->
             <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon wdm-small-action-btn" ui-sref="map">
                 <i class="material-icons">map</i>
@@ -64,7 +64,7 @@
                 <span translate>Map</span>
             </button>
         </div>
-        <div ng-show="$root.controller == 'map'">
+        <div ng-if="$root.controller == 'map'">
             <!-- Action list small -->
             <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon wdm-small-action-btn" ui-sref="list">
                 <i class="material-icons">view_module</i>
@@ -75,11 +75,10 @@
                 <span translate>List</span>
             </button>
         </div>
-        <div ng-show="$app.profile">
+        <div ng-if="$app.profile">
             <!-- Menu profile small -->
             <button id="menu_profile_small" class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent wdm-compact-action-btn">
-                <img class="wdm-profile-icon" ng-if="$app.profile.picture" src="{{ $app.profile.picture }}">
-                <span ng-if="!$app.profile.picture">{{ $app.profile.name }}</span>
+                <img class="wdm-profile-icon" ng-src="{{ $app.profile.picture }}">
                 <i class="material-icons wdm-expand-icon">expand_more</i>
             </button>
             <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu_profile_small">
@@ -88,7 +87,7 @@
             </ul>
             <!-- Menu profile large -->
             <button id="menu_profile_large" class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect">
-                <img class="wdm-profile-icon" ng-if="$app.profile.picture" src="{{ $app.profile.picture }}">
+                <img class="wdm-profile-icon" ng-src="{{ $app.profile.picture }}">
                 <span>{{ $app.profile.name }}</span>
                 <i class="material-icons wdm-expand-icon">expand_more</i>
             </button>
@@ -97,7 +96,7 @@
                 <li class="mdl-menu__item" ng-click="$app.clickOnHelp()"><i class="material-icons">help</i> <span translate>Help</span></li>
             </ul>
         </div>
-        <div ng-hide="$app.profile">
+        <div ng-if="!$app.profile">
             <!-- Menu login small -->
             <button id="menu_login_small" class="mdl-button mdl-js-button mdl-button--accent wdm-compact-action-btn">
                 <i class="material-icons">account_box</i>

@@ -15,11 +15,10 @@
             <i class="material-icons">view_module</i>
             <span translate>List</span>
         </button>
-        <div ng-show="$app.profile">
+        <div ng-if="$app.profile">
             <!-- Menu profile small -->
             <button id="menu_profile_small" class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent wdm-compact-action-btn">
-                <img class="wdm-profile-icon" ng-if="$app.profile.picture" src="{{ $app.profile.picture }}">
-                <span ng-if="!$app.profile.picture">{{ $app.profile.name }}</span>
+                <img class="wdm-profile-icon" ng-src="{{ $app.profile.picture }}">
                 <i class="material-icons wdm-expand-icon">expand_more</i>
             </button>
             <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu_profile_small">
@@ -27,7 +26,7 @@
             </ul>
             <!-- Menu profile large -->
             <button id="menu_profile_large" class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect">
-                <img class="wdm-profile-icon" ng-if="$app.profile.picture" src="{{ $app.profile.picture }}">
+                <img class="wdm-profile-icon" ng-src="{{ $app.profile.picture }}">
                 <span>{{ $app.profile.name }}</span>
                 <i class="material-icons wdm-expand-icon">expand_more</i>
             </button>
@@ -35,7 +34,7 @@
                 <li class="mdl-menu__item" ng-click="$app.logout()"><i class="material-icons">exit_to_app</i> <span translate>Logout</span></li>
             </ul>
         </div>
-        <div ng-hide="$app.profile">
+        <div ng-if="$app.profile">
             <!-- Menu login small -->
             <button id="menu_login_small" class="mdl-button mdl-js-button mdl-button--accent wdm-compact-action-btn">
                 <i class="material-icons">account_box</i>

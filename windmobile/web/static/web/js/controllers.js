@@ -85,14 +85,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         $scope.$broadcast('profile');
                     }, function (response) {
                         $window.localStorage.removeItem('token');
-                        self.profile = undefined;
+                        self.profile = null;
                     });
                 } else {
-                    self.profile = undefined;
+                    self.profile = null;
                 }
-            };
-            this.hasFavorites = function () {
-                return self.profile && self.profile.favorites && self.profile.favorites.length > 0
             };
             this.toogleFavorite = function(stationId, event) {
                 // Prevent opening detail view
@@ -154,6 +151,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
             this.logout = function () {
                 $window.localStorage.removeItem('token');
+                self.profile = null;
                 $state.go($state.current, {}, {reload: true});
             };
 
@@ -170,6 +168,13 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 function search() {
                     var keys = ['short', 'loc', 'status', 'pv-name', 'alt', 'peak', 'last._id', 'last.w-dir',
                         'last.w-avg', 'last.w-max'];
+
+                    if (self.listFavorites && $scope.$app.profile.favorites.length === 0) {
+                        self.stations = [];
+                        self.emptyFavorites = true;
+                    } else {
+                        self.emptyFavorites = false;
+                    }
 
                     if (self.listFavorites) {
                         var favoritesParam = {

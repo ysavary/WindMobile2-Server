@@ -25,6 +25,8 @@
         'Location service is disabled': "Location service is disabled",
         'Unable to find your location': "Unable to find your location",
 
+        'LIST_EMPTY_FAVORITES_TEXT_1': "Your favorites are empty.",
+        'LIST_EMPTY_FAVORITES_TEXT_2': "Add stations by clicking on their icon",
         'HELP_STATION_SUMMARY_TITLE': "Station summary view",
         'HELP_STATION_NAME': "Station name",
         'HELP_ALTITUDE': "Altitude",

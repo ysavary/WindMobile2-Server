@@ -25,6 +25,8 @@
         'Location service is disabled': "Service de localisation désactivé",
         'Unable to find your location': "Votre position n’a pu être déterminée",
 
+        'LIST_EMPTY_FAVORITES_TEXT_1': "Vos favoris sont vides.",
+        'LIST_EMPTY_FAVORITES_TEXT_2': "Ajouter des stations en cliquant sur leur icône",
         'HELP_STATION_SUMMARY_TITLE': "Affichage résumé d'une balise",
         'HELP_STATION_NAME': "Nom de la balise",
         'HELP_ALTITUDE': "Altitude",

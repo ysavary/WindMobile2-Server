@@ -12,3 +12,9 @@ db['windline-4116'].find({'_id': {'$lte': new Date('2017-06-10T00:00:00+02:00').
     print(new Date(doc._id * 1000));
     printjson(doc);
 });
+
+db.users.count({_id: {$regex: '^google'}});
+db.users.count({_id: {$regex: '^facebook'}});
+
+db.users.find({_id: {$regex: '^google'}, 'user-info.given_name': {$exists: true, $eq: ''}});
+db.users.find({_id: {$regex: '^facebook'}, 'user-info.first_name': {$exists: true, $eq: ''}});

@@ -269,7 +269,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 };
                 this.listFavorites = false;
                 this.toogleFavorites = function () {
-                    if ($scope.$app.hasFavorites()) {
+                    if ($scope.$app.profile) {
                         this.listFavorites = !self.listFavorites;
                         self.doSearch();
                     } else {

@@ -146,12 +146,15 @@ class Stations(APIView):
             except StopWordError:
                 stop_words = get_stop_words('en')
 
-            query['$or'] = []
+            or_queries = []
             for word in search.split():
                 if word not in stop_words:
                     regexp_query = diacritics.create_regexp(diacritics.normalize(word))
-                    query['$or'].append({'name': {'$regex': regexp_query, '$options': 'i'}})
-                    query['$or'].append({'short': {'$regex': regexp_query, '$options': 'i'}})
+                    or_queries.append({'name': {'$regex': regexp_query, '$options': 'i'}})
+                    or_queries.append({'short': {'$regex': regexp_query, '$options': 'i'}})
+
+            if or_queries:
+                query['$or'] = or_queries
 
         if near_latitude and near_longitude:
             if near_distance:

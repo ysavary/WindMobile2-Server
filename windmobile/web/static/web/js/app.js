@@ -501,7 +501,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                             color: '#999'
                         },
                         formatter: function () {
-                            var content = Highcharts.dateFormat('%a %e %b %H:%M', this.x) + '<br/>';
+                            var content = Highcharts.dateFormat('%e %b %H:%M', this.x) + '<br/>';
                             var dir = windDir[this.x];
                             if (dir != null) {
                                 var directionLabel = utils.getWindDirectionLabel(
@@ -650,7 +650,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                             color: '#999'
                         },
                         formatter: function () {
-                            var content = Highcharts.dateFormat('%a %e %b %H:%M', this.x) + '<br/>';
+                            var content = Highcharts.dateFormat('%e %b %H:%M', this.x) + '<br/>';
                             if (this.points[0] != null) {
                                 content += Highcharts.format('{y:.1f} ', {y: this.points[0].y}) + temperatureUnit + '<br/>';
                             }

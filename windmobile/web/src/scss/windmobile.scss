@@ -57,6 +57,12 @@ $font-size: 15px;
     margin-right: 10px;
 }
 
+#wdm-search-field-parent {
+    @media (max-width: 500px) {
+        width: 120px;
+    }
+}
+
 #wdm-map {
     position: absolute;
     top: 0;

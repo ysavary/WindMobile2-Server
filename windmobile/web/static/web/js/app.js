@@ -610,7 +610,6 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     marker: {
                         enabled: false
                     },
-                    yAxis: 2,
                     zIndex: 0
                 };
                 var temperatureSerie = {
@@ -621,6 +620,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     marker: {
                         enabled: false
                     },
+                    yAxis: 'temperatureY',
                     zIndex: 2
                 };
                 var humiditySerie = {
@@ -631,7 +631,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     marker: {
                         enabled: false
                     },
-                    yAxis: 1,
+                    yAxis: 'humidityY',
                     zIndex: 1
                 };
                 var temperatureUnit = $translate.instant('°C');
@@ -673,6 +673,9 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     xAxis: {
                         type: 'datetime',
                         lineColor: '#666',
+                        tickColor: '#666',
+                        gridLineWidth: 0.5,
+                        gridLineColor: '#666',
                         dateTimeLabelFormats: {
                             minute: '%H:%M<br\>%a',
                             hour: '%H:%M<br\>%a',
@@ -709,6 +712,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         }
                     },
                     yAxis: [{
+                        id: 'temperatureY',
                         opposite: false,
                         gridLineWidth: 0.5,
                         gridLineColor: "#555",
@@ -717,15 +721,11 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                             style: {color: "#c72d46", fontSize: '9px'}
                         }
                     }, {
+                        id: 'humidityY',
                         gridLineWidth: 0,
                         labels: {
                             format: '{value} %',
                             style: {color: "#3b71a0", fontSize: '9px'}
-                        }
-                    }, {
-                        gridLineWidth: 0,
-                        labels: {
-                            enabled: false
                         }
                     }],
                     series: [temperatureSerie, humiditySerie, rainSerie]

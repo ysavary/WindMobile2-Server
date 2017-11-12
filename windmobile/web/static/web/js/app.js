@@ -185,9 +185,6 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         }
                     }
                 },
-                legend: {
-                    enabled: false
-                },
                 plotOptions: {
                     series: {
                         animation: false,
@@ -197,6 +194,15 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                             }
                         }
                     }
+                },
+                legend: {
+                    enabled: false
+                },
+                navigator: {
+                    enabled: false
+                },
+                scrollbar: {
+                    enabled: false
                 },
                 rangeSelector: {
                     inputEnabled: false,
@@ -209,7 +215,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     ],
                     selected: 4,
                     buttonTheme: {
-                        width: 30,
+                        width: 28,
                         fill: 'transparent',
                         style: {color: '#8d8d8d'},
                         states: {
@@ -516,12 +522,6 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                         },
                         hideDelay: 0
                     },
-                    navigator: {
-                        enabled: false
-                    },
-                    scrollbar: {
-                        enabled: false
-                    },
                     xAxis: {
                         type: 'datetime',
                         lineColor: '#666',
@@ -663,12 +663,6 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                             return content;
                         },
                         hideDelay: 0
-                    },
-                    navigator: {
-                        enabled: false
-                    },
-                    scrollbar: {
-                        enabled: false
                     },
                     xAxis: {
                         type: 'datetime',

@@ -129,8 +129,7 @@ class MetarNoaa(Provider):
             for metar_id in stations:
                 metar = next(iter(stations[metar_id].values()))
                 try:
-                    type, name, short_name, default_name, lat, lon = None, None, None, None, None, None
-                    altitude, tz = None, None
+                    name, short_name, default_name, lat, lon, altitude, tz = None, None, None, None, None, None, None
 
                     checkwx_key = 'metar/checkwx/{icao}'.format(icao=metar.station_id)
                     if not self.redis.exists(checkwx_key):
@@ -141,15 +140,21 @@ class MetarNoaa(Provider):
                                 headers={'Accept': 'application/json', 'X-API-Key': self.checkwx_api_key},
                                 timeout=(self.connect_timeout, self.read_timeout))
 
-                            checkwx_json = request.json()
-                            if checkwx_json['status'] == 'success':
-                                checkwx_data = checkwx_json['data'][0]
-                            else:
+                            try:
+                                checkwx_data = request.json()['data'][0]
+                                # check if the json is a valid response
+                                checkwx_data['icao']
+                            except Exception:
                                 messages = []
-                                if 'message' in checkwx_json:
-                                    messages.append(checkwx_json['message'])
-                                if 'messages' in checkwx_json:
-                                    messages.extend(checkwx_json['messages'])
+                                try:
+                                    checkwx_json = request.json()
+                                    if 'data' in checkwx_json:
+                                        if type(checkwx_json['data']) is list:
+                                            messages.extend(checkwx_json['data'])
+                                        else:
+                                            messages.append(checkwx_json['data'])
+                                except ValueError:
+                                    pass
                                 raise ProviderException('CheckWX API error: {message}'.format(message=','.join(messages)))
 
                             self.add_redis_key(checkwx_key, {

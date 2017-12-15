@@ -187,7 +187,8 @@ class MetarNoaa(Provider):
                         lat = checkwx_data['latitude']['decimal']
                         lon = checkwx_data['longitude']['decimal']
                         tz = checkwx_data['timezone']['tzid']
-                        altitude = Q_(checkwx_data['elevation']['feet'], ureg.feet)
+                        feet = checkwx_data['elevation']['feet']
+                        altitude = Q_(feet, ureg.feet) if feet else None
 
                     if metar.station_id in icao:
                         lat = lat or icao[metar.station_id]['lat']

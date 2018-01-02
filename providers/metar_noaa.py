@@ -155,10 +155,12 @@ class MetarNoaa(Provider):
                                             messages.append(checkwx_json['data'])
                                 except ValueError:
                                     pass
-                                raise ProviderException('CheckWX API error: {message}'.format(message=','.join(messages)))
+                                raise ProviderException(
+                                    'CheckWX API error: {message}'.format(message=','.join(messages)))
 
                             self.add_redis_key(checkwx_key, {
-                                'data': json.dumps(checkwx_data)
+                                'data': json.dumps(checkwx_data),
+                                'date': arrow.now().format('YYYY-MM-DD HH:mm:ssZZ'),
                             }, self.checkwx_cache_duration)
                         except TimeoutError as e:
                             raise e
@@ -171,7 +173,8 @@ class MetarNoaa(Provider):
                             if not isinstance(e, ProviderException):
                                 self.raven_client.captureException()
                             self.add_redis_key(checkwx_key, {
-                                'error': repr(e)
+                                'error': repr(e),
+                                'date': arrow.now().format('YYYY-MM-DD HH:mm:ssZZ'),
                             }, self.checkwx_cache_duration)
 
                     if not self.redis.hexists(checkwx_key, 'error'):

@@ -33,7 +33,7 @@ class MetarNoaa(Provider):
 
     @property
     def checkwx_cache_duration(self):
-        return (30 + randint(-2, 2)) * 24 * 3600
+        return (20 + randint(-2, 2)) * 24 * 3600
 
     direction_units = {
         'degree': ureg.degree,
@@ -139,22 +139,20 @@ class MetarNoaa(Provider):
                                 'https://api.checkwx.com/station/{icao}'.format(icao=metar.station_id),
                                 headers={'Accept': 'application/json', 'X-API-Key': self.checkwx_api_key},
                                 timeout=(self.connect_timeout, self.read_timeout))
+                            if request.status_code == 429:
+                                raise UsageLimitException('api.checkwx.com rate limit exceeded')
 
                             try:
                                 checkwx_data = request.json()['data'][0]
                                 # check if the json is a valid response
                                 checkwx_data['icao']
                             except Exception:
+                                checkwx_json = request.json()
                                 messages = []
-                                try:
-                                    checkwx_json = request.json()
-                                    if 'data' in checkwx_json:
-                                        if type(checkwx_json['data']) is list:
-                                            messages.extend(checkwx_json['data'])
-                                        else:
-                                            messages.append(checkwx_json['data'])
-                                except ValueError:
-                                    pass
+                                if type(checkwx_json['data']) is list:
+                                    messages.extend(checkwx_json['data'])
+                                else:
+                                    messages.append(checkwx_json['data'])
                                 raise ProviderException(
                                     'CheckWX API error: {message}'.format(message=','.join(messages)))
 
@@ -166,7 +164,8 @@ class MetarNoaa(Provider):
                             raise e
                         except UsageLimitException as e:
                             self.add_redis_key(checkwx_key, {
-                                'error': repr(e)
+                                'error': repr(e),
+                                'date': arrow.now().format('YYYY-MM-DD HH:mm:ssZZ'),
                             }, self.usage_limit_cache_duration)
                         except Exception as e:
                             logger.exception('Error while getting CheckWX data')

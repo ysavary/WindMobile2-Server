@@ -7,6 +7,8 @@ require('bootstrap-sass/assets/javascripts/bootstrap/tab');
 var angular = require('angular');
 var Snap = require('snapsvg');
 var moment = require('moment');
+require('browsernizr/test/touchevents');
+var Modernizr = require('browsernizr');
 require('moment/locale/fr.js');
 require('moment/locale/de.js');
 
@@ -125,7 +127,11 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                     templateUrl: '/static/web/templates/help.html',
                     controller: 'HelpController as $ctrl'
                 });
-            $urlRouterProvider.otherwise('/map');
+            if (Modernizr.touchevents) {
+                $urlRouterProvider.otherwise('/list');
+            } else {
+                $urlRouterProvider.otherwise('/map');
+            }
         }])
     .run(['$rootScope', '$location', '$window', '$interval', '$timeout', '$translate', 'visibilityBroadcaster',
         function ($rootScope, $location, $window, $interval, $timeout, $translate) {

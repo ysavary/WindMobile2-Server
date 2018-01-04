@@ -164,6 +164,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
         ['$scope', '$state', '$http', '$location', '$q', 'utils', 'lat', 'lon',
             function ($scope, $state, $http, $location, $q, utils, lat, lon) {
                 var self = this;
+                self.listCanceler = null;
 
                 function search() {
                     var keys = ['short', 'loc', 'status', 'pv-name', 'alt', 'peak', 'last._id', 'last.w-dir',
@@ -187,8 +188,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                             method: 'GET',
                             url: '/api/2/stations/',
                             params: favoritesParam
-                        }).success(function (data) {
-                            self.stations = data;
+                        }).then(function (response) {
+                            self.stations = response.data;
                             for (var i = 0; i < self.stations.length; i++) {
                                 var station = self.stations[i];
                                 if (station.last) {
@@ -210,12 +211,14 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         }
                         listParam.search = self.search;
                         listParam.limit = 12;
-                        var listPromise = $http({
+                        self.listCanceler = $q.defer();
+                        $http({
                             method: 'GET',
                             url: '/api/2/stations/',
-                            params: listParam
-                        }).success(function (data) {
-                            self.stations = data;
+                            params: listParam,
+                            timeout: self.listCanceler.promise
+                        }).then(function (response) {
+                            self.stations = response.data;
                             for (var i = 0; i < self.stations.length; i++) {
                                 var station = self.stations[i];
                                 if (station.last) {
@@ -223,6 +226,8 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                                     self.getHistoric(station);
                                 }
                             }
+                        }).finally(function () {
+                            self.listCanceler = null;
                         });
                     }
                 }
@@ -335,18 +340,18 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     initialLat = lat;
                     initialLon = lon;
                 } else if ($location.search().lat && $location.search().lon) {
-                    var lat = parseFloat($location.search().lat);
-                    var lon = parseFloat($location.search().lon);
+                    var locationLat = parseFloat($location.search().lat);
+                    var locationLon = parseFloat($location.search().lon);
 
-                    if (isNaN(lat) || isNaN(lon)) {
+                    if (isNaN(locationLat) || isNaN(locationLon)) {
                         initialLat = undefined;
                         initialLon = undefined;
                     } else {
                         if ($scope.$app.location === LocationEnum.SEARCHING) {
                             ignoreNextGeolocation = true;
                         }
-                        initialLat = lat;
-                        initialLon = lon;
+                        initialLat = locationLat;
+                        initialLon = locationLon;
                     }
                 }
 
@@ -363,6 +368,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
 
                 $scope.$on('geoLocation', function (event, lat, lon) {
+                    if (self.listCanceler) {
+                        self.listCanceler.resolve();
+                    }
                     if (!ignoreNextGeolocation) {
                         self.doSearch(lat, lon);
                     } else {
@@ -922,7 +930,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     }).then(function (response) {
                         $window.localStorage.token = response.data.token;
                         $state.go('list');
-                    }, function (response) {
+                    }, function (error) {
                         $translate('Invalid username or password').then(function (text) {
                             self.passwordError = text;
                         });

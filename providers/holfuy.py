@@ -10,8 +10,14 @@ logger = get_logger('holfuy')
 
 class Holfuy(Provider):
     provider_code = 'holfuy'
-    provider_name = 'holfuy.hu'
-    provider_url = 'http://holfuy.hu'
+    provider_name = 'holfuy.com'
+    provider_urls = {
+        'default': 'https://holfuy.com/en/weather/{id}',
+        'en': 'https://holfuy.com/en/weather/{id}',
+        'de': 'https://holfuy.com/de/weather/{id}',
+        'fr': 'https://holfuy.com/fr/weather/{id}',
+        'it': 'https://holfuy.com/it/weather/{id}'
+    }
 
     def process_data(self):
         try:
@@ -36,6 +42,7 @@ class Holfuy(Provider):
                         continue
                     altitude = location.get('altitude')
 
+                    urls = {lang: url.format(id=holfuy_id) for lang, url in self.provider_urls.items()}
                     station = self.save_station(
                         holfuy_id,
                         name,
@@ -43,7 +50,8 @@ class Holfuy(Provider):
                         latitude,
                         longitude,
                         Status.GREEN,
-                        altitude=altitude)
+                        altitude=altitude,
+                        url=urls)
                     station_id = station['_id']
 
                     measures_collection = self.measures_collection(station_id)

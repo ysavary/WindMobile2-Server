@@ -72,10 +72,7 @@ class MeteoSwiss(Provider):
             for wind_data in wind_datas:
                 station_id = None
                 try:
-                    urls = {}
-                    for key, value in self.provider_urls.items():
-                        urls[key] = value.format(id=wind_data['id'].lower())
-
+                    urls = {lang: url.format(id=wind_data['id'].lower()) for lang, url in self.provider_urls.items()}
                     station = self.save_station(
                         wind_data['id'],
                         wind_data['city_name'],

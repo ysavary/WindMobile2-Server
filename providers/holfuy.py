@@ -1,12 +1,9 @@
-import re
-import urllib.parse
-from datetime import datetime, timedelta
-
-import pytz
+import arrow
+import arrow.parser
 import requests
-import xmltodict
 
-from provider import get_logger, Provider, Status, to_float, ProviderException
+from provider import Q_, ureg
+from provider import get_logger, Provider, ProviderException, Status
 
 logger = get_logger('holfuy')
 
@@ -19,65 +16,61 @@ class Holfuy(Provider):
     def process_data(self):
         try:
             logger.info("Processing Holfuy data...")
-            result = requests.get("http://holfuy.hu/en/mkrs.php", timeout=(self.connect_timeout, self.read_timeout))
-            result.encoding = 'utf-8'
+            holfuy_stations = requests.get("http://api.holfuy.com/stations/stations.json",
+                                           timeout=(self.connect_timeout, self.read_timeout)).json()
+            holfuy_data = requests.get("http://api.holfuy.com/live/?s=all&m=JSON&tu=C&su=km/h&utc",
+                                       timeout=(self.connect_timeout, self.read_timeout)).json()
+            holfuy_measures = {}
+            for measure in holfuy_data['measurements']:
+                holfuy_measures[measure['stationId']] = measure
 
-            xml_files = re.split('<\?xml version=\"1.0\" encoding=\"UTF-8\"\?>', result.text)
-            for markers_xml in xml_files[1:]:
-                markers_json = xmltodict.parse(markers_xml)['markers']['marker']
+            for holfuy_station in holfuy_stations['holfuyStationsList']:
+                station_id = None
+                try:
+                    holfuy_id = holfuy_station['id']
+                    name = holfuy_station['name']
+                    location = holfuy_station['location']
+                    latitude = location.get('latitude')
+                    longitude = location.get('longitude')
+                    if (latitude is None or longitude is None) or (latitude == 0 and longitude == 0):
+                        continue
+                    altitude = location.get('altitude')
 
-                for holfuy_station in markers_json:
-                    station_id = None
-                    try:
-                        if '@station' not in holfuy_station:
-                            continue
-                        holfuy_id = holfuy_station['@station'][1:]
-                        name = holfuy_station['@place']
-                        station = self.save_station(
-                            holfuy_id,
-                            name,
-                            name,
-                            holfuy_station['@lat'],
-                            holfuy_station['@lng'],
-                            Status.GREEN,
-                            url=urllib.parse.urljoin(self.provider_url, "/en/data/" + holfuy_id))
-                        station_id = station['_id']
+                    station = self.save_station(
+                        holfuy_id,
+                        name,
+                        name,
+                        latitude,
+                        longitude,
+                        Status.GREEN,
+                        altitude=altitude)
+                    station_id = station['_id']
 
-                        measures_collection = self.measures_collection(station_id)
-                        new_measures = []
+                    measures_collection = self.measures_collection(station_id)
+                    new_measures = []
 
-                        now = datetime.now(pytz.utc)
-                        local_time = datetime.strptime(holfuy_station['@time'], '%H:%M')
-                        try_day = now + timedelta(days=1)
-                        while True:
-                            date = local_time.replace(year=try_day.year, month=try_day.month, day=try_day.day)
-                            date = pytz.timezone(station['tz']).localize(date)
-                            if date > now:
-                                # The measure is in the future... the measure time seems to be 1 day before (timezone)
-                                try_day = try_day - timedelta(days=1)
-                            else:
-                                break
-                        key = date.timestamp()
-                        if not self.has_measure(measures_collection, key):
-                            measure = self.create_measure(
-                                key,
-                                holfuy_station['@dir'],
-                                to_float(holfuy_station['@speed'], 1) * 3.6,
-                                to_float(holfuy_station['@gust'], 1) * 3.6,
-                                temperature=holfuy_station['@temp'],
-                            )
-                            new_measures.append(measure)
+                    measure = holfuy_measures[holfuy_id]
+                    last_measure_date = arrow.get(measure['dateTime'])
+                    key = last_measure_date.timestamp
+                    if not self.has_measure(measures_collection, key):
+                        measure = self.create_measure(
+                            key,
+                            measure['wind']['direction'],
+                            Q_(measure['wind']['speed'], ureg.kilometer / ureg.hour),
+                            Q_(measure['wind']['gust'], ureg.kilometer / ureg.hour),
+                            temperature=Q_(measure['temperature'], ureg.degC) if 'temperature' in measure else None,
+                            pressure=Q_(measure['pressure'], ureg.Pa * 100) if 'pressure' in measure else None
+                        )
+                        new_measures.append(measure)
 
-                        self.insert_new_measures(measures_collection, station, new_measures, logger)
+                    self.insert_new_measures(measures_collection, station, new_measures, logger)
 
-                    except ProviderException as e:
-                        logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
-                    except Exception as e:
-                        logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
-                        self.raven_client.captureException()
+                except ProviderException as e:
+                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
+                except Exception as e:
+                    logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
+                    self.raven_client.captureException()
 
-        except ProviderException as e:
-            logger.warn("Error while processing Holfuy: {0}".format(e))
         except Exception as e:
             logger.exception("Error while processing Holfuy: {0}".format(e))
             self.raven_client.captureException()

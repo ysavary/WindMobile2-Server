@@ -25,7 +25,7 @@ class FacebookOauth2Callback(Oauth2Callback):
             auth_code = self.request.GET['code']
             facebook.fetch_token(self.token_url, client_secret=settings.FACEBOOK_CLIENT_SECRET, code=auth_code)
             user_info = json.loads(
-                facebook.get("https://graph.facebook.com/v2.5/me?fields={0}".format(self.fields)).text)
+                facebook.get("https://graph.facebook.com/v2.12/me?fields={0}".format(self.fields)).text)
             username = "facebook-{0}".format(user_info['id'])
             email = user_info['email'] or ''
 

@@ -31,6 +31,7 @@ class Holfuy(Provider):
                 holfuy_measures[measure['stationId']] = measure
 
             for holfuy_station in holfuy_stations['holfuyStationsList']:
+                holfuy_id = None
                 station_id = None
                 try:
                     holfuy_id = holfuy_station['id']
@@ -39,7 +40,7 @@ class Holfuy(Provider):
                     latitude = location.get('latitude')
                     longitude = location.get('longitude')
                     if (latitude is None or longitude is None) or (latitude == 0 and longitude == 0):
-                        continue
+                        raise ProviderException("No geolocation found")
                     altitude = location.get('altitude')
 
                     urls = {lang: url.format(id=holfuy_id) for lang, url in self.provider_urls.items()}
@@ -57,6 +58,8 @@ class Holfuy(Provider):
                     measures_collection = self.measures_collection(station_id)
                     new_measures = []
 
+                    if holfuy_id not in holfuy_measures:
+                        raise ProviderException("Station not found in 'station.json'")
                     measure = holfuy_measures[holfuy_id]
                     last_measure_date = arrow.get(measure['dateTime'])
                     key = last_measure_date.timestamp
@@ -74,9 +77,9 @@ class Holfuy(Provider):
                     self.insert_new_measures(measures_collection, station, new_measures, logger)
 
                 except ProviderException as e:
-                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
+                    logger.warn("Error while processing station '{0}': {1}".format(station_id or holfuy_id, e))
                 except Exception as e:
-                    logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
+                    logger.exception("Error while processing station '{0}': {1}".format(station_id or holfuy_id, e))
                     self.raven_client.captureException()
 
         except Exception as e:

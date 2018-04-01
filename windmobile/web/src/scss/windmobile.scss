@@ -101,6 +101,7 @@ body.modal-open #wdm-list-content {
     font-size: $font-size;
     line-height: 1.428571429;
     text-align: left;
+    overflow: hidden;
 
     a {
         color: $text-color;
@@ -126,7 +127,7 @@ body.modal-open #wdm-list-content {
             color: $highlight-text-color;
             font-size: 17px;
         }
-        word-wrap: break-word;
+        word-break: break-word;
     }
     .wdm-last-update {
         font-size: $small-font-size;

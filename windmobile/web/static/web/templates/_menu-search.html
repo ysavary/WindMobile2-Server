@@ -21,8 +21,8 @@
     <nav class="mdl-navigation">
         <!-- Action center small -->
         <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon wdm-small-action-btn" ng-click="$app.getGeoLocation()"
-                ng-disabled="$app.location === -2">
-            <span ng-switch="main.getGeoStatus()">
+                ng-disabled="main.geoStatus === -2">
+            <span ng-switch="main.geoStatus">
                 <i ng-switch-when="2" class="material-icons">gps_fixed</i>
                 <i ng-switch-when="1" class="material-icons blink">location_searching</i>
                 <i ng-switch-when="0" class="material-icons">gps_not_fixed</i>
@@ -32,8 +32,8 @@
         </button>
         <!-- Action center large -->
         <button class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ng-click="$app.getGeoLocation()"
-                ng-disabled="$app.location === -2">
-            <span ng-switch="main.getGeoStatus()">
+                ng-disabled="main.geoStatus === -2">
+            <span ng-switch="main.geoStatus">
                 <i ng-switch-when="2" class="material-icons">gps_fixed</i>
                 <i ng-switch-when="1" class="material-icons blink">location_searching</i>
                 <i ng-switch-when="0" class="material-icons">gps_not_fixed</i>

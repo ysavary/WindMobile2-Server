@@ -22,9 +22,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 if (navigator.geolocation) {
                     self.location = LocationEnum.SEARCHING;
                     navigator.geolocation.getCurrentPosition(function (position) {
-                        self.location = LocationEnum.FIXED;
                         self.lat = position.coords.latitude;
                         self.lon = position.coords.longitude;
+                        self.location = LocationEnum.FIXED;
                         $scope.$broadcast('geoLocation', position.coords.latitude, position.coords.longitude);
                     }, function (positionError) {
                         self.lat = undefined;
@@ -49,7 +49,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     }, {
                         enableHighAccuracy: true,
                         maximumAge: 300000,
-                        timeout: 20000
+                        timeout: 60000
                     });
                 } else {
                     self.location = LocationEnum.DISABLED;
@@ -166,7 +166,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 var self = this;
                 self.listCanceler = null;
 
-                function search() {
+                function search(lat, lon) {
                     var keys = ['short', 'loc', 'status', 'pv-name', 'alt', 'peak', 'last._id', 'last.w-dir',
                         'last.w-avg', 'last.w-max'];
 
@@ -202,9 +202,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         var listParam = {
                             keys: keys
                         };
-                        if (self.lat != null && self.lon != null) {
-                            listParam['near-lat'] = self.lat;
-                            listParam['near-lon'] = self.lon;
+                        if (lat != null && lon != null) {
+                            listParam['near-lat'] = lat;
+                            listParam['near-lon'] = lon;
                         }
                         if (self.tenant) {
                             listParam.provider = self.tenant;
@@ -256,7 +256,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         self.lat = lat;
                         self.lon = lon;
                     }
-                    search();
+                    search(self.lat, self.lon);
                 };
                 this.clearSearch = function () {
                     this.search = null;
@@ -273,6 +273,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     }
                     return $scope.$app.location;
                 };
+                $scope.$watch('$app.location', function () {
+                    self.geoStatus = self.getGeoStatus();
+                });
                 this.favoritesIcons = {
                     true: 'favorite',
                     false: 'favorite_border'
@@ -332,11 +335,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
                 // initialLat, initialLon initiated by ui-router or query parameters
                 var initialLat, initialLon;
-                var ignoreNextGeolocation = false;
                 if (lat != undefined && lon != undefined) {
-                    if ($scope.$app.location === LocationEnum.SEARCHING) {
-                        ignoreNextGeolocation = true;
-                    }
                     initialLat = lat;
                     initialLon = lon;
                 } else if ($location.search().lat && $location.search().lon) {
@@ -347,15 +346,13 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         initialLat = undefined;
                         initialLon = undefined;
                     } else {
-                        if ($scope.$app.location === LocationEnum.SEARCHING) {
-                            ignoreNextGeolocation = true;
-                        }
                         initialLat = locationLat;
                         initialLon = locationLon;
                     }
                 }
 
                 if (initialLat == undefined && self.lon == undefined) {
+                    self.initialPos = false;
                     if ($scope.$app.savedListLat != undefined && $scope.$app.savedListLon != undefined) {
                         // Use last map position
                         initialLat = $scope.$app.savedListLat;
@@ -365,17 +362,18 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         initialLat = $scope.$app.lat;
                         initialLon = $scope.$app.lon;
                     }
+                } else {
+                    self.initialPos = true;
                 }
 
                 $scope.$on('geoLocation', function (event, lat, lon) {
-                    if (self.listCanceler) {
-                        self.listCanceler.resolve();
-                    }
-                    if (!ignoreNextGeolocation) {
+                    if (!self.initialPos) {
+                        if (self.listCanceler) {
+                            self.listCanceler.resolve();
+                        }
                         self.doSearch(lat, lon);
-                    } else {
-                        ignoreNextGeolocation = false;
                     }
+                    self.initialPos = false;
                 });
                 $scope.$on('profile', function (event) {
                     if (self.listFavorites) {
@@ -588,6 +586,9 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
                 return $scope.$app.location;
             };
+            $scope.$watch('$app.location', function () {
+                self.geoStatus = self.getGeoStatus();
+            });
 
             this.updateFromNow = function() {
                 if (self.selectedStation && self.selectedStation.last) {
@@ -668,10 +669,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 var count = 0;
                 return function () {
                     count++;
-                    // Ignore the first bounds_changed generated by the map itself
-                    if (count > 1 && $scope.$app.location === LocationEnum.SEARCHING) {
-                        ignoreNextGeolocation = true;
-                    }
                     clearTimeout(timer);
                     timer = setTimeout(function () {
                         self.doSearch();
@@ -681,11 +678,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
             // lat, lon, zoom initiated by ui-router or query parameters
             var initialLat, initialLon, initialZoom;
-            var ignoreNextGeolocation = false;
             if (lat != undefined && lon != undefined) {
-                if ($scope.$app.location === LocationEnum.SEARCHING) {
-                    ignoreNextGeolocation = true;
-                }
                 initialLat = lat;
                 initialLon = lon;
             } else if ($location.search().lat && $location.search().lon) {
@@ -696,9 +689,6 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     initialLat = undefined;
                     initialLon = undefined;
                 } else {
-                    if ($scope.$app.location === LocationEnum.SEARCHING) {
-                        ignoreNextGeolocation = true;
-                    }
                     initialLat = lat;
                     initialLon = lon;
                 }
@@ -712,6 +702,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             }
 
             if (initialLat == undefined && self.lon == undefined) {
+                self.initialPos = false;
                 if ($scope.$app.savedMapLat != undefined && $scope.$app.savedMapLon != undefined) {
                     // Use last map position
                     initialLat = $scope.$app.savedMapLat;
@@ -728,14 +719,15 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     initialLon = 4.08;
                     initialZoom = 6;
                 }
+            } else {
+                self.initialPos = true;
             }
 
             $scope.$on('geoLocation', function (event, lat, lon) {
-                if (!ignoreNextGeolocation) {
+                if (!self.initialPos) {
                     self.centerMap(lat, lon, defaultZoom);
-                } else {
-                    ignoreNextGeolocation = false;
                 }
+                self.initialPos = false;
             });
 
             // Should try to find another way to reload map when the #wdm-map change

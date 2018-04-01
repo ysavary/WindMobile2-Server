@@ -20,7 +20,7 @@
     <div class="mdl-layout-spacer"></div>
     <nav class="mdl-navigation">
         <!-- Action center small -->
-        <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon wdm-small-action-btn" ng-click="$app.getGeoLocation()"
+        <button class="mdl-layout--small-screen-only mdl-button mdl-js-button mdl-button--accent mdl-button--icon wdm-small-action-btn" ng-click="main.clickOnGeoLocation()"
                 ng-disabled="main.geoStatus === -2">
             <span ng-switch="main.geoStatus">
                 <i ng-switch-when="2" class="material-icons">gps_fixed</i>
@@ -31,7 +31,7 @@
             </span>
         </button>
         <!-- Action center large -->
-        <button class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ng-click="$app.getGeoLocation()"
+        <button class="mdl-layout--large-screen-only mdl-button mdl-js-button mdl-button--accent mdl-js-ripple-effect" ng-click="main.clickOnGeoLocation()"
                 ng-disabled="main.geoStatus === -2">
             <span ng-switch="main.geoStatus">
                 <i ng-switch-when="2" class="material-icons">gps_fixed</i>

@@ -48,7 +48,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         }
                     }, {
                         enableHighAccuracy: true,
-                        maximumAge: 300000,
+                        maximumAge: 900000,
                         timeout: 60000
                     });
                 } else {
@@ -373,8 +373,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         }
                         self.doSearch(lat, lon);
                     }
-                    self.initialPos = false;
                 });
+                this.clickOnGeoLocation = function () {
+                    self.initialPos = false;
+                    $scope.$app.getGeoLocation();
+                };
                 $scope.$on('profile', function (event) {
                     if (self.listFavorites) {
                         self.doSearch();
@@ -665,6 +668,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
             });
             google.maps.event.addListener(self.map, 'bounds_changed', (function () {
+                self.geoStatus = self.getGeoStatus();
                 var timer;
                 var count = 0;
                 return function () {
@@ -727,8 +731,11 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 if (!self.initialPos) {
                     self.centerMap(lat, lon, defaultZoom);
                 }
-                self.initialPos = false;
             });
+            this.clickOnGeoLocation = function () {
+                self.initialPos = false;
+                $scope.$app.getGeoLocation();
+            };
 
             // Should try to find another way to reload map when the #wdm-map change
             setTimeout(function () {

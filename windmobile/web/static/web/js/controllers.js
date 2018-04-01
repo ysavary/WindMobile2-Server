@@ -668,10 +668,10 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 }
             });
             google.maps.event.addListener(self.map, 'bounds_changed', (function () {
-                self.geoStatus = self.getGeoStatus();
                 var timer;
                 var count = 0;
                 return function () {
+                    self.geoStatus = self.getGeoStatus();
                     count++;
                     clearTimeout(timer);
                     timer = setTimeout(function () {

@@ -126,6 +126,7 @@ body.modal-open #wdm-list-content {
             color: $highlight-text-color;
             font-size: 17px;
         }
+        word-break: break-all;
     }
     .wdm-last-update {
         font-size: $small-font-size;

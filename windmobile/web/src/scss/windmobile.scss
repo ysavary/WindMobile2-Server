@@ -127,6 +127,7 @@ body.modal-open #wdm-list-content {
             color: $highlight-text-color;
             font-size: 17px;
         }
+        margin-right: 2px;
         word-break: break-word;
     }
     .wdm-last-update {
@@ -248,8 +249,11 @@ $humidity-color: $air-color;
 
 .wdm-card-list {
     width: 30%;
-    min-width: 145px;
-    max-width: 250px;
+    @media (max-width: 335px) {
+        width: 100%;
+    }
+    min-width: 150px;
+    max-width: 245px;
     background-color: #151515;
     cursor: pointer;
 }

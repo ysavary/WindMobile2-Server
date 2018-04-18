@@ -54,7 +54,10 @@
         'HELP_PROVIDERS_TITLE': "Liste des fournisseurs de données",
         'HELP_COMPATIBILITY_TITLE': "Compatibilité",
         'HELP_COMPATIBILITY_TEXT': "winds.mobi fonctionne sur les dernières versions des principaux navigateurs web " +
-        "(mobile ou bureau).",
+        '(mobile ou bureau).',
+        'HELP_PRIVACY_TITLE': 'Politique de confidentialité',
+        'HELP_PRIVACY_TEXT': "Winds.mobi stocke votre nom et votre adresse email lors de la connexion avec un compte Facebook ou Google. " +
+        "Nous ne transmettrons jamais ces informations à d'autres et nous faisons tout notre possible pour garantir votre confidentialité.",
         'HELP_ABOUT_TITLE': "À propos",
         'HELP_ABOUT_TEXT': "Des questions, problèmes ou idées d'amélioration ? Contactez-moi !",
         'HELP_ABOUT_CREDITS_TEXT': "Remerciements:",

@@ -9,8 +9,10 @@ from .views import Oauth2Callback
 
 
 class FacebookOauth2Callback(Oauth2Callback):
+    graph_api_version = 'v2.12'
     authorization_base_url = 'https://www.facebook.com/dialog/oauth?scope=public_profile&scope=email'
-    token_url = 'https://graph.facebook.com/oauth/access_token'
+    token_url = 'https://graph.facebook.com/{version}/oauth/access_token'
+    me_url = 'https://graph.facebook.com/{version}/me?fields={fields}'
     fields = 'id,name,first_name,last_name,gender,email,link,birthday,age_range,timezone,website,location,locale,' \
              'devices'
 
@@ -23,9 +25,10 @@ class FacebookOauth2Callback(Oauth2Callback):
             return HttpResponseRedirect(authorization_url)
         else:
             auth_code = self.request.GET['code']
-            facebook.fetch_token(self.token_url, client_secret=settings.FACEBOOK_CLIENT_SECRET, code=auth_code)
+            facebook.fetch_token(self.token_url.format(version=self.graph_api_version),
+                                 client_secret=settings.FACEBOOK_CLIENT_SECRET, code=auth_code)
             user_info = json.loads(
-                facebook.get("https://graph.facebook.com/v2.12/me?fields={0}".format(self.fields)).text)
+                facebook.get(self.me_url.format(version=self.graph_api_version, fields=self.fields)).text)
             username = "facebook-{0}".format(user_info['id'])
             email = user_info['email'] or ''
 

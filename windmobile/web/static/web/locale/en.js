@@ -54,9 +54,9 @@
         'HELP_PROVIDERS_TITLE': "Data providers list",
         'HELP_COMPATIBILITY_TITLE': "Compatibility",
         'HELP_COMPATIBILITY_TEXT': "winds.mobi runs on the latest versions of the major browsers (mobile or desktop).",
-        'HELP_PRIVACY_TITLE': 'Privacy policy',
-        'HELP_PRIVACY_TEXT': 'Winds.mobi stores your name and your email address when you login with a facebook or a google account. ' +
-        'We will never transmit your personal information to others and will do our best to ensure your privacy.',
+        'HELP_PRIVACY_TITLE': "Privacy policy",
+        'HELP_PRIVACY_TEXT': "Winds.mobi stores your name and your email address when you login with a facebook or a google account. " +
+        "We will never transmit your personal information to others and will do our best to ensure your privacy.",
         'HELP_ABOUT_TITLE': "About",
         'HELP_ABOUT_TEXT': "Questions, issues or improvement ideas ? Please contact me !",
         'HELP_ABOUT_CREDITS_TEXT': "Credits:",

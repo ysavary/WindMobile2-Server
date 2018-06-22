@@ -11,18 +11,23 @@ logger = get_logger('meteoswiss')
 class MeteoSwiss(Provider):
     provider_code = 'meteoswiss'
     provider_name = 'meteoswiss.ch'
-    provider_url = 'http://www.meteosuisse.admin.ch'
+    provider_url = 'https://www.meteoswiss.admin.ch'
 
     provider_urls = {
-        'default': 'http://www.meteosuisse.admin.ch/home/meteo/valeurs-de-mesures/valeurs-de-mesures-aux-stations.html'
+        'default': 'https://www.meteoswiss.admin.ch'
+                   '/home/weather/measurement-values/measurement-values-at-meteorological-stations.html'
                    '?param=wind-combination&station={id}',
-        'en': 'http://www.meteosuisse.admin.ch/home/meteo/valeurs-de-mesures/valeurs-de-mesures-aux-stations.html'
+        'en': 'https://www.meteoswiss.admin.ch'
+              '/home/weather/measurement-values/measurement-values-at-meteorological-stations.html'
               '?param=wind-combination&station={id}',
-        'de': 'http://www.meteoschweiz.admin.ch/home/wetter/messwerte/messwerte-an-stationen.html'
+        'de': 'https://www.meteoschweiz.admin.ch'
+              '/home/wetter/messwerte/messwerte-an-stationen.html'
               '?param=wind-combination&station={id}',
-        'fr': 'http://www.meteosuisse.admin.ch/home/meteo/valeurs-de-mesures/valeurs-de-mesures-aux-stations.html'
+        'fr': 'https://www.meteosuisse.admin.ch'
+              '/home/meteo/valeurs-de-mesures/valeurs-de-mesures-aux-stations.html'
               '?param=wind-combination&station={id}',
-        'it': 'http://www.meteosvizzera.admin.ch/home/tempo/misurazioni/misurazioni-delle-stazioni.html'
+        'it': 'https://www.meteosvizzera.admin.ch'
+              '/home/tempo/misurazioni/misurazioni-delle-stazioni.html'
               '?param=wind-combination&station={id}'
     }
 
@@ -30,7 +35,7 @@ class MeteoSwiss(Provider):
         try:
             logger.info("Processing MeteoSwiss data...")
 
-            base_url = 'http://www.meteoswiss.admin.ch'
+            base_url = 'https://www.meteoswiss.admin.ch'
             session = requests.Session()
             session.headers.update({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 '
                                                   '(KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'})

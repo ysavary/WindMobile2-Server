@@ -13,7 +13,7 @@ logger = get_logger('meteoswiss')
 class MeteoSwiss(Provider):
     provider_code = 'meteoswiss'
     provider_name = 'meteoswiss.ch'
-    provider_url = 'http://www.meteoswiss.ch'
+    provider_url = 'https://www.meteoswiss.ch'
 
     def process_data(self):
         try:

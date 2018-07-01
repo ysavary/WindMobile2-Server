@@ -85,7 +85,7 @@ class Provider(object):
 
     @property
     def location_cache_duration(self):
-        return (10 + randint(-2, 2)) * 24 * 3600
+        return (30 + randint(-2, 2)) * 24 * 3600
 
     def __init__(self):
         uri = uri_parser.parse_uri(MONGODB_URL)

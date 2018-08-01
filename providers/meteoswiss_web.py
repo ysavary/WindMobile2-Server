@@ -42,37 +42,37 @@ class MeteoSwiss(Provider):
 
             main_url = '/home/weather/measurement-values/measurement-values-at-meteorological-stations.html'
             html_tree = html.fromstring(
-                session.get(base_url + main_url, timeout=(self.connect_timeout, self.read_timeout), verify=False).text)
+                session.get(base_url + main_url, timeout=(self.connect_timeout, self.read_timeout)).text)
 
             # Main wind data
             element = html_tree.xpath('//input[@id="measurement__param-radio--wind"]')[0]
             data_json_url = element.get('data-json-url')
             wind_datas = session.get(base_url + data_json_url,
-                                     timeout=(self.connect_timeout, self.read_timeout), verify=False).json()['stations']
+                                     timeout=(self.connect_timeout, self.read_timeout)).json()['stations']
 
             # Temperature data
             element = html_tree.xpath('//input[@id="measurement__param-radio--temperature"]')[0]
             data_json_url = element.get('data-json-url')
             temp_datas = session.get(base_url + data_json_url,
-                                     timeout=(self.connect_timeout, self.read_timeout), verify=False).json()['stations']
+                                     timeout=(self.connect_timeout, self.read_timeout)).json()['stations']
 
             # Humidity data
             element = html_tree.xpath('//input[@id="measurement__param-radio--humidity"]')[0]
             data_json_url = element.get('data-json-url')
             humidity_datas = session.get(base_url + data_json_url,
-                                         timeout=(self.connect_timeout, self.read_timeout), verify=False).json()['stations']
+                                         timeout=(self.connect_timeout, self.read_timeout)).json()['stations']
 
             # Pressure data
             element = html_tree.xpath('//input[@id="measurement__param-radio--airpressure"]')[0]
             data_json_url = element.get('data-json-url')
             pressure_datas = session.get(base_url + data_json_url,
-                                         timeout=(self.connect_timeout, self.read_timeout), verify=False).json()['stations']
+                                         timeout=(self.connect_timeout, self.read_timeout)).json()['stations']
 
             # Rain data
             element = html_tree.xpath('//input[@id="measurement__param-radio--precipitation"]')[0]
             data_json_url = element.get('data-json-url')
             rain_datas = session.get(base_url + data_json_url,
-                                     timeout=(self.connect_timeout, self.read_timeout), verify=False).json()['stations']
+                                     timeout=(self.connect_timeout, self.read_timeout)).json()['stations']
 
             for wind_data in wind_datas:
                 station_id = None

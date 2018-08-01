@@ -23,8 +23,8 @@ class Slf(Provider):
         'it': 'http://www.slf.ch/schneeinfo/messwerte/wt-daten/index_IT'
     }
 
-    station_metadata_name_regexp = r'(.{3}-[0-9]{1}) : (.*? - .*?) \(IMIS\)'
-    station_name_regexp = r'(.*?)([0-9]{3,4}) m'
+    metadata_name_pattern = re.compile(r'(.{3}-[0-9]{1}) : (.*? - .*?) \(IMIS\)')
+    name_pattern = re.compile(r'(.*?) ([0-9]{3,4}) m')
 
     Measure = collections.namedtuple(
         'Measure', ['key', 'wind_direction', 'wind_average', 'wind_maximum', 'temperature'])
@@ -49,8 +49,8 @@ class Slf(Provider):
                 tree = ElementTree.parse(kml_file)
             ns = {'gis': 'http://www.opengis.net/kml/2.2'}
             for placemark in tree.getroot().findall('.//gis:Placemark', namespaces=ns):
-                id, name = re.search(
-                    self.station_metadata_name_regexp, placemark.find('gis:name', namespaces=ns).text).groups()
+                id, name = self.metadata_name_pattern.search(
+                    placemark.find('gis:name', namespaces=ns).text).groups()
                 lon, lat = placemark.find('gis:Point/gis:coordinates', namespaces=ns).text.split(',')
                 slf_metadata[id.replace('-', '')] = {
                     'name': name,
@@ -72,7 +72,7 @@ class Slf(Provider):
                     if not self.has_wind_data(data):
                         continue
 
-                    name, altitude = re.search(self.station_name_regexp, slf_station['name']).groups()
+                    name, altitude = self.name_pattern.search(slf_station['name']).groups()
                     metadata_name, lat, lon = None, None, None
                     if slf_id in slf_metadata:
                         metadata_name = slf_metadata[slf_id]['name']

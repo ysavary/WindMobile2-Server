@@ -36,7 +36,7 @@ class IWeathar(Provider):
                                                   '(KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'})
 
             content = session.get(self.provider_url + '/google_maps.php',
-                                  timeout=(self.connect_timeout, self.read_timeout)).text
+                                  timeout=(self.connect_timeout, self.read_timeout), verify=False).text
 
             stations_jsons = []
             for match in list_pattern.finditer(content):
@@ -60,7 +60,7 @@ class IWeathar(Provider):
                     station_id = station['_id']
 
                     html_tree = html.fromstring(
-                        session.get(url, timeout=(self.connect_timeout, self.read_timeout)).text)
+                        session.get(url, timeout=(self.connect_timeout, self.read_timeout), verify=False).text)
 
                     date = html_tree.xpath('//*[text()="Last Update:"]/../following::td')[0].text.strip()
                     key = arrow.get(date, 'YYYY-MM-DD HH:mm:ss').replace(tzinfo=iweathar_tz).timestamp

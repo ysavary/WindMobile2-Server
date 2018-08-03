@@ -22,7 +22,8 @@ class YVBeach(Provider):
             date_pattern = re.compile(r'Relevés du<br/>(?P<date>.*?) à (?P<time>.*?)<br/>')
             wind_pattern = re.compile(r'<b>VENT</b><br/>'
                                       r'Moy10min <b>(?P<wind_avg>[0-9]{1,3}\.[0-9]) km/h</b><br/>'
-                                      r'Max/1h <b>(?P<wind_max>[0-9]{1,3}\.[0-9]) km/h<br/>.{2} - (?P<wind_dir>[0-9]{2})°')
+                                      r'Max/1h <b>(?P<wind_max>[0-9]{1,3}\.[0-9]) km/h<br/>'
+                                      r'[A-Z]{1,3} - (?P<wind_dir>[0-9]{2})°')
 
             yvbeach_tz = tz.gettz('Europe/Zurich')
 
@@ -30,7 +31,7 @@ class YVBeach(Provider):
             session.headers.update({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 '
                                                   '(KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'})
             content = session.get('http://www.yvbeach.com/yvmeteo.wml',
-                                    timeout=(self.connect_timeout, self.read_timeout)).text.replace('\r\n', '')
+                                  timeout=(self.connect_timeout, self.read_timeout)).text.replace('\r\n', '')
 
             station = self.save_station(
                 'yvbeach',

@@ -97,7 +97,7 @@ class Provider(object):
         self.collection_names = self.mongo_db.collection_names()
         self.redis = redis.StrictRedis(decode_responses=True)
         self.google_api_key = GOOGLE_API_KEY
-        self.raven_client = RavenClient(SENTRY_URL)
+        self.raven_client = RavenClient(SENTRY_URL, string_max_length=2000)
         self.raven_client.tags_context({'provider': self.provider_name})
 
     def __to_wind_direction(self, value):

@@ -33,7 +33,7 @@ class ThunerWetter(Provider):
                 'SO': 6 * (360 / 16),
                 'S-SO': 7 * (360 / 16),
                 'S': 8 * (360 / 16),
-                's-SW': 9 * (360 / 16),
+                'S-SW': 9 * (360 / 16),
                 'SW': 10 * (360 / 16),
                 'W-SW': 11 * (360 / 16),
                 'W': 12 * (360 / 16),
@@ -77,11 +77,11 @@ class ThunerWetter(Provider):
                 wind_elements = html_tree.xpath('//td[text()="Ø 10 Minuten"]')
 
                 # Wind average
-                wind_avg_text = wind_elements[0].xpath('following::td')[0].text.strip()
+                wind_avg_text = wind_elements[0].xpath('following-sibling::td')[0].text.strip()
                 wind_avg = wind_pattern.search(wind_avg_text).groupdict()
 
                 # Wind max
-                wind_max_text = wind_elements[1].xpath('following::td')[0].text.strip()
+                wind_max_text = wind_elements[1].xpath('following-sibling::td')[0].text.strip()
                 wind_max = wind_pattern.search(wind_max_text).groupdict()
 
                 measure = self.create_measure(

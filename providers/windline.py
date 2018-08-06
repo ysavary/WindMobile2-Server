@@ -137,6 +137,13 @@ class Windline(Provider):
 
                 station_id = None
                 try:
+                    try:
+                        if 6000 <= int(windline_id) < 7000:
+                            # Windline integrate holfuy stations with 6xxx ids
+                            raise ProviderException('{id} is an holfuy station, discarding'.format(id=windline_id))
+                    except ValueError:
+                        pass
+
                     station = self.save_station(
                         windline_id,
                         short_name,

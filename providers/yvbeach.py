@@ -23,7 +23,8 @@ class YVBeach(Provider):
             wind_pattern = re.compile(r'<b>VENT</b><br/>'
                                       r'Moy10min <b>(?P<wind_avg>[0-9]{1,3}\.[0-9]) km/h</b><br/>'
                                       r'Max/1h <b>(?P<wind_max>[0-9]{1,3}\.[0-9]) km/h<br/>'
-                                      r'[A-Z]{1,3} - (?P<wind_dir>[0-9]{2})°')
+                                      r'[A-Z]{1,3} - (?P<wind_dir>[0-9]{1,3})°')
+            temp_pattern = re.compile(r'<b>TEMPERATURES<br/>Air (?P<temp>[-+]?[0-9]*\.?[0-9]+)°C')
 
             yvbeach_tz = tz.gettz('Europe/Zurich')
 
@@ -53,8 +54,6 @@ class YVBeach(Provider):
 
             if not self.has_measure(measures_collection, key):
                 wind = wind_pattern.search(content).groupdict()
-
-                temp_pattern = re.compile(r'<b>TEMPERATURES<br/>Air (?P<temp>[-+]?[0-9]*\.?[0-9]+)°C')
                 temp = temp_pattern.search(content).groupdict()
 
                 measure = self.create_measure(

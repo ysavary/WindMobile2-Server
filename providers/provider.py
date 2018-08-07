@@ -252,7 +252,10 @@ class Provider(object):
     def get_station_id(self, provider_id):
         return self.provider_code + '-' + str(provider_id)
 
-    def __create_station(self, provider_id, short_name, name, latitude, longitude, altitude, is_peak, status, tz, urls):
+    def __create_station(self, provider_id, short_name, name, latitude, longitude, altitude, is_peak, status, tz, urls,
+                         fixes=None):
+        if fixes is None:
+            fixes = {}
 
         if any((not short_name, not name, altitude is None, latitude is None, longitude is None, not status, not tz)):
             raise ProviderException('A mandatory value is none!')
@@ -262,15 +265,15 @@ class Provider(object):
             'pv-code': self.provider_code,
             'pv-name': self.provider_name,
             'url': urls,
-            'short': short_name,
-            'name': name,
-            'alt': self.__to_altitude(altitude),
-            'peak': to_bool(is_peak),
+            'short': fixes.get('short') or short_name,
+            'name': fixes.get('name') or name,
+            'alt': self.__to_altitude(fixes['alt'] if 'alt' in fixes else altitude),
+            'peak': to_bool(fixes['peak'] if 'peak' in fixes else is_peak),
             'loc': {
                 'type': 'Point',
                 'coordinates': [
-                    to_float(longitude, 6),
-                    to_float(latitude, 6)
+                    to_float(fixes['longitude'] if 'longitude' in fixes else longitude, 6),
+                    to_float(fixes['latitude'] if 'latitude' in fixes else latitude, 6)
                 ]
             },
             'status': status,
@@ -486,7 +489,9 @@ class Provider(object):
         else:
             raise ProviderException("Invalid url")
 
-        station = self.__create_station(provider_id, short_name, name, lat, lon, altitude, is_peak, status, tz, urls)
+        fixes = self.mongo_db.stations_fix.find_one(_id)
+        station = self.__create_station(provider_id, short_name, name, lat, lon, altitude, is_peak, status, tz, urls,
+                                        fixes)
         self.stations_collection().update({'_id': _id}, {'$set': station}, upsert=True)
         station['_id'] = _id
         return station

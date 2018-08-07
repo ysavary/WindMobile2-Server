@@ -1,9 +1,9 @@
 import collections
 import re
 from os import path
-from xml.etree import ElementTree
 
 import requests
+from lxml import etree
 
 from provider import get_logger, Provider, ProviderException, Status
 
@@ -13,18 +13,18 @@ logger = get_logger('slf')
 class Slf(Provider):
     provider_code = 'slf'
     provider_name = 'slf.ch'
-    provider_url = 'http://www.slf.ch'
+    provider_url = 'https://www.slf.ch'
 
     provider_urls = {
-        'default': 'http://www.slf.ch/schneeinfo/messwerte/wt-daten/index_EN',
-        'en': 'http://www.slf.ch/schneeinfo/messwerte/wt-daten/index_EN',
-        'de': 'http://www.slf.ch/schneeinfo/messwerte/wt-daten/index_DE',
-        'fr': 'http://www.slf.ch/schneeinfo/messwerte/wt-daten/index_FR',
-        'it': 'http://www.slf.ch/schneeinfo/messwerte/wt-daten/index_IT'
+        'default': 'https://www.slf.ch/en/avalanche-bulletin-and-snow-situation/measured-values.html#windtab',
+        'en': 'https://www.slf.ch/en/avalanche-bulletin-and-snow-situation/measured-values.html#windtab',
+        'de': 'https://www.slf.ch/de/lawinenbulletin-und-schneesituation/messwerte.html#windtab',
+        'fr': 'https://www.slf.ch/fr/bulletin-davalanches-et-situation-nivologique/valeurs-mesurees.html#windtab',
+        'it': 'https://www.slf.ch/it/bollettino-valanghe-e-situazione-nivologica/valori-di-misura.html#windtab'
     }
 
-    metadata_name_pattern = re.compile(r'(.{3}-[0-9]{1}) : (.*? - .*?) \(IMIS\)')
-    name_pattern = re.compile(r'(.*?) ([0-9]{3,4}) m')
+    description_pattern = re.compile(r'<strong>Code:</strong> ([A-Z,0-9]{4})<br/>', re.MULTILINE)
+    name_pattern = re.compile(r'(.*?) ([0-9]{2,4}) m')
 
     Measure = collections.namedtuple(
         'Measure', ['key', 'wind_direction', 'wind_average', 'wind_maximum', 'temperature'])
@@ -40,23 +40,31 @@ class Slf(Provider):
         if measure.key and measure.wind_average and measure.wind_maximum:
             return True
 
+    def add_metadata_from_kml(self, kml_path, slf_metadata):
+        with open(path.join(path.dirname(__file__), kml_path)) as kml_file:
+            tree = etree.parse(kml_file)
+        ns = {'gis': 'http://www.opengis.net/kml/2.2'}
+
+        for placemark in tree.getroot().findall('.//gis:Placemark', namespaces=ns):
+            id, = self.description_pattern.search(placemark.find('gis:description', namespaces=ns).text).groups()
+            name, _ = self.name_pattern.search(placemark.find('gis:name', namespaces=ns).text).groups()
+            lon, lat, altitude = placemark.find('gis:Point/gis:coordinates', namespaces=ns).text.split(',')
+
+            slf_metadata[id] = {
+                'name': name,
+                'altitude': int(altitude),
+                'lat': float(lat),
+                'lon': float(lon),
+            }
+
     def process_data(self):
         try:
             logger.info('Processing SLF data...')
 
             slf_metadata = {}
-            with open(path.join(path.dirname(__file__), 'slf/SLF Messtationen Standorte.kml')) as kml_file:
-                tree = ElementTree.parse(kml_file)
-            ns = {'gis': 'http://www.opengis.net/kml/2.2'}
-            for placemark in tree.getroot().findall('.//gis:Placemark', namespaces=ns):
-                id, name = self.metadata_name_pattern.search(
-                    placemark.find('gis:name', namespaces=ns).text).groups()
-                lon, lat = placemark.find('gis:Point/gis:coordinates', namespaces=ns).text.split(',')
-                slf_metadata[id.replace('-', '')] = {
-                    'name': name,
-                    'lat': float(lat),
-                    'lon': float(lon),
-                }
+            self.add_metadata_from_kml('slf/IMIS_WIND_EN.kml', slf_metadata)
+            self.add_metadata_from_kml('slf/IMIS_SNOW_EN.kml', slf_metadata)
+            self.add_metadata_from_kml('slf/IMIS_SPECIAL_EN.kml', slf_metadata)
 
             result = requests.get('http://odb.slf.ch/odb/api/v1/stations',
                                   timeout=(self.connect_timeout, self.read_timeout))
@@ -78,8 +86,10 @@ class Slf(Provider):
                         metadata_name = slf_metadata[slf_id]['name']
                         lat = slf_metadata[slf_id]['lat']
                         lon = slf_metadata[slf_id]['lon']
+                        status = Status.GREEN
                     else:
                         logger.warn('No metadata found for station {id}/{name}'.format(id=slf_id, name=name))
+                        status = Status.ORANGE
 
                     station = self.save_station(
                         slf_id,
@@ -87,7 +97,7 @@ class Slf(Provider):
                         metadata_name,
                         lat,
                         lon,
-                        Status.GREEN,
+                        status,
                         altitude=altitude,
                         url=self.provider_urls)
                     station_id = station['_id']

@@ -14,6 +14,7 @@ class ThunerWetter(Provider):
     provider_code = 'thunerwetter'
     provider_name = 'thunerwetter.ch'
     provider_url = 'http://www.thunerwetter.ch/wind.html'
+    provider_url_temp = 'http://www.thunerwetter.ch/temp.html'
 
     def process_data(self):
         station_id = None
@@ -41,6 +42,8 @@ class ThunerWetter(Provider):
                 'NW': 14 * (360 / 16),
                 'N-NW': 15 * (360 / 16),
             }
+            temp_pattern = re.compile(r'(?P<temp>[-+]?[0-9]{1,3}\.[0-9]) °C')
+            humidity_pattern = re.compile(r'(?P<humidity>[0-9]{1,3} %)')
 
             thun_tz = tz.gettz('Europe/Zurich')
 
@@ -48,11 +51,11 @@ class ThunerWetter(Provider):
             session.headers.update({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 '
                                                   '(KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'})
 
-            html_tree = html.fromstring(
+            wind_tree = html.fromstring(
                 session.get(self.provider_url, timeout=(self.connect_timeout, self.read_timeout)).text)
 
             # Date
-            date_element = html_tree.xpath('//td[text()[contains(.,"Messwerte von Thun Westquartier")]]')[0]
+            date_element = wind_tree.xpath('//td[text()[contains(.,"Messwerte von Thun")]]')[0]
             date_text = date_element.text.strip()
             date = date_pattern.search(date_text).groupdict()
 
@@ -74,7 +77,7 @@ class ThunerWetter(Provider):
             new_measures = []
 
             if not self.has_measure(measures_collection, key):
-                wind_elements = html_tree.xpath('//td[text()="Ø 10 Minuten"]')
+                wind_elements = wind_tree.xpath('//td[text()="Ø 10 Minuten"]')
 
                 # Wind average
                 wind_avg_text = wind_elements[0].xpath('following-sibling::td')[0].text.strip()
@@ -84,11 +87,37 @@ class ThunerWetter(Provider):
                 wind_max_text = wind_elements[1].xpath('following-sibling::td')[0].text.strip()
                 wind_max = wind_pattern.search(wind_max_text).groupdict()
 
+                air_tree = html.fromstring(
+                    session.get(self.provider_url_temp, timeout=(self.connect_timeout, self.read_timeout)).text)
+
+                # Date
+                date_element = air_tree.xpath('//td[text()[contains(.,"Messwerte von Thun")]]')[0]
+                date_text = date_element.text.strip()
+                date = date_pattern.search(date_text).groupdict()
+                air_date = arrow.get('{0} {1}'.format(date['date'], date['time']), 'DD.MM.YYYY HH[:]mm').replace(
+                    tzinfo=thun_tz).timestamp
+
+                if air_date != key:
+                    raise ProviderException("Wind and air dates are not matching")
+
+                air_elements = air_tree.xpath('//td[text()="aktuell"]')
+
+                # Temperature
+                temp_text = air_elements[0].xpath('following-sibling::td')[0].text.strip()
+                temp = temp_pattern.search(temp_text).groupdict()
+
+                # Humidity
+                humidity_text = air_elements[1].xpath('following-sibling::td')[0].text.strip()
+                humidity = humidity_pattern.search(humidity_text).groupdict()
+
                 measure = self.create_measure(
                     key,
                     wind_directions[wind_avg['wind_dir']],
                     wind_avg['wind_speed'],
                     wind_max['wind_speed'],
+                    temperature=temp['temp'],
+                    humidity=humidity['humidity']
+
                 )
                 new_measures.append(measure)
 

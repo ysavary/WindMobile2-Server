@@ -43,7 +43,7 @@ class ThunerWetter(Provider):
                 'N-NW': 15 * (360 / 16),
             }
             temp_pattern = re.compile(r'(?P<temp>[-+]?[0-9]{1,3}\.[0-9]) °C')
-            humidity_pattern = re.compile(r'(?P<humidity>[0-9]{1,3} %)')
+            humidity_pattern = re.compile(r'(?P<humidity>[0-9]{1,3}) %')
 
             thun_tz = tz.gettz('Europe/Zurich')
 

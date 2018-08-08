@@ -38,8 +38,8 @@ class YVBeach(Provider):
                 'yvbeach',
                 'yvbeach',
                 'Yvonand plage',
-                float(46.806048),
-                float(6.738763),
+                float(46.805410),
+                float(6.714839),
                 Status.GREEN,
                 url=self.provider_url
             )

@@ -10,13 +10,13 @@ logger = get_logger('windspots')
 class Windspots(Provider):
     provider_code = 'windspots'
     provider_name = 'windspots.com'
-    provider_url = 'http://www.windspots.com'
+    provider_url = 'https://www.windspots.com'
 
     def process_data(self):
         try:
             logger.info("Processing WindsSpots data...")
-            result = requests.get("http://api.windspots.com/windmobile/stationinfos?allStation=true",
-                                  timeout=(self.connect_timeout, self.read_timeout))
+            result = requests.get("https://api.windspots.com/windmobile/stationinfos?allStation=true",
+                                  timeout=(self.connect_timeout, self.read_timeout), verify=False)
 
             for windspots_station in result.json()['stationInfo']:
                 station_id = None
@@ -35,8 +35,9 @@ class Windspots(Provider):
                     try:
                         # Asking 2 days of data
                         result = requests.get(
-                            "http://api.windspots.com/windmobile/stationdatas/windspots:{windspots_id}"
-                            .format(windspots_id=windspots_id), timeout=(self.connect_timeout, self.read_timeout))
+                            "https://api.windspots.com/windmobile/stationdatas/windspots:{windspots_id}".format(
+                                windspots_id=windspots_id),
+                            timeout=(self.connect_timeout, self.read_timeout), verify=False)
                         try:
                             windspots_measure = result.json()
                         except ValueError:

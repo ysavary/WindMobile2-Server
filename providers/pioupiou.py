@@ -11,8 +11,8 @@ logger = get_logger('pioupiou')
 
 class Pioupiou(Provider):
     provider_code = 'pioupiou'
-    provider_name = 'pioupiou.fr'
-    provider_url = 'http://pioupiou.fr'
+    provider_name = 'pioupiou.com'
+    provider_url = 'https://pioupiou.com'
 
     def get_status(self, station_id, status, location_date, location_status):
         if status == 'on':

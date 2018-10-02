@@ -63,7 +63,7 @@ class MeteoSwiss(Provider):
                                          timeout=(self.connect_timeout, self.read_timeout)).json()['stations']
 
             # Pressure data
-            element = html_tree.xpath('//input[@id="measurement__param-radio--airpressure"]')[0]
+            element = html_tree.xpath('//option[@id="measurement__param-option--airpressure-qfe"]')[0]
             data_json_url = element.get('data-json-url')
             pressure_datas = session.get(base_url + data_json_url,
                                          timeout=(self.connect_timeout, self.read_timeout)).json()['stations']

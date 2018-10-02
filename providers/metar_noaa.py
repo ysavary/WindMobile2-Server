@@ -139,7 +139,9 @@ class MetarNoaa(Provider):
                                 'https://api.checkwx.com/station/{icao}'.format(icao=metar.station_id),
                                 headers={'Accept': 'application/json', 'X-API-Key': self.checkwx_api_key},
                                 timeout=(self.connect_timeout, self.read_timeout))
-                            if request.status_code == 429:
+                            if request.status_code == 401:
+                                raise UsageLimitException(request.json()['errors'][0]['message'])
+                            elif request.status_code == 429:
                                 raise UsageLimitException('api.checkwx.com rate limit exceeded')
 
                             try:
@@ -184,7 +186,7 @@ class MetarNoaa(Provider):
                             name = '{name} {type}'.format(name=checkwx_data['name'], type=station_type)
                         else:
                             name = checkwx_data['name']
-                        city = checkwx_data['city']
+                        city = checkwx_data.get('city', None)
                         if city:
                             if station_type:
                                 short_name = '{city} {type}'.format(city=city, type=station_type)

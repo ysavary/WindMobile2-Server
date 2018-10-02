@@ -198,8 +198,13 @@ class MetarNoaa(Provider):
                         lat = checkwx_data['latitude']['decimal']
                         lon = checkwx_data['longitude']['decimal']
                         tz = checkwx_data['timezone']['tzid']
-                        feet = checkwx_data['elevation']['feet']
-                        altitude = Q_(feet, ureg.feet) if feet else None
+                        elevation = checkwx_data.get('elevation', None)
+                        altitude = None
+                        if elevation:
+                            if 'meters' in elevation:
+                                altitude = Q_(elevation['meters'], ureg.meters)
+                            elif 'feet' in elevation:
+                                altitude = Q_(elevation['feet'], ureg.feet)
 
                     if metar.station_id in icao:
                         lat = lat or icao[metar.station_id]['lat']

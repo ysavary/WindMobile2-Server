@@ -62,7 +62,11 @@ class IWeathar(Provider):
                     html_tree = html.fromstring(
                         session.get(url, timeout=(self.connect_timeout, self.read_timeout), verify=False).text)
 
-                    date = html_tree.xpath('//*[text()="Last Update:"]/../following::td')[0].text.strip()
+                    try:
+                        date = html_tree.xpath('//*[text()="Last Update:"]/../following::td')[0].text.strip()
+                    except Exception:
+                        raise ProviderException('Unable to parse the date: is the html page well rendered?')
+
                     key = arrow.get(date, 'YYYY-MM-DD HH:mm:ss').replace(tzinfo=iweathar_tz).timestamp
 
                     try:
@@ -74,21 +78,21 @@ class IWeathar(Provider):
                         speed_match = speed_pattern.match(speed_text).groupdict()
                         wind_avg = speed_match['avg']
                         wind_max = speed_match['max']
-                    except:
+                    except Exception:
                         raise ProviderException('Unable to get wind measures')
 
                     try:
                         temp_text = html_tree.xpath('//*[text()="Temperature:"]/../following::td/a')[0].text.strip()
                         temp_match = temp_pattern.match(temp_text).groupdict()
                         temp = temp_match['temp']
-                    except:
+                    except Exception:
                         temp = None
 
                     try:
                         hum_text = html_tree.xpath('//*[text()="Humidity:"]/../following::td/a')[0].text.strip()
                         hum_match = hum_pattern.match(hum_text).groupdict()
                         hum = hum_match['hum']
-                    except:
+                    except Exception:
                         hum = None
 
                     measures_collection = self.measures_collection(station_id)

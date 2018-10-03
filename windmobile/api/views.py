@@ -122,13 +122,13 @@ class Stations(APIView):
         within_pt2_longitude = request.query_params.get('within-pt2-lon')
         ids = request.query_params.getlist('ids', None)
 
-        projection_dict = {
-            'clusters': 0
-        }
         projections = request.query_params.getlist('keys', None)
         if projections:
+            projection_dict = {}
             for key in projections:
                 projection_dict[key] = 1
+        else:
+            projection_dict = None
 
         now = datetime.now().timestamp()
         query = {

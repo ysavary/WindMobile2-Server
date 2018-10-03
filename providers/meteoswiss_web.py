@@ -138,7 +138,7 @@ class MeteoSwiss(Provider):
 
                         pressure = None
                         if pressure_data and pressure_data['current_value'] is not None:
-                            pressure = Q_(pressure_data['current_value'], ureg.Pa * 100)
+                            pressure = Q_(pressure_data['current_value'], ureg.hPa)
 
                         rain = None
                         if rain_data and rain_data['current_value'] is not None:

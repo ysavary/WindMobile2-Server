@@ -120,7 +120,7 @@ class Provider(object):
 
     def __to_pressure(self, value):
         if isinstance(value, ureg.Quantity):
-            return to_float(value.to(ureg.Pa * 100).magnitude)
+            return to_float(value.to(ureg.hPa).magnitude)
         else:
             return to_float(value)
 

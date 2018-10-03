@@ -11,6 +11,7 @@ from metar.Metar import Metar
 
 from provider import get_logger, Provider, ProviderException, Status, ureg, Q_, UsageLimitException
 from settings import CHECKWX_API_KEY
+from uwxutils import TWxUtils
 
 logger = get_logger('metar')
 
@@ -53,8 +54,8 @@ class MetarNoaa(Provider):
     }
 
     pressure_units = {
-        'MB': ureg.Pa,
-        'HPA': ureg.Pa * 100,
+        'MB': ureg.hPa,
+        'HPA': ureg.hPa,
         'IN': ureg.in_Hg
     }
 
@@ -68,6 +69,29 @@ class MetarNoaa(Provider):
         else:
             # For VaRiaBle direction, use a random value
             return Q_(randint(0, 359), self.direction_units['degree'])
+
+    def get_pressure(self, metar, altitude, temp, humidity):
+        try:
+            # Sea Level Pressure = QFF
+            if metar.press_sea_level:
+                if altitude is None:
+                    raise ProviderException('Altitude is missing')
+                if temp is None:
+                    raise ProviderException('Temperature is missing')
+                if humidity is None:
+                    raise ProviderException('Humidity is missing')
+                return Q_(TWxUtils.SeaLevelToStationPressure(
+                    pressureHPa=self.get_quantity(metar.press_sea_level, self.pressure_units).to(ureg.hPas).magnitude,
+                    elevationM=altitude,
+                    currentTempC=temp.to(ureg.degC).magnitude,
+                    meanTempC=temp.to(ureg.degC).magnitude,
+                    humidity=humidity), ureg.hPa)
+            # Altimeter Setting = QNH
+            # elif metar.press:
+            #     TWxUtils is not supporting AltimeterToStationPressure()
+        except Exception as e:
+            logger.info('Unable to compute QFE pressure: {e}'.format(e=e))
+        return None
 
     def compute_humidity(self, dew_point, temp):
         if not (dew_point and temp):
@@ -244,8 +268,7 @@ class MetarNoaa(Provider):
                                 self.get_quantity(metar.wind_gust or metar.wind_speed, self.speed_units),
                                 temperature=temp,
                                 humidity=humidity,
-                                pressure=self.get_quantity(metar.press, self.pressure_units),
-                            )
+                                pressure=self.get_pressure(metar, station['alt'], temp, humidity))
                             new_measures.append(measure)
 
                     self.insert_new_measures(measures_collection, station, new_measures, logger)

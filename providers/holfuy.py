@@ -40,7 +40,7 @@ class Holfuy(Provider):
                     latitude = location.get('latitude')
                     longitude = location.get('longitude')
                     if (latitude is None or longitude is None) or (latitude == 0 and longitude == 0):
-                        raise ProviderException("No geolocation found")
+                        raise ProviderException('No geolocation found')
                     altitude = location.get('altitude')
 
                     urls = {lang: url.format(id=holfuy_id) for lang, url in self.provider_urls.items()}
@@ -59,7 +59,7 @@ class Holfuy(Provider):
                     new_measures = []
 
                     if holfuy_id not in holfuy_measures:
-                        raise ProviderException("Station not found in 'station.json'")
+                        raise ProviderException("Station not found in 'api.holfuy.com/live/'")
                     measure = holfuy_measures[holfuy_id]
                     last_measure_date = arrow.get(measure['dateTime'])
                     key = last_measure_date.timestamp
@@ -70,7 +70,7 @@ class Holfuy(Provider):
                             Q_(measure['wind']['speed'], ureg.kilometer / ureg.hour),
                             Q_(measure['wind']['gust'], ureg.kilometer / ureg.hour),
                             temperature=Q_(measure['temperature'], ureg.degC) if 'temperature' in measure else None,
-                            pressure=Q_(measure['pressure'], ureg.Pa * 100) if 'pressure' in measure else None
+                            pressure=Q_(measure['pressure'], ureg.hPa) if 'pressure' in measure else None
                         )
                         new_measures.append(measure)
 

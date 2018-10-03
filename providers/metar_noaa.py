@@ -72,8 +72,15 @@ class MetarNoaa(Provider):
 
     def get_pressure(self, metar, altitude, temp, humidity):
         try:
+            # Altimeter Setting = QNH
+            if metar.press:
+                if altitude is None:
+                    raise ProviderException('Altitude is missing')
+                return Q_(TWxUtils.AltimeterToStationPressure(
+                    pressureHPa=self.get_quantity(metar.press, self.pressure_units).to(ureg.hPas).magnitude,
+                    elevationM=altitude), ureg.hPa)
             # Sea Level Pressure = QFF
-            if metar.press_sea_level:
+            elif metar.press_sea_level:
                 if altitude is None:
                     raise ProviderException('Altitude is missing')
                 if temp is None:
@@ -86,9 +93,6 @@ class MetarNoaa(Provider):
                     currentTempC=temp.to(ureg.degC).magnitude,
                     meanTempC=temp.to(ureg.degC).magnitude,
                     humidity=humidity), ureg.hPa)
-            # Altimeter Setting = QNH
-            # elif metar.press:
-            #     TWxUtils is not supporting AltimeterToStationPressure()
         except Exception as e:
             logger.info('Unable to compute QFE pressure: {e}'.format(e=e))
         return None

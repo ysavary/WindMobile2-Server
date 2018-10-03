@@ -203,13 +203,19 @@ class TWxUtils(object):
         Result = InToHPa(HPaToIn(pressureHPa) * Power10(0.00813 * MToFt(sensorElevationM - stationElevationM) / FToR(CToF(currentTempC))))
         return Result
 
-    # FIXME: still to do
-    #class function TWxUtils.AltimeterToStationPressure(pressureHPa: TWxReal;
-    #     elevationM: TWxReal;
-    #     algorithm: TAltimeterAlgorithm = DefaultAltimeterAlgorithm): TWxReal;
-    #begin
-    #end;
-    #}
+    # Written by me
+    @staticmethod
+    def AltimeterToStationPressure(pressureHPa, elevationM):
+        # http://www.hochwarth.com/misc/AviationCalculator.html
+
+        p0hPa = 1013.25  # [hPa]
+        T0 = 288.15  # [K]
+        dTdh0SI = -0.0065  # [K/m]
+        CRGasSI = 287.053  # [m^2/(s^2*K)] = [J/(kg*K)]
+        CgSI = 9.80665  # [m/s^2]
+
+        return p0hPa * pow(pow((pressureHPa / p0hPa), -(CRGasSI * dTdh0SI) / CgSI) + ((elevationM * dTdh0SI) / T0),
+                           -CgSI / (CRGasSI * dTdh0SI))
 
     @staticmethod
     def SeaLevelToStationPressure(pressureHPa, elevationM,

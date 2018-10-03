@@ -104,10 +104,12 @@ class Stations(APIView):
               allowMultiple: true
               paramType: query
         """
-        limit = int(request.query_params.get('limit', 20))
-        if not 1 <= limit <= 500:
+        request_limit = int(request.query_params.get('limit', 20))
+        if 1 <= request_limit < 500:
+            limit = request_limit
+        else:
             limit = 500
-        max_limit = True
+        use_limit = True
         provider = request.query_params.get('provider')
         search = request.query_params.get('search')
         search_language = request.query_params.get('search-language')
@@ -135,11 +137,11 @@ class Stations(APIView):
         }
 
         if provider:
-            max_limit = False
+            use_limit = False
             query['pv-code'] = provider
 
         if search:
-            max_limit = True
+            use_limit = True
             if not search_language:
                 search_language = get_language_from_request(request)
                 if not search_language:
@@ -236,12 +238,11 @@ class Stations(APIView):
             return Response(stations)
 
         try:
-            if not max_limit:
-                limit = int(request.query_params.get('limit', -1))
-
             query = mongo_db.stations.find(query, projection_dict).sort('short', ASCENDING)
-            if limit >= 1:
+            if use_limit:
                 query.limit(limit)
+            elif request_limit >= 1:
+                query.limit(request_limit)
             return Response(list(query))
         except OperationFailure as e:
             raise ParseError(e.details)

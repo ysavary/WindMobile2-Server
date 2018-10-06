@@ -2,7 +2,7 @@ import arrow
 import requests
 from dateutil import tz
 
-from provider import get_logger, Provider, ProviderException, Status, Pressure
+from commons.provider import get_logger, Provider, ProviderException, Status, Pressure
 
 logger = get_logger('ffvl')
 

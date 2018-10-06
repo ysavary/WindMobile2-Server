@@ -5,8 +5,8 @@ import MySQLdb
 import arrow
 from cachetools import hashkey, cached
 
-import wgs84
-from provider import get_logger, Provider, ProviderException, Status, ureg, Q_
+from commons import wgs84
+from commons.provider import get_logger, Provider, ProviderException, Status, ureg, Q_
 from settings import *
 
 logger = get_logger('windline')

@@ -2,8 +2,8 @@ import arrow
 import requests
 from lxml import html
 
-from projections import ch_to_wgs_lat, ch_to_wgs_lon
-from provider import get_logger, Provider, Status, ProviderException, Q_, ureg, Pressure
+from commons.projections import ch_to_wgs_lat, ch_to_wgs_lon
+from commons.provider import get_logger, Provider, Status, ProviderException, Q_, ureg, Pressure
 
 logger = get_logger('meteoswiss')
 

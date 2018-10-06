@@ -1,4 +1,4 @@
-from provider import Provider
+from commons.provider import Provider
 
 tests = ('VAUD Airport ICAO', 'EGVA Airport ICAO', 'LSGG Airport ICAO')
 

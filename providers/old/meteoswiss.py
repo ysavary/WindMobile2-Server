@@ -5,7 +5,7 @@ from os import path
 import arrow
 import requests
 
-from provider import get_logger, Provider, Status, ProviderException
+from commons.provider import get_logger, Provider, Status, ProviderException
 
 logger = get_logger('meteoswiss')
 

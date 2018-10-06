@@ -2,7 +2,7 @@ import codecs
 import json
 from collections import OrderedDict
 
-from projections import ch_to_wgs_lon, ch_to_wgs_lat
+from commons.projections import ch_to_wgs_lon, ch_to_wgs_lat
 
 stations = OrderedDict({})
 with codecs.open('VQHA69_EN.txt', encoding='iso-8859-1') as in_file:

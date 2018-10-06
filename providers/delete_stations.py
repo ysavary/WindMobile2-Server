@@ -3,7 +3,7 @@ import argparse
 import arrow
 from pymongo import uri_parser, MongoClient
 
-from provider import get_logger
+from commons.provider import get_logger
 from settings import MONGODB_URL
 
 logger = get_logger('delete_stations')

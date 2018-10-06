@@ -5,7 +5,7 @@ from os import path
 import requests
 from lxml import etree
 
-from provider import get_logger, Provider, ProviderException, Status
+from commons.provider import get_logger, Provider, ProviderException, Status
 
 logger = get_logger('slf')
 

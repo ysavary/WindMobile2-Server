@@ -16,7 +16,7 @@ from pymongo import uri_parser, MongoClient, GEOSPHERE, ASCENDING
 from raven import Client as RavenClient
 
 from settings import WINDMOBILE_LOG_DIR, MONGODB_URL, GOOGLE_API_KEY, SENTRY_URL
-from uwxutils import TWxUtils
+from commons.uwxutils import TWxUtils
 
 ureg = UnitRegistry()
 Q_ = ureg.Quantity

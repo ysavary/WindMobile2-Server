@@ -2,7 +2,7 @@ import argparse
 from datetime import datetime
 
 import numpy as np
-from provider import get_logger
+from commons.provider import get_logger
 from pymongo import MongoClient, uri_parser
 from scipy.spatial import KDTree
 from settings import MONGODB_URL

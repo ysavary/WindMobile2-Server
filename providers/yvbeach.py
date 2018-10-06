@@ -4,7 +4,7 @@ import arrow
 import requests
 from dateutil import tz
 
-from provider import get_logger, Provider, Status, ProviderException
+from commons.provider import get_logger, Provider, Status, ProviderException
 
 logger = get_logger('yvbeach')
 

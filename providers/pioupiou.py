@@ -4,7 +4,7 @@ import arrow
 import requests
 from arrow.parser import ParserError
 
-from provider import get_logger, Provider, Status, ProviderException, Pressure
+from commons.provider import get_logger, Provider, Status, ProviderException, Pressure
 
 logger = get_logger('pioupiou')
 

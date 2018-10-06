@@ -5,7 +5,7 @@ import requests
 from dateutil import tz
 from lxml import html
 
-from provider import get_logger, Provider, Status, ProviderException
+from commons.provider import get_logger, Provider, Status, ProviderException
 
 logger = get_logger('iweathar')
 

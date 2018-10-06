@@ -9,9 +9,8 @@ import metar
 import requests
 from metar.Metar import Metar
 
-from provider import get_logger, Provider, ProviderException, Status, ureg, Q_, UsageLimitException, Pressure
+from commons.provider import get_logger, Provider, ProviderException, Status, ureg, Q_, UsageLimitException, Pressure
 from settings import CHECKWX_API_KEY
-from uwxutils import TWxUtils
 
 logger = get_logger('metar')
 

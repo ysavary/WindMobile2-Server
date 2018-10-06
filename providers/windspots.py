@@ -2,7 +2,7 @@ import arrow
 import arrow.parser
 import requests
 
-from provider import get_logger, Provider, ProviderException
+from commons.provider import get_logger, Provider, ProviderException
 
 logger = get_logger('windspots')
 

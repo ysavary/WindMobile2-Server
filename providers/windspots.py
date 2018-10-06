@@ -4,6 +4,10 @@ import requests
 
 from commons.provider import get_logger, Provider, ProviderException
 
+# Disable urllib3 warning because https://www.windspots.com has a certificates chain issue
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 logger = get_logger('windspots')
 
 

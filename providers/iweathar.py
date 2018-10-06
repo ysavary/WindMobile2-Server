@@ -7,13 +7,17 @@ from lxml import html
 
 from commons.provider import get_logger, Provider, Status, ProviderException
 
+# Disable urllib3 warning because https://iweathar.co.za has a certificates chain issue
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 logger = get_logger('iweathar')
 
 
 class IWeathar(Provider):
     provider_code = 'iweathar'
     provider_name = 'iweathar.co.za'
-    provider_url = 'http://iweathar.co.za'
+    provider_url = 'https://iweathar.co.za'
 
     def process_data(self):
         try:

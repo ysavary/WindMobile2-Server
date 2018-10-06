@@ -13,6 +13,7 @@ class Ffvl(Provider):
     provider_url = 'http://www.balisemeteo.com'
 
     def process_data(self):
+        stations = {}
         try:
             logger.info('Processing FFVL data...')
 
@@ -21,7 +22,7 @@ class Ffvl(Provider):
             ffvl_stations = result.json()
 
             for ffvl_station in ffvl_stations:
-                station_id = None
+                ffvl_id = None
                 try:
                     ffvl_id = ffvl_station['idBalise']
                     station = self.save_station(
@@ -33,12 +34,12 @@ class Ffvl(Provider):
                         Status.GREEN,
                         altitude=ffvl_station['altitude'],
                         url=ffvl_station['url'])
-                    station_id = station['_id']
+                    stations[station['_id']] = station
 
                 except ProviderException as e:
-                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
+                    logger.warn("Error while processing station '{0}': {1}".format(ffvl_id, e))
                 except Exception as e:
-                    logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
+                    logger.exception("Error while processing station '{0}': {1}".format(ffvl_id, e))
                     self.raven_client.captureException()
 
         except ProviderException as e:
@@ -58,9 +59,9 @@ class Ffvl(Provider):
                 try:
                     ffvl_id = ffvl_measure['idbalise']
                     station_id = self.get_station_id(ffvl_id)
-                    station = self.stations_collection().find_one(station_id)
-                    if not station:
+                    if station_id not in stations:
                         raise ProviderException("Unknown station '{0}'".format(station_id))
+                    station = stations[station_id]
 
                     measures_collection = self.measures_collection(station_id)
                     new_measures = []

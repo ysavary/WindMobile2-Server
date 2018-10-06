@@ -54,6 +54,7 @@ class Ffvl(Provider):
 
             ffvl_tz = tz.gettz('Europe/Paris')
             for ffvl_measure in ffvl_measures:
+                station_id = None
                 try:
                     ffvl_id = ffvl_measure['idbalise']
                     station_id = self.get_station_id(ffvl_id)
@@ -88,9 +89,9 @@ class Ffvl(Provider):
                     self.raven_client.captureException()
 
         except ProviderException as e:
-            logger.warn('Error while processing FFVL: {0}', e)
+            logger.warn("Error while processing FFVL: '{0}'".format(e))
         except Exception as e:
-            logger.exception('Error while processing FFVL: {0}', e)
+            logger.exception("Error while processing FFVL: '{0}'".format(e))
             self.raven_client.captureException()
 
         logger.info('...Done!')

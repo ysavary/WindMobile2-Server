@@ -200,6 +200,7 @@ class Windline(Provider):
                                         measure_date + timedelta(seconds=10))
 
                                     measure = self.create_measure(
+                                        station,
                                         key,
                                         wind_direction,
                                         wind_average,

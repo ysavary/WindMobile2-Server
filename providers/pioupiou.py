@@ -4,7 +4,7 @@ import arrow
 import requests
 from arrow.parser import ParserError
 
-from provider import get_logger, Provider, Status, ProviderException
+from provider import get_logger, Provider, Status, ProviderException, Pressure
 
 logger = get_logger('pioupiou')
 
@@ -70,16 +70,17 @@ class Pioupiou(Provider):
                     measures_collection = self.measures_collection(station_id)
                     new_measures = []
 
-                    measure = piou_station['measurements']
-                    last_measure_date = arrow.get(measure['date'])
+                    piou_measure = piou_station['measurements']
+                    last_measure_date = arrow.get(piou_measure['date'])
                     key = last_measure_date.timestamp
                     if not self.has_measure(measures_collection, key):
                         measure = self.create_measure(
+                            station,
                             key,
-                            measure['wind_heading'],
-                            measure['wind_speed_avg'],
-                            measure['wind_speed_max'],
-                            pressure=measure['pressure'],
+                            piou_measure['wind_heading'],
+                            piou_measure['wind_speed_avg'],
+                            piou_measure['wind_speed_max'],
+                            pressure=Pressure(qfe=piou_measure['pressure'], qnh=None, qff=None)
                         )
                         new_measures.append(measure)
 

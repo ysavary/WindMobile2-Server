@@ -2,7 +2,7 @@ import arrow
 import arrow.parser
 import requests
 
-from provider import Q_, ureg
+from provider import Q_, ureg, Pressure
 from provider import get_logger, Provider, ProviderException, Status
 
 logger = get_logger('holfuy')
@@ -27,8 +27,8 @@ class Holfuy(Provider):
             holfuy_data = requests.get("http://api.holfuy.com/live/?s=all&m=JSON&tu=C&su=km/h&utc",
                                        timeout=(self.connect_timeout, self.read_timeout)).json()
             holfuy_measures = {}
-            for measure in holfuy_data['measurements']:
-                holfuy_measures[measure['stationId']] = measure
+            for holfuy_measure in holfuy_data['measurements']:
+                holfuy_measures[holfuy_measure['stationId']] = holfuy_measure
 
             for holfuy_station in holfuy_stations['holfuyStationsList']:
                 holfuy_id = None
@@ -60,17 +60,21 @@ class Holfuy(Provider):
 
                     if holfuy_id not in holfuy_measures:
                         raise ProviderException("Station not found in 'api.holfuy.com/live/'")
-                    measure = holfuy_measures[holfuy_id]
-                    last_measure_date = arrow.get(measure['dateTime'])
+                    holfuy_measure = holfuy_measures[holfuy_id]
+                    last_measure_date = arrow.get(holfuy_measure['dateTime'])
                     key = last_measure_date.timestamp
                     if not self.has_measure(measures_collection, key):
                         measure = self.create_measure(
+                            station,
                             key,
-                            measure['wind']['direction'],
-                            Q_(measure['wind']['speed'], ureg.kilometer / ureg.hour),
-                            Q_(measure['wind']['gust'], ureg.kilometer / ureg.hour),
-                            temperature=Q_(measure['temperature'], ureg.degC) if 'temperature' in measure else None,
-                            pressure=Q_(measure['pressure'], ureg.hPa) if 'pressure' in measure else None
+                            holfuy_measure['wind']['direction'],
+                            Q_(holfuy_measure['wind']['speed'], ureg.kilometer / ureg.hour),
+                            Q_(holfuy_measure['wind']['gust'], ureg.kilometer / ureg.hour),
+                            temperature=Q_(holfuy_measure['temperature'], ureg.degC) if 'temperature' in holfuy_measure else None,
+                            pressure=Pressure(
+                                qfe=Q_(holfuy_measure['pressure'], ureg.hPa) if 'pressure' in holfuy_measure else None,
+                                qnh=None,
+                                qff=None)
                         )
                         new_measures.append(measure)
 

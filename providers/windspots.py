@@ -68,6 +68,7 @@ class Windspots(Provider):
                         if not self.has_measure(measures_collection, key):
                             try:
                                 measure = self.create_measure(
+                                    station,
                                     key,
                                     wind_direction_last['value'],
                                     windspots_measure.get('windAverage'),

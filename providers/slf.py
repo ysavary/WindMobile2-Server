@@ -27,11 +27,12 @@ class Slf(Provider):
     name_pattern = re.compile(r'(.*?) ([0-9]{2,4}) m')
 
     Measure = collections.namedtuple(
-        'Measure', ['key', 'wind_direction', 'wind_average', 'wind_maximum', 'temperature'])
+        'Measure', ('key', 'wind_direction', 'wind_average', 'wind_maximum', 'temperature'))
 
     def parse_data(self, line) -> Measure:
         values = line.split(';')
-        return self.Measure(values[0], values[7], values[5], values[6], values[3])
+        return self.Measure(key=values[0], wind_direction=values[7], wind_average=values[5], wind_maximum=values[6],
+                            temperature=values[3])
 
     def has_wind_data(self, data):
         if not data:
@@ -111,6 +112,7 @@ class Slf(Provider):
                         if not self.has_measure(measures_collection, key):
                             try:
                                 measure = self.create_measure(
+                                    station,
                                     key,
                                     slf_measure.wind_direction,
                                     slf_measure.wind_average,

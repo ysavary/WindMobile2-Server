@@ -57,6 +57,7 @@ class YVBeach(Provider):
                 temp = temp_pattern.search(content).groupdict()
 
                 measure = self.create_measure(
+                    station,
                     key,
                     wind['wind_dir'],
                     wind['wind_avg'],

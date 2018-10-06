@@ -2,7 +2,7 @@ import urllib.parse
 
 import requests
 
-from provider import get_logger, Provider, ProviderException, Status
+from provider import get_logger, Provider, ProviderException, Status, Pressure
 
 logger = get_logger('jdc')
 
@@ -69,13 +69,17 @@ class Jdc(Provider):
                                 if not self.has_measure(measures_collection, key):
                                     try:
                                         measure = self.create_measure(
+                                            station,
                                             key,
                                             jdc_measure.get('wind-direction'),
                                             jdc_measure.get('wind-average'),
                                             jdc_measure.get('wind-maximum'),
                                             temperature=jdc_measure.get('temperature'),
                                             humidity=jdc_measure.get('humidity'),
-                                            pressure=jdc_measure.get('pressure', None),
+                                            pressure=Pressure(
+                                                qfe=jdc_measure.get('pressure', None),
+                                                qnh=None,
+                                                qff=None),
                                             rain=jdc_measure.get('rain', None),
                                         )
                                         new_measures.append(measure)

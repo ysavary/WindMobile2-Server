@@ -3,7 +3,7 @@ import requests
 from lxml import html
 
 from projections import ch_to_wgs_lat, ch_to_wgs_lon
-from provider import get_logger, Provider, Status, ProviderException, Q_, ureg
+from provider import get_logger, Provider, Status, ProviderException, Q_, ureg, Pressure
 
 logger = get_logger('meteoswiss')
 
@@ -46,32 +46,35 @@ class MeteoSwiss(Provider):
 
             # Main wind data
             element = html_tree.xpath('//input[@id="measurement__param-radio--wind"]')[0]
-            data_json_url = element.get('data-json-url')
-            wind_datas = session.get(base_url + data_json_url,
+            wind_datas = session.get(base_url + element.get('data-json-url'),
                                      timeout=(self.connect_timeout, self.read_timeout)).json()['stations']
 
             # Temperature data
             element = html_tree.xpath('//input[@id="measurement__param-radio--temperature"]')[0]
-            data_json_url = element.get('data-json-url')
-            temp_datas = session.get(base_url + data_json_url,
+            temp_datas = session.get(base_url + element.get('data-json-url'),
                                      timeout=(self.connect_timeout, self.read_timeout)).json()['stations']
 
             # Humidity data
             element = html_tree.xpath('//input[@id="measurement__param-radio--humidity"]')[0]
-            data_json_url = element.get('data-json-url')
-            humidity_datas = session.get(base_url + data_json_url,
+            humidity_datas = session.get(base_url + element.get('data-json-url'),
                                          timeout=(self.connect_timeout, self.read_timeout)).json()['stations']
 
             # Pressure data
             element = html_tree.xpath('//option[@id="measurement__param-option--airpressure-qfe"]')[0]
-            data_json_url = element.get('data-json-url')
-            pressure_datas = session.get(base_url + data_json_url,
-                                         timeout=(self.connect_timeout, self.read_timeout)).json()['stations']
+            pressure_datas_qfe = session.get(base_url + element.get('data-json-url'),
+                                             timeout=(self.connect_timeout, self.read_timeout)).json()['stations']
+
+            element = html_tree.xpath('//option[@id="measurement__param-option--airpressure-qnh"]')[0]
+            pressure_datas_qnh = session.get(base_url + element.get('data-json-url'),
+                                             timeout=(self.connect_timeout, self.read_timeout)).json()['stations']
+
+            element = html_tree.xpath('//option[@id="measurement__param-option--airpressure-qff"]')[0]
+            pressure_datas_qff = session.get(base_url + element.get('data-json-url'),
+                                             timeout=(self.connect_timeout, self.read_timeout)).json()['stations']
 
             # Rain data
             element = html_tree.xpath('//input[@id="measurement__param-radio--precipitation"]')[0]
-            data_json_url = element.get('data-json-url')
-            rain_datas = session.get(base_url + data_json_url,
+            rain_datas = session.get(base_url + element.get('data-json-url'),
                                      timeout=(self.connect_timeout, self.read_timeout)).json()['stations']
 
             for wind_data in wind_datas:
@@ -106,10 +109,20 @@ class MeteoSwiss(Provider):
                             if data['id'] == wind_data['id'] and data['date'] == wind_data['date']:
                                 humidity_data = data
 
-                        pressure_data = None
-                        for data in pressure_datas:
+                        pressure_data_qfe = None
+                        for data in pressure_datas_qfe:
                             if data['id'] == wind_data['id'] and data['date'] == wind_data['date']:
-                                pressure_data = data
+                                pressure_data_qfe = data
+
+                        pressure_data_qnh = None
+                        for data in pressure_datas_qnh:
+                            if data['id'] == wind_data['id'] and data['date'] == wind_data['date']:
+                                pressure_data_qnh = data
+
+                        pressure_data_qff = None
+                        for data in pressure_datas_qff:
+                            if data['id'] == wind_data['id'] and data['date'] == wind_data['date']:
+                                pressure_data_qff = data
 
                         rain_data = None
                         for data in rain_datas:
@@ -136,22 +149,31 @@ class MeteoSwiss(Provider):
                         if humidity_data and humidity_data['current_value'] is not None:
                             humidity = humidity_data['current_value']
 
-                        pressure = None
-                        if pressure_data and pressure_data['current_value'] is not None:
-                            pressure = Q_(pressure_data['current_value'], ureg.hPa)
+                        qfe = None
+                        if pressure_data_qfe and pressure_data_qfe['current_value'] is not None:
+                            qfe = Q_(pressure_data_qfe['current_value'], ureg.hPa)
+
+                        qnh = None
+                        if pressure_data_qnh and pressure_data_qnh['current_value'] is not None:
+                            qnh = Q_(pressure_data_qnh['current_value'], ureg.hPa)
+
+                        qff = None
+                        if pressure_data_qff and pressure_data_qff['current_value'] is not None:
+                            qff = Q_(pressure_data_qff['current_value'], ureg.hPa)
 
                         rain = None
                         if rain_data and rain_data['current_value'] is not None:
                             rain = Q_(rain_data['current_value'], ureg.liter / (ureg.meter ** 2))
 
                         measure = self.create_measure(
+                            station,
                             key,
                             wind_dir,
                             wind_avg,
                             wind_max,
                             temperature=temp,
                             humidity=humidity,
-                            pressure=pressure,
+                            pressure=Pressure(qfe=qfe, qnh=qnh, qff=qff),
                             rain=rain,
                         )
                         new_measures.append(measure)

@@ -2,7 +2,7 @@ import arrow
 import requests
 from dateutil import tz
 
-from provider import get_logger, Provider, ProviderException, Status
+from provider import get_logger, Provider, ProviderException, Status, Pressure
 
 logger = get_logger('ffvl')
 
@@ -68,13 +68,14 @@ class Ffvl(Provider):
 
                     if not self.has_measure(measures_collection, key):
                         measure = self.create_measure(
+                            station,
                             key,
                             ffvl_measure['directVentMoy'],
                             ffvl_measure['vitesseVentMoy'],
                             ffvl_measure['vitesseVentMax'],
                             temperature=ffvl_measure['temperature'],
                             humidity=ffvl_measure['hydrometrie'],
-                            pressure=ffvl_measure['pression'],
+                            pressure=Pressure(qfe=ffvl_measure['pression'], qnh=None, qff=None)
                         )
                         new_measures.append(measure)
 

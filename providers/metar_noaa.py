@@ -9,7 +9,7 @@ import metar
 import requests
 from metar.Metar import Metar
 
-from provider import get_logger, Provider, ProviderException, Status, ureg, Q_, UsageLimitException
+from provider import get_logger, Provider, ProviderException, Status, ureg, Q_, UsageLimitException, Pressure
 from settings import CHECKWX_API_KEY
 from uwxutils import TWxUtils
 
@@ -69,33 +69,6 @@ class MetarNoaa(Provider):
         else:
             # For VaRiaBle direction, use a random value
             return Q_(randint(0, 359), self.direction_units['degree'])
-
-    def get_pressure(self, metar, altitude, temp, humidity):
-        try:
-            # Altimeter Setting = QNH
-            if metar.press:
-                if altitude is None:
-                    raise ProviderException('Altitude is missing')
-                return Q_(TWxUtils.AltimeterToStationPressure(
-                    pressureHPa=self.get_quantity(metar.press, self.pressure_units).to(ureg.hPas).magnitude,
-                    elevationM=altitude), ureg.hPa)
-            # Sea Level Pressure = QFF
-            elif metar.press_sea_level:
-                if altitude is None:
-                    raise ProviderException('Altitude is missing')
-                if temp is None:
-                    raise ProviderException('Temperature is missing')
-                if humidity is None:
-                    raise ProviderException('Humidity is missing')
-                return Q_(TWxUtils.SeaLevelToStationPressure(
-                    pressureHPa=self.get_quantity(metar.press_sea_level, self.pressure_units).to(ureg.hPas).magnitude,
-                    elevationM=altitude,
-                    currentTempC=temp.to(ureg.degC).magnitude,
-                    meanTempC=temp.to(ureg.degC).magnitude,
-                    humidity=humidity), ureg.hPa)
-        except Exception as e:
-            logger.info('Unable to compute QFE pressure: {e}'.format(e=e))
-        return None
 
     def compute_humidity(self, dew_point, temp):
         if not (dew_point and temp):
@@ -266,13 +239,17 @@ class MetarNoaa(Provider):
                             dew_point = self.get_quantity(metar.dewpt, self.temperature_units)
                             humidity = self.compute_humidity(dew_point, temp)
                             measure = self.create_measure(
+                                station,
                                 key,
                                 self.get_direction(metar.wind_dir),
                                 self.get_quantity(metar.wind_speed, self.speed_units),
                                 self.get_quantity(metar.wind_gust or metar.wind_speed, self.speed_units),
                                 temperature=temp,
                                 humidity=humidity,
-                                pressure=self.get_pressure(metar, station['alt'], temp, humidity))
+                                pressure=Pressure(qfe=None,
+                                                  qnh=self.get_quantity(metar.press, self.pressure_units),
+                                                  qff=self.get_quantity(metar.press_sea_level, self.pressure_units))
+                            )
                             new_measures.append(measure)
 
                     self.insert_new_measures(measures_collection, station, new_measures, logger)

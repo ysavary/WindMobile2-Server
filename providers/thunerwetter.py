@@ -111,13 +111,13 @@ class ThunerWetter(Provider):
                 humidity = humidity_pattern.search(humidity_text).groupdict()
 
                 measure = self.create_measure(
+                    station,
                     key,
                     wind_directions[wind_avg['wind_dir']],
                     wind_avg['wind_speed'],
                     wind_max['wind_speed'],
                     temperature=temp['temp'],
                     humidity=humidity['humidity']
-
                 )
                 new_measures.append(measure)
 

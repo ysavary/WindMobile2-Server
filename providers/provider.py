@@ -2,6 +2,7 @@ import logging
 import logging.config
 import logging.handlers
 import math
+from collections import namedtuple
 from os import path
 from random import randint
 
@@ -15,6 +16,7 @@ from pymongo import uri_parser, MongoClient, GEOSPHERE, ASCENDING
 from raven import Client as RavenClient
 
 from settings import WINDMOBILE_LOG_DIR, MONGODB_URL, GOOGLE_API_KEY, SENTRY_URL
+from uwxutils import TWxUtils
 
 ureg = UnitRegistry()
 Q_ = ureg.Quantity
@@ -71,6 +73,9 @@ def to_bool(value):
     return str(value).lower() in ['true', 'yes']
 
 
+Pressure = namedtuple('Pressure', ['qfe', 'qnh', 'qff'])
+
+
 class Provider(object):
     provider_code = ''
     provider_name = ''
@@ -108,21 +113,46 @@ class Provider(object):
 
     def __to_wind_speed(self, value):
         if isinstance(value, ureg.Quantity):
-            return to_float(value.to(ureg.kilometer / ureg.hour).magnitude, 1, mandatory=True)
+            return to_float(value.to(ureg.kilometer / ureg.hour).magnitude, mandatory=True)
         else:
-            return to_float(value, 1, mandatory=True)
+            return to_float(value, mandatory=True)
 
     def __to_temperature(self, value):
         if isinstance(value, ureg.Quantity):
-            return to_float(value.to(ureg.degC).magnitude, 1)
+            return to_float(value.to(ureg.degC).magnitude)
         else:
-            return to_float(value, 1)
+            return to_float(value)
 
     def __to_pressure(self, value):
         if isinstance(value, ureg.Quantity):
-            return to_float(value.to(ureg.hPa).magnitude)
+            return to_float(value.to(ureg.hPa).magnitude, ndigits=4)
         else:
-            return to_float(value)
+            return to_float(value, ndigits=4)
+
+    def __compute_pressures(self, p: Pressure, altitude, temperature, humidity):
+        # Normalize pressure to HPa
+        qfe = self.__to_pressure(p.qfe)
+        qnh = self.__to_pressure(p.qnh)
+        qff = self.__to_pressure(p.qff)
+
+        if qfe and qnh is None:
+            qnh = TWxUtils.StationToAltimeter(qfe, elevationM=altitude)
+
+        if qnh and qfe is None:
+            qfe = TWxUtils.AltimeterToStationPressure(qnh, elevationM=altitude)
+
+        if qfe and qff is None and temperature is not None and humidity is not None:
+            qff = TWxUtils.StationToSeaLevelPressure(qfe, elevationM=altitude, currentTempC=temperature,
+                                                     meanTempC=temperature, humidity=humidity)
+        if qff and qfe is None and temperature is not None and humidity is not None:
+            qfe = TWxUtils.SeaLevelToStationPressure(qff, elevationM=altitude, currentTempC=temperature,
+                                                     meanTempC=temperature, humidity=humidity)
+
+        return {
+            'qfe': to_float(qfe),
+            'qnh': to_float(qnh),
+            'qff': to_float(qff)
+        }
 
     def __to_altitude(self, value):
         if isinstance(value, ureg.Quantity):
@@ -496,8 +526,8 @@ class Provider(object):
         station['_id'] = _id
         return station
 
-    def create_measure(self, _id, wind_direction, wind_average, wind_maximum,
-                       temperature=None, humidity=None, pressure=None, rain=None):
+    def create_measure(self, for_station, _id, wind_direction, wind_average, wind_maximum,
+                       temperature=None, humidity=None, pressure: Pressure = None, rain=None):
 
         if all((wind_direction is None, wind_average is None, wind_maximum is None)):
             raise ProviderException('All mandatory values are null!')
@@ -516,7 +546,8 @@ class Provider(object):
         if humidity is not None:
             measure['hum'] = to_float(humidity, 1)
         if pressure is not None:
-            measure['pres'] = self.__to_pressure(pressure)
+            measure['pres'] = self.__compute_pressures(pressure, for_station['alt'], measure.get('temp', None),
+                                                       measure.get('hum', None))
         if rain is not None:
             measure['rain'] = self.__to_rain(rain)
 

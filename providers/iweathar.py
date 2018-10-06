@@ -100,6 +100,7 @@ class IWeathar(Provider):
 
                     if not self.has_measure(measures_collection, key):
                         measure = self.create_measure(
+                            station,
                             key,
                             wind_dir,
                             wind_avg,

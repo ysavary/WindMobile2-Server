@@ -309,7 +309,7 @@ class StationJsonDoc(APIView):
                 "temp": "[integer] temperature [°C]",
                 "hum": "[integer] air humidity [%rH]",
                 "rain": "[integer] rain [l/m²]",
-                "pres": "[integer] air pressure [hPa]"
+                "pres": "[dictionary] qfe, qnh and qff air pressure [hPa]"
             }
         })
 

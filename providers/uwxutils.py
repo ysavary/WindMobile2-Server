@@ -207,15 +207,10 @@ class TWxUtils(object):
     @staticmethod
     def AltimeterToStationPressure(pressureHPa, elevationM):
         # http://www.hochwarth.com/misc/AviationCalculator.html
-
-        p0hPa = 1013.25  # [hPa]
-        T0 = 288.15  # [K]
-        dTdh0SI = -0.0065  # [K/m]
-        CRGasSI = 287.053  # [m^2/(s^2*K)] = [J/(kg*K)]
-        CgSI = 9.80665  # [m/s^2]
-
-        return p0hPa * pow(pow((pressureHPa / p0hPa), -(CRGasSI * dTdh0SI) / CgSI) + ((elevationM * dTdh0SI) / T0),
-                           -CgSI / (CRGasSI * dTdh0SI))
+        return TWxUtils.standardSLP * pow(
+            pow((pressureHPa / TWxUtils.standardSLP),
+                (TWxUtils.gasConstantAir * TWxUtils.standardLapseRate) / TWxUtils.gravity) + ((elevationM * -TWxUtils.standardLapseRate) / TWxUtils.standardTempK),
+            TWxUtils.gravity / (TWxUtils.gasConstantAir * TWxUtils.standardLapseRate))
 
     @staticmethod
     def SeaLevelToStationPressure(pressureHPa, elevationM,

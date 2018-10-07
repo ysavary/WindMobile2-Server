@@ -1,3 +1,5 @@
+from json import JSONDecodeError
+
 import arrow
 import requests
 from dateutil import tz
@@ -51,7 +53,10 @@ class Ffvl(Provider):
         try:
             result = requests.get('http://data.ffvl.fr/json/relevesmeteo.json', timeout=(self.connect_timeout,
                                                                                          self.read_timeout))
-            ffvl_measures = result.json()
+            try:
+                ffvl_measures = result.json()
+            except JSONDecodeError as e:
+                raise Exception(f"Unable to parse 'relevesmeteo.json', status_code={result.status_code}: {result.text}")
 
             ffvl_tz = tz.gettz('Europe/Paris')
             for ffvl_measure in ffvl_measures:

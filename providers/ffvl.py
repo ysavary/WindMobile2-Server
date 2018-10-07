@@ -56,7 +56,8 @@ class Ffvl(Provider):
             try:
                 ffvl_measures = result.json()
             except JSONDecodeError as e:
-                raise Exception(f"Unable to parse 'relevesmeteo.json', status_code={result.status_code}: {result.text}")
+                logger.error(f"Unable to parse 'relevesmeteo.json', status_code={result.status_code}: '{result.text}'")
+                raise e
 
             ffvl_tz = tz.gettz('Europe/Paris')
             for ffvl_measure in ffvl_measures:

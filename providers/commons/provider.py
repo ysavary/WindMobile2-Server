@@ -31,9 +31,7 @@ def get_logger(name):
     else:
         with open(path.join(path.dirname(path.abspath(__file__)), 'logging_console.yml')) as f:
             logging.config.dictConfig(yaml.load(f))
-
-    logger = logging.getLogger(name)
-    return logger
+    return logging.getLogger(name)
 
 
 class ProviderException(Exception):

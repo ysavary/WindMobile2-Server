@@ -1,11 +1,11 @@
 import json
 import math
 import os
+import warnings
 from random import randint
 
 import arrow
 import arrow.parser
-import metar
 import requests
 from metar.Metar import Metar
 
@@ -13,13 +13,6 @@ from commons.provider import get_logger, Provider, ProviderException, Status, ur
 from settings import CHECKWX_API_KEY
 
 logger = get_logger('metar')
-
-
-def warn_unparsed_group(metar, group):
-    logger.warn("'{code}': unparsed group '{group}'".format(code=metar.code, group=group['group']))
-
-
-metar.Metar._unparsedGroup = warn_unparsed_group
 
 
 class MetarNoaa(Provider):
@@ -105,17 +98,15 @@ class MetarNoaa(Provider):
                 request = requests.get(file, stream=True, timeout=(self.connect_timeout, self.read_timeout))
                 for line in request.iter_lines():
                     if line:
+                        data = line.decode('iso-8859-1')
                         try:
-                            data = line.decode('iso-8859-1')
                             # Is this line a date with format "2017/05/12 23:55" ?
-                            try:
-                                arrow.get(data, 'YYYY/MM/DD HH:mm')
-                            except ValueError:
-                                pass
+                            arrow.get(data, 'YYYY/MM/DD HH:mm')
                             continue
-                        except arrow.parser.ParserError:
+                            # Catch also ValueError because https://github.com/crsmithdev/arrow/issues/535
+                        except (arrow.parser.ParserError, ValueError):
                             try:
-                                metar = Metar(data)
+                                metar = Metar(data, strict=False)
                                 # wind_dir could be NONE if 'dir' is 'VRB'
                                 if metar.wind_speed:
                                     if metar.station_id not in stations:
@@ -146,9 +137,9 @@ class MetarNoaa(Provider):
 
                             try:
                                 checkwx_data = request.json()['data'][0]
-                                # check if the json is a valid response
-                                checkwx_data['icao']
-                            except Exception:
+                                if 'icao' not in checkwx_data:
+                                    raise ProviderException('Invalid CheckWX data')
+                            except (ValueError, KeyError):
                                 checkwx_json = request.json()
                                 messages = []
                                 if type(checkwx_json['data']) is list:
@@ -266,4 +257,6 @@ class MetarNoaa(Provider):
         logger.info('Done !')
 
 
-MetarNoaa().process_data()
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    MetarNoaa().process_data()

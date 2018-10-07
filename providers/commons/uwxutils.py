@@ -203,7 +203,8 @@ class TWxUtils(object):
         Result = InToHPa(HPaToIn(pressureHPa) * Power10(0.00813 * MToFt(sensorElevationM - stationElevationM) / FToR(CToF(currentTempC))))
         return Result
 
-    # Written by me
+    # Adapted by me
+    # http://www.hochwarth.com/misc/AviationCalculator.html
     @staticmethod
     def AltimeterToStationPressure(pressureHPa, elevationM):
         # http://www.hochwarth.com/misc/AviationCalculator.html

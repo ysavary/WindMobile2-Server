@@ -19,7 +19,11 @@ class Ffvl(Provider):
         try:
             logger.info('Processing FFVL data...')
 
-            result = requests.get('http://data.ffvl.fr/json/balises.json', timeout=(self.connect_timeout,
+            session = requests.Session()
+            session.headers.update({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 '
+                                                  '(KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'})
+
+            result = session.get('http://data.ffvl.fr/json/balises.json', timeout=(self.connect_timeout,
                                                                                     self.read_timeout))
             ffvl_stations = result.json()
 
@@ -51,7 +55,7 @@ class Ffvl(Provider):
             self.raven_client.captureException()
 
         try:
-            result = requests.get('http://data.ffvl.fr/json/relevesmeteo.json', timeout=(self.connect_timeout,
+            result = session.get('http://data.ffvl.fr/json/relevesmeteo.json', timeout=(self.connect_timeout,
                                                                                          self.read_timeout))
             try:
                 ffvl_measures = result.json()

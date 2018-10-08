@@ -4,6 +4,7 @@ import arrow
 import requests
 from dateutil import tz
 
+from commons import user_agents
 from commons.provider import get_logger, Provider, Status, ProviderException
 
 logger = get_logger('yvbeach')
@@ -29,8 +30,7 @@ class YVBeach(Provider):
             yvbeach_tz = tz.gettz('Europe/Zurich')
 
             session = requests.Session()
-            session.headers.update({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 '
-                                                  '(KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'})
+            session.headers.update(user_agents.chrome)
             content = session.get('http://www.yvbeach.com/yvmeteo.wml',
                                   timeout=(self.connect_timeout, self.read_timeout)).text.replace('\r\n', '')
 

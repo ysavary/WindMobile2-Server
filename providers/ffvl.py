@@ -1,8 +1,7 @@
-from json import JSONDecodeError
-
 import arrow
 import requests
 from dateutil import tz
+from tenacity import retry, wait_random, stop_after_delay
 
 from commons.provider import get_logger, Provider, ProviderException, Status, Pressure
 
@@ -19,12 +18,8 @@ class Ffvl(Provider):
         try:
             logger.info('Processing FFVL data...')
 
-            session = requests.Session()
-            session.headers.update({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 '
-                                                  '(KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'})
-
-            result = session.get('http://data.ffvl.fr/json/balises.json', timeout=(self.connect_timeout,
-                                                                                    self.read_timeout))
+            result = requests.get(
+                'http://data.ffvl.fr/json/balises.json', timeout=(self.connect_timeout, self.read_timeout))
             ffvl_stations = result.json()
 
             for ffvl_station in ffvl_stations:
@@ -55,13 +50,14 @@ class Ffvl(Provider):
             self.raven_client.captureException()
 
         try:
-            result = session.get('http://data.ffvl.fr/json/relevesmeteo.json', timeout=(self.connect_timeout,
-                                                                                         self.read_timeout))
-            try:
-                ffvl_measures = result.json()
-            except JSONDecodeError as e:
-                logger.error(f"Unable to parse 'relevesmeteo.json', status_code={result.status_code}: '{result.text}'")
-                raise e
+            @retry(wait=wait_random(min=1, max=3), stop=(stop_after_delay(15)))
+            def request_data():
+                # data.ffvl.fr randomly returns an empty file instead the json doc
+                result = requests.get(
+                    'http://data.ffvl.fr/json/relevesmeteo.json', timeout=(self.connect_timeout, self.read_timeout))
+                return result.json()
+
+            ffvl_measures = request_data()
 
             ffvl_tz = tz.gettz('Europe/Paris')
             for ffvl_measure in ffvl_measures:

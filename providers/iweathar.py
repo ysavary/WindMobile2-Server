@@ -5,6 +5,7 @@ import requests
 from dateutil import tz
 from lxml import html
 
+from commons import user_agents
 from commons.provider import get_logger, Provider, Status, ProviderException
 
 # Disable urllib3 warning because https://iweathar.co.za has a certificates chain issue
@@ -36,8 +37,7 @@ class IWeathar(Provider):
             hum_pattern = re.compile(r'(?P<hum>[0-9]{1,2})')
 
             session = requests.Session()
-            session.headers.update({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 '
-                                                  '(KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'})
+            session.headers.update(user_agents.chrome)
 
             content = session.get(self.provider_url + '/google_maps.php',
                                   timeout=(self.connect_timeout, self.read_timeout), verify=False).text

@@ -20,5 +20,6 @@ requests==2.19.1
 scikit-learn==0.18.1
 scipy==0.19.0
 six==1.11.0
+tenacity==5.0.2
 urllib3==1.23; python_version != '3.3.*'
 xmltodict==0.10.2

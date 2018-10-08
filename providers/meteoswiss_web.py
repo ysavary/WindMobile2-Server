@@ -2,6 +2,7 @@ import arrow
 import requests
 from lxml import html
 
+from commons import user_agents
 from commons.projections import ch_to_wgs_lat, ch_to_wgs_lon
 from commons.provider import get_logger, Provider, Status, ProviderException, Q_, ureg, Pressure
 
@@ -37,8 +38,7 @@ class MeteoSwiss(Provider):
 
             base_url = 'https://www.meteoswiss.admin.ch'
             session = requests.Session()
-            session.headers.update({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 '
-                                                  '(KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'})
+            session.headers.update(user_agents.chrome)
 
             main_url = '/home/weather/measurement-values/measurement-values-at-meteorological-stations.html'
             html_tree = html.fromstring(

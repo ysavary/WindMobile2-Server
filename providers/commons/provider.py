@@ -15,7 +15,7 @@ from pint import UnitRegistry
 from pymongo import uri_parser, MongoClient, GEOSPHERE, ASCENDING
 from raven import Client as RavenClient
 
-from settings import WINDMOBILE_LOG_DIR, MONGODB_URL, GOOGLE_API_KEY, SENTRY_URL
+from settings import WINDMOBILE_LOG_DIR, MONGODB_URL, REDIS_URL, GOOGLE_API_KEY, SENTRY_URL
 from commons.uwxutils import TWxUtils
 
 ureg = UnitRegistry()
@@ -98,7 +98,7 @@ class Provider(object):
         self.__stations_collection.create_index([('loc', GEOSPHERE), ('status', ASCENDING), ('pv-code', ASCENDING),
                                                  ('short', ASCENDING), ('name', ASCENDING)])
         self.collection_names = self.mongo_db.collection_names()
-        self.redis = redis.StrictRedis(decode_responses=True)
+        self.redis = redis.StrictRedis.from_url(url=REDIS_URL, decode_responses=True)
         self.google_api_key = GOOGLE_API_KEY
         self.raven_client = RavenClient(SENTRY_URL, string_max_length=2000)
         self.raven_client.tags_context({'provider': self.provider_name})

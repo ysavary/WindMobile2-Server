@@ -15,8 +15,8 @@ from pint import UnitRegistry
 from pymongo import uri_parser, MongoClient, GEOSPHERE, ASCENDING
 from raven import Client as RavenClient
 
-from settings import WINDMOBILE_LOG_DIR, MONGODB_URL, REDIS_URL, GOOGLE_API_KEY, SENTRY_URL
 from commons.uwxutils import TWxUtils
+from settings import WINDMOBILE_LOG_DIR, MONGODB_URL, REDIS_URL, GOOGLE_API_KEY, SENTRY_URL
 
 ureg = UnitRegistry()
 Q_ = ureg.Quantity
@@ -532,7 +532,7 @@ class Provider(object):
             measure['temp'] = self.__to_temperature(temperature)
         if humidity is not None:
             measure['hum'] = to_float(humidity, 1)
-        if pressure is not None:
+        if pressure is not None and (pressure.qfe is not None or pressure.qnh is not None or pressure.qff is not None):
             measure['pres'] = self.__compute_pressures(pressure, for_station['alt'], measure.get('temp', None),
                                                        measure.get('hum', None))
         if rain is not None:

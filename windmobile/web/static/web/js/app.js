@@ -130,7 +130,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
             if (Modernizr.touchevents) {
                 $urlRouterProvider.otherwise('/list');
             } else {
-                $urlRouterProvider.otherwise('/map');
+                $urlRouterProvider.otherwise('/list');
             }
         }])
     .run(['$rootScope', '$location', '$window', '$interval', '$timeout', '$translate', 'visibilityBroadcaster',

@@ -2,9 +2,7 @@ import arrow
 import arrow.parser
 import requests
 
-from commons.provider import get_logger, Provider, ProviderException, Status, Q_, ureg, Pressure
-
-logger = get_logger('holfuy')
+from commons.provider import Provider, ProviderException, Status, Q_, ureg, Pressure
 
 
 class Holfuy(Provider):
@@ -20,10 +18,10 @@ class Holfuy(Provider):
 
     def process_data(self):
         try:
-            logger.info("Processing Holfuy data...")
-            holfuy_stations = requests.get("http://api.holfuy.com/stations/stations.json",
+            self.log.info('Processing Holfuy data...')
+            holfuy_stations = requests.get('http://api.holfuy.com/stations/stations.json',
                                            timeout=(self.connect_timeout, self.read_timeout)).json()
-            holfuy_data = requests.get("http://api.holfuy.com/live/?s=all&m=JSON&tu=C&su=km/h&utc",
+            holfuy_data = requests.get('http://api.holfuy.com/live/?s=all&m=JSON&tu=C&su=km/h&utc',
                                        timeout=(self.connect_timeout, self.read_timeout)).json()
             holfuy_measures = {}
             for holfuy_measure in holfuy_data['measurements']:
@@ -69,7 +67,8 @@ class Holfuy(Provider):
                             holfuy_measure['wind']['direction'],
                             Q_(holfuy_measure['wind']['speed'], ureg.kilometer / ureg.hour),
                             Q_(holfuy_measure['wind']['gust'], ureg.kilometer / ureg.hour),
-                            temperature=Q_(holfuy_measure['temperature'], ureg.degC) if 'temperature' in holfuy_measure else None,
+                            temperature=Q_(
+                                holfuy_measure['temperature'], ureg.degC) if 'temperature' in holfuy_measure else None,
                             pressure=Pressure(
                                 qfe=None,
                                 qnh=Q_(holfuy_measure['pressure'], ureg.hPa) if 'pressure' in holfuy_measure else None,
@@ -77,19 +76,17 @@ class Holfuy(Provider):
                         )
                         new_measures.append(measure)
 
-                    self.insert_new_measures(measures_collection, station, new_measures, logger)
+                    self.insert_new_measures(measures_collection, station, new_measures)
 
                 except ProviderException as e:
-                    logger.warn("Error while processing station '{0}': {1}".format(station_id or holfuy_id, e))
+                    self.log.warn(f"Error while processing station '{station_id or holfuy_id}': {e}")
                 except Exception as e:
-                    logger.exception("Error while processing station '{0}': {1}".format(station_id or holfuy_id, e))
-                    self.raven_client.captureException()
+                    self.log.exception(f"Error while processing station '{station_id or holfuy_id}': {e}")
 
         except Exception as e:
-            logger.exception("Error while processing Holfuy: {0}".format(e))
-            self.raven_client.captureException()
+            self.log.exception(f'Error while processing Holfuy: {e}')
 
-        logger.info("Done !")
+        self.log.info('Done !')
 
 
 Holfuy().process_data()

@@ -57,16 +57,16 @@ try:
                 values = {station['_id']: station.get('last', {}).get('_id', 0) for station in stations}
                 station_id = max(values.keys(), key=(lambda k: values[k]))
                 if values[station_id] != 0:
-                    log.warning("Multiple 'middle' found, '{station}' has the latest measure".format(station=station_id))
+                    log.warning(f"Multiple 'middle' found, '{station_id}' has the latest measure")
                 else:
-                    log.warning("Ignoring '{cluster}', stations have no measures".format(cluster=ids[cluster_assign]))
+                    log.warning(f"Ignoring '{ids[cluster_assign]}', stations have no measures")
                     continue
                 index = np.where(ids == station_id)[0][0]
             else:
                 index = indexes[0]
-            log.info('{n}: {cluster} -> {median}'.format(n=n_clusters, cluster=ids[cluster_assign], median=ids[index]))
+            log.info(f'{n_clusters}: {ids[cluster_assign]} -> {ids[index]}')
             mongo_bulk.find({'_id': ids[index]}).update({'$addToSet': {'clusters': int(n_clusters)}})
 
     mongo_bulk.execute()
 except Exception as e:
-    log.exception("Error while creating clusters: {0}".format(e))
+    log.exception(f'Error while creating clusters: {e}')

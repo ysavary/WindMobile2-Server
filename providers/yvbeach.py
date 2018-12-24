@@ -5,9 +5,7 @@ import requests
 from dateutil import tz
 
 from commons import user_agents
-from commons.provider import get_logger, Provider, Status, ProviderException
-
-logger = get_logger('yvbeach')
+from commons.provider import Provider, Status, ProviderException
 
 
 class YVBeach(Provider):
@@ -18,7 +16,7 @@ class YVBeach(Provider):
     def process_data(self):
         station_id = 'yvbeach'
         try:
-            logger.info("Processing yvbeach data...")
+            self.log.info('Processing yvbeach data...')
 
             date_pattern = re.compile(r'Relevés du<br/>(?P<date>.*?) à (?P<time>.*?)<br/>')
             wind_pattern = re.compile(r'<b>VENT</b><br/>'
@@ -46,7 +44,7 @@ class YVBeach(Provider):
             station_id = station['_id']
 
             date = date_pattern.search(content).groupdict()
-            key = arrow.get('{0} {1}'.format(date['date'], date['time']), 'DD.MM.YYYY HH[h]mm').replace(
+            key = arrow.get(f'{date["date"]} {date["time"]}', 'DD.MM.YYYY HH[h]mm').replace(
                 tzinfo=yvbeach_tz).timestamp
 
             measures_collection = self.measures_collection(station_id)
@@ -66,15 +64,14 @@ class YVBeach(Provider):
                 )
                 new_measures.append(measure)
 
-            self.insert_new_measures(measures_collection, station, new_measures, logger)
+            self.insert_new_measures(measures_collection, station, new_measures)
 
         except ProviderException as e:
-            logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
+            self.log.warn(f"Error while processing station '{station_id}': {e}")
         except Exception as e:
-            logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
-            self.raven_client.captureException()
+            self.log.exception(f"Error while processing station '{station_id}': {e}")
 
-        logger.info("...Done!")
+        self.log.info('...Done!')
 
 
 YVBeach().process_data()

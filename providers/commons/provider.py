@@ -10,23 +10,24 @@ import arrow
 import dateutil
 import redis
 import requests
+import sentry_sdk
 import yaml
 from pint import UnitRegistry
 from pymongo import uri_parser, MongoClient, GEOSPHERE, ASCENDING
-from raven import Client as RavenClient
 
 from commons.uwxutils import TWxUtils
 from settings import WINDMOBILE_LOG_DIR, MONGODB_URL, REDIS_URL, GOOGLE_API_KEY, SENTRY_URL
 
 ureg = UnitRegistry()
 Q_ = ureg.Quantity
+Pressure = namedtuple('Pressure', ['qfe', 'qnh', 'qff'])
 
 
 def get_logger(name):
     if WINDMOBILE_LOG_DIR:
         with open(path.join(path.dirname(path.abspath(__file__)), 'logging_file.yml')) as f:
             dict = yaml.load(f)
-            dict['handlers']['file']['filename'] = path.join(path.expanduser(WINDMOBILE_LOG_DIR), name + '.log')
+            dict['handlers']['file']['filename'] = path.join(path.expanduser(WINDMOBILE_LOG_DIR), f'{name}.log')
             logging.config.dictConfig(dict)
     else:
         with open(path.join(path.dirname(path.abspath(__file__)), 'logging_console.yml')) as f:
@@ -71,10 +72,7 @@ def to_bool(value):
     return str(value).lower() in ['true', 'yes']
 
 
-Pressure = namedtuple('Pressure', ['qfe', 'qnh', 'qff'])
-
-
-class Provider(object):
+class Provider:
     provider_code = ''
     provider_name = ''
     provider_url = ''
@@ -100,8 +98,10 @@ class Provider(object):
         self.collection_names = self.mongo_db.collection_names()
         self.redis = redis.StrictRedis.from_url(url=REDIS_URL, decode_responses=True)
         self.google_api_key = GOOGLE_API_KEY
-        self.raven_client = RavenClient(SENTRY_URL, string_max_length=2000)
-        self.raven_client.tags_context({'provider': self.provider_name})
+        self.log = get_logger(self.provider_code)
+        sentry_sdk.init(SENTRY_URL)
+        with sentry_sdk.configure_scope() as scope:
+            scope.set_tag('provider', self.provider_name)
 
     def __to_wind_direction(self, value):
         if isinstance(value, ureg.Quantity):
@@ -182,7 +182,7 @@ class Provider(object):
     def __compute_elevation(self, lat, lon):
         radius = 500
         nb = 6
-        path = '{lat},{lon}|'.format(lat=lat, lon=lon)
+        path = f'{lat},{lon}|'
         for k in range(nb):
             angle = math.pi * 2 * k / nb
             dx = radius * math.cos(angle)
@@ -194,14 +194,12 @@ class Provider(object):
                 path += '|'
 
         result = requests.get(
-            'https://maps.googleapis.com/maps/api/elevation/json?locations={path}&key={key}'.format(
-                path=path, key=self.google_api_key),
+            f'https://maps.googleapis.com/maps/api/elevation/json?locations={path}&key={self.google_api_key}',
             timeout=(self.connect_timeout, self.read_timeout)).json()
         if result['status'] == 'OVER_QUERY_LIMIT':
             raise UsageLimitException('Google Elevation API OVER_QUERY_LIMIT')
         elif result['status'] == 'INVALID_REQUEST':
-            raise ProviderException('Google Elevation API INVALID_REQUEST: {message}'
-                                    .format(message=result.get('error_message', '')))
+            raise ProviderException(f'Google Elevation API INVALID_REQUEST: {result.get("error_message", "")}')
         elif result['status'] == 'ZERO_RESULTS':
             raise ProviderException('Google Elevation API ZERO_RESULTS')
 
@@ -233,47 +231,41 @@ class Provider(object):
 
     def __get_place_autocomplete(self, name):
         results = requests.get(
-            'https://maps.googleapis.com/maps/api/place/autocomplete/json?input={input}&key={key}'.format(
-                input=name, key=self.google_api_key),
+            f'https://maps.googleapis.com/maps/api/place/autocomplete/json?input={name}&key={self.google_api_key}',
             timeout=(self.connect_timeout, self.read_timeout)).json()
 
         if results['status'] == 'OVER_QUERY_LIMIT':
             raise UsageLimitException('Google Places API OVER_QUERY_LIMIT')
         elif results['status'] == 'INVALID_REQUEST':
-            raise ProviderException('Google Places API INVALID_REQUEST: {message}'.format(
-                message=results.get('error_message', '')))
+            raise ProviderException(f'Google Places API INVALID_REQUEST: {results.get("error_message", "")}')
         elif results['status'] == 'ZERO_RESULTS':
-            raise ProviderException("Google Places API ZERO_RESULTS for '{name}'".format(name=name))
+            raise ProviderException(f"Google Places API ZERO_RESULTS for '{name}'")
 
         place_id = results['predictions'][0]['place_id']
 
         results = requests.get(
-            'https://maps.googleapis.com/maps/api/geocode/json?place_id={place_id}&key={key}'.format(
-                place_id=place_id, key=self.google_api_key),
+            f'https://maps.googleapis.com/maps/api/geocode/json?place_id={place_id}&key={self.google_api_key}',
             timeout=(self.connect_timeout, self.read_timeout)).json()
 
         if results['status'] == 'OVER_QUERY_LIMIT':
             raise UsageLimitException('Google Geocoding API OVER_QUERY_LIMIT')
         elif results['status'] == 'INVALID_REQUEST':
-            raise ProviderException('Google Geocoding API INVALID_REQUEST: {message}'.format(
-                message=results.get('error_message', '')))
+            raise ProviderException(f'Google Geocoding API INVALID_REQUEST: {results.get("error_message", "")}')
         elif results['status'] == 'ZERO_RESULTS':
-            raise ProviderException("Google Geocoding API ZERO_RESULTS for '{name}'".format(name=name))
+            raise ProviderException(f"Google Geocoding API ZERO_RESULTS for '{name}'")
 
         return self.__get_place_geocoding_results(results)
 
     def __get_place_geocoding(self, name):
         results = requests.get(
-            'https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={key}'.format(
-                address=name, key=self.google_api_key),
+            f'https://maps.googleapis.com/maps/api/geocode/json?address={name}&key={self.google_api_key}',
             timeout=(self.connect_timeout, self.read_timeout)).json()
         if results['status'] == 'OVER_QUERY_LIMIT':
             raise UsageLimitException('Google Geocoding API OVER_QUERY_LIMIT')
         elif results['status'] == 'INVALID_REQUEST':
-            raise ProviderException('Google Geocoding API INVALID_REQUEST: {message}'.format(
-                message=results.get('error_message', '')))
+            raise ProviderException(f'Google Geocoding API INVALID_REQUEST: {results.get("error_message", "")}')
         elif results['status'] == 'ZERO_RESULTS':
-            raise ProviderException("Google Geocoding API ZERO_RESULTS for '{name}'".format(name=name))
+            raise ProviderException(f"Google Geocoding API ZERO_RESULTS for '{name}'")
 
         return self.__get_place_geocoding_results(results)
 
@@ -319,20 +311,19 @@ class Provider(object):
         lat = to_float(latitude, 6)
         lon = to_float(longitude, 6)
 
-        address_key = 'address/{lat},{lon}'.format(lat=lat, lon=lon)
+        address_key = f'address/{lat},{lon}'
         if (not short_name or not name) and not self.redis.exists(address_key):
             try:
                 results = requests.get(
-                    'https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lon}&result_type='
-                    'airport|colloquial_area|locality|natural_feature|point_of_interest|neighborhood&key={key}'
-                    .format(lat=lat, lon=lon, key=self.google_api_key),
+                    f'https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lon}'
+                    f'&result_type=airport|colloquial_area|locality|natural_feature|point_of_interest|neighborhood'
+                    f'&key={self.google_api_key}',
                     timeout=(self.connect_timeout, self.read_timeout)).json()
 
                 if results['status'] == 'OVER_QUERY_LIMIT':
                     raise UsageLimitException('Google Geocoding API OVER_QUERY_LIMIT')
                 elif results['status'] == 'INVALID_REQUEST':
-                    raise ProviderException('Google Geocoding API INVALID_REQUEST: {message}'
-                                            .format(message=results.get('error_message', '')))
+                    raise ProviderException(f'Google Geocoding API INVALID_REQUEST: {results.get("error_message", "")}')
                 elif results['status'] == 'ZERO_RESULTS':
                     raise ProviderException('Google Geocoding API ZERO_RESULTS')
 
@@ -358,20 +349,19 @@ class Provider(object):
                 }, self.usage_limit_cache_duration)
             except Exception as e:
                 if not isinstance(e, ProviderException):
-                    self.raven_client.captureException()
+                    self.log.exception('Unable to call Google Geocoding API')
                 self.add_redis_key(address_key, {
                     'error': repr(e)
                 }, self.location_cache_duration)
 
         address = lookup_name or name or short_name
-        geolocation_key = 'geolocation/{address}'.format(address=address)
+        geolocation_key = f'geolocation/{address}'
         if (lat is None or lon is None) or (lat == 0 and lon == 0):
             if not self.redis.exists(geolocation_key):
                 try:
                     lat, lon, address_long_name = self.__get_place_geocoding(address)
                     if not lat or not lon or not address_long_name:
-                        raise ProviderException(
-                            'Google Geocoding API: No valid geolocation found {address}'.format(address=address))
+                        raise ProviderException(f'Google Geocoding API: No valid geolocation found {address}')
                     self.add_redis_key(geolocation_key, {
                         'lat': lat,
                         'lon': lon,
@@ -385,20 +375,20 @@ class Provider(object):
                     }, self.usage_limit_cache_duration)
                 except Exception as e:
                     if not isinstance(e, ProviderException):
-                        self.raven_client.captureException()
+                        self.log.exception('Unable to call Google Geocoding API')
                     self.add_redis_key(geolocation_key, {
                         'error': repr(e)
                     }, self.location_cache_duration)
             if self.redis.exists(geolocation_key):
                 if self.redis.hexists(geolocation_key, 'error'):
-                    raise ProviderException('Unable to determine station geolocation: {message}'.format(
-                        message=self.redis.hget(geolocation_key, 'error')))
+                    raise ProviderException(
+                        f'Unable to determine station geolocation: {self.redis.hget(geolocation_key, "error")}')
                 lat = to_float(self.redis.hget(geolocation_key, 'lat'), 6)
                 lon = to_float(self.redis.hget(geolocation_key, 'lon'), 6)
                 if not name:
                     name = self.redis.hget(geolocation_key, 'name')
 
-        alt_key = 'alt/{lat},{lon}'.format(lat=lat, lon=lon)
+        alt_key = f'alt/{lat},{lon}'
         if not self.redis.exists(alt_key):
             try:
                 elevation, is_peak = self.__compute_elevation(lat, lon)
@@ -414,25 +404,24 @@ class Provider(object):
                 }, self.usage_limit_cache_duration)
             except Exception as e:
                 if not isinstance(e, ProviderException):
-                    self.raven_client.captureException()
+                    self.log.exception('Unable to call Google Elevation API')
                 self.add_redis_key(alt_key, {
                     'error': repr(e)
                 }, self.location_cache_duration)
 
-        tz_key = 'tz/{lat},{lon}'.format(lat=lat, lon=lon)
+        tz_key = f'tz/{lat},{lon}'
         if not tz and not self.redis.exists(tz_key):
             try:
+                now = arrow.utcnow().timestamp
                 result = requests.get(
-                    'https://maps.googleapis.com/maps/api/timezone/json?location={lat},{lon}'
-                    '&timestamp={utc}&key={key}'
-                    .format(lat=lat, lon=lon, utc=arrow.utcnow().timestamp, key=self.google_api_key),
+                    f'https://maps.googleapis.com/maps/api/timezone/json?location={lat},{lon}'
+                    f'&timestamp={now}&key={self.google_api_key}',
                     timeout=(self.connect_timeout, self.read_timeout)).json()
 
                 if result['status'] == 'OVER_QUERY_LIMIT':
                     raise UsageLimitException('Google Time Zone API OVER_QUERY_LIMIT')
                 elif result['status'] == 'INVALID_REQUEST':
-                    raise ProviderException('Google Time Zone API INVALID_REQUEST: {message}'.format(
-                        message=result.get('error_message', '')))
+                    raise ProviderException(f'Google Time Zone API INVALID_REQUEST: {result.get("error_message", "")}')
                 elif result['status'] == 'ZERO_RESULTS':
                     raise ProviderException('Google Time Zone API ZERO_RESULTS')
 
@@ -449,7 +438,7 @@ class Provider(object):
                 }, self.usage_limit_cache_duration)
             except Exception as e:
                 if not isinstance(e, ProviderException):
-                    self.raven_client.captureException()
+                    self.log.exception('Unable to call Google Time Zone API')
                 self.add_redis_key(tz_key, {
                     'error': repr(e)
                 }, self.location_cache_duration)
@@ -459,8 +448,8 @@ class Provider(object):
                 if default_name:
                     short_name = default_name
                 else:
-                    raise ProviderException("Unable to determine station 'short': {message}".format(
-                        message=self.redis.hget(address_key, 'error')))
+                    raise ProviderException(
+                        f"Unable to determine station 'short': {self.redis.hget(address_key, 'error')}")
             else:
                 short_name = self.redis.hget(address_key, 'short')
 
@@ -469,26 +458,23 @@ class Provider(object):
                 if default_name:
                     name = default_name
                 else:
-                    raise ProviderException("Unable to determine station 'name': {message}".format(
-                        message=self.redis.hget(address_key, 'error')))
+                    raise ProviderException(
+                        f"Unable to determine station 'name': {self.redis.hget(address_key, 'error')}")
             else:
                 name = self.redis.hget(address_key, 'name')
 
         if not altitude:
             if self.redis.hexists(alt_key, 'error'):
-                raise ProviderException("Unable to determine station 'alt': {message}".format(
-                    message=self.redis.hget(alt_key, 'error')))
+                raise ProviderException(f"Unable to determine station 'alt': {self.redis.hget(alt_key, 'error')}")
             altitude = self.redis.hget(alt_key, 'alt')
 
         if self.redis.hexists(alt_key, 'error') == 'error':
-            raise ProviderException("Unable to determine station 'peak': {message}".format(
-                    message=self.redis.hget(alt_key, 'error')))
+            raise ProviderException(f"Unable to determine station 'peak': {self.redis.hget(alt_key, 'error')}")
         is_peak = self.redis.hget(alt_key, 'is_peak')
 
         if not tz:
             if self.redis.hexists(tz_key, 'error'):
-                raise ProviderException("Unable to determine station 'tz': {message}".format(
-                    message=self.redis.hget(tz_key, 'error')))
+                raise ProviderException(f"Unable to determine station 'tz': {self.redis.hget(tz_key, 'error')}")
             tz = self.redis.hget(tz_key, 'tz')
 
         if not url:
@@ -504,7 +490,7 @@ class Provider(object):
                 raise ProviderException("No 'default' key in url")
             urls = url
         else:
-            raise ProviderException("Invalid url")
+            raise ProviderException('Invalid url')
 
         fixes = self.mongo_db.stations_fix.find_one(station_id)
         station = self.__create_station(provider_id, short_name, name, lat, lon, altitude, is_peak, status, tz, urls,
@@ -544,12 +530,12 @@ class Provider(object):
     def has_measure(self, measure_collection, key):
         return measure_collection.find({'_id': key}).count() > 0
 
-    def insert_new_measures(self, measure_collection, station, new_measures, logger):
+    def insert_new_measures(self, measure_collection, station, new_measures):
         if len(new_measures) > 0:
             measure_collection.insert(sorted(new_measures, key=lambda m: m['_id']))
 
             end_date = arrow.Arrow.fromtimestamp(new_measures[-1]['_id'], dateutil.tz.gettz(station['tz']))
-            logger.info(
+            self.log.info(
                 '--> {end_date} ({end_date_local}), {short}/{name} ({id}): {nb} values inserted'.format(
                     end_date=end_date.format('YY-MM-DD HH:mm:ssZZ'),
                     end_date_local=end_date.to('local').format('YY-MM-DD HH:mm:ssZZ'),

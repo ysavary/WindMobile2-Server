@@ -5,9 +5,7 @@ from os import path
 import requests
 from lxml import etree
 
-from commons.provider import get_logger, Provider, ProviderException, Status
-
-logger = get_logger('slf')
+from commons.provider import Provider, ProviderException, Status
 
 
 class Slf(Provider):
@@ -60,7 +58,7 @@ class Slf(Provider):
 
     def process_data(self):
         try:
-            logger.info('Processing SLF data...')
+            self.log.info('Processing SLF data...')
 
             slf_metadata = {}
             self.add_metadata_from_kml('slf/IMIS_WIND_EN.kml', slf_metadata)
@@ -75,7 +73,7 @@ class Slf(Provider):
                 station_id = None
                 try:
                     slf_id = slf_station['id']
-                    result = requests.get("http://odb.slf.ch/odb/api/v1/measurement?id={id}".format(id=slf_id),
+                    result = requests.get(f'http://odb.slf.ch/odb/api/v1/measurement?id={slf_id}',
                                           timeout=(self.connect_timeout, self.read_timeout))
                     data = result.json()
                     if not self.has_wind_data(data):
@@ -89,7 +87,7 @@ class Slf(Provider):
                         lon = slf_metadata[slf_id]['lon']
                         status = Status.GREEN
                     else:
-                        logger.warn('No metadata found for station {id}/{name}'.format(id=slf_id, name=name))
+                        self.log.warn(f'No metadata found for station {slf_id}/{name}')
                         status = Status.ORANGE
 
                     station = self.save_station(
@@ -121,26 +119,22 @@ class Slf(Provider):
                                 )
                                 new_measures.append(measure)
                             except ProviderException as e:
-                                logger.warn("Error while processing measure '{0}' for station '{1}': {2}"
-                                            .format(key, station_id, e))
+                                self.log.warn(f"Error while processing measure '{key}' for station '{station_id}': {e}")
                             except Exception as e:
-                                logger.exception("Error while processing measure '{0}' for station '{1}': {2}"
-                                                 .format(key, station_id, e))
-                                self.raven_client.captureException()
+                                self.log.exception(
+                                    f"Error while processing measure '{key}' for station '{station_id}': {e}")
 
-                    self.insert_new_measures(measures_collection, station, new_measures, logger)
+                    self.insert_new_measures(measures_collection, station, new_measures)
 
                 except ProviderException as e:
-                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
+                    self.log.warn(f"Error while processing station '{station_id}': {e}")
                 except Exception as e:
-                    logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
-                    self.raven_client.captureException()
+                    self.log.exception(f"Error while processing station '{station_id}': {e}")
 
         except Exception as e:
-            logger.exception("Error while processing SLF: {0}".format(e))
-            self.raven_client.captureException()
+            self.log.exception(f'Error while processing SLF: {e}')
 
-        logger.info("Done !")
+        self.log.info('Done !')
 
 
 Slf().process_data()

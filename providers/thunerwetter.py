@@ -6,9 +6,7 @@ from dateutil import tz
 from lxml import html
 
 from commons import user_agents
-from commons.provider import get_logger, Provider, Status, ProviderException
-
-logger = get_logger('thunerwetter')
+from commons.provider import Provider, Status, ProviderException
 
 
 class ThunerWetter(Provider):
@@ -20,7 +18,7 @@ class ThunerWetter(Provider):
     def process_data(self):
         station_id = None
         try:
-            logger.info("Processing Thunerwetter data...")
+            self.log.info('Processing Thunerwetter data...')
 
             date_pattern = re.compile(r'am (?P<date>.*?) um (?P<time>.*?) Uhr')
             wind_pattern = re.compile(r'(?P<wind_speed>[0-9]{1,3}\.[0-9]) km/h / '
@@ -70,7 +68,7 @@ class ThunerWetter(Provider):
             )
             station_id = station['_id']
 
-            key = arrow.get('{0} {1}'.format(date['date'], date['time']), 'DD.MM.YYYY HH[:]mm').replace(
+            key = arrow.get(f'{date["date"]} {date["time"]}', 'DD.MM.YYYY HH[:]mm').replace(
                 tzinfo=thun_tz).timestamp
 
             measures_collection = self.measures_collection(station_id)
@@ -94,11 +92,11 @@ class ThunerWetter(Provider):
                 date_element = air_tree.xpath('//td[text()[contains(.,"Messwerte von Thun")]]')[0]
                 date_text = date_element.text.strip()
                 date = date_pattern.search(date_text).groupdict()
-                air_date = arrow.get('{0} {1}'.format(date['date'], date['time']), 'DD.MM.YYYY HH[:]mm').replace(
+                air_date = arrow.get(f'{date["date"]} {date["time"]}', 'DD.MM.YYYY HH[:]mm').replace(
                     tzinfo=thun_tz).timestamp
 
                 if air_date != key:
-                    raise ProviderException("Wind and air dates are not matching")
+                    raise ProviderException('Wind and air dates are not matching')
 
                 air_elements = air_tree.xpath('//td[text()="aktuell"]')
 
@@ -121,15 +119,14 @@ class ThunerWetter(Provider):
                 )
                 new_measures.append(measure)
 
-            self.insert_new_measures(measures_collection, station, new_measures, logger)
+            self.insert_new_measures(measures_collection, station, new_measures)
 
         except ProviderException as e:
-            logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
+            self.log.warn(f"Error while processing station '{station_id}': {e}")
         except Exception as e:
-            logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
-            self.raven_client.captureException()
+            self.log.exception(f"Error while processing station '{station_id}': {e}")
 
-        logger.info("...Done!")
+        self.log.info('...Done!')
 
 
 ThunerWetter().process_data()

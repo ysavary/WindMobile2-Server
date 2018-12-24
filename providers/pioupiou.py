@@ -4,9 +4,7 @@ import arrow
 import requests
 from arrow.parser import ParserError
 
-from commons.provider import get_logger, Provider, Status, ProviderException, Pressure
-
-logger = get_logger('pioupiou')
+from commons.provider import Provider, Status, ProviderException, Pressure
 
 
 class Pioupiou(Provider):
@@ -20,10 +18,10 @@ class Pioupiou(Provider):
                 if (arrow.utcnow().timestamp - location_date.timestamp) < 3600 * 24 * 15:
                     up_to_date = True
                 else:
-                    logger.warn("'{0}': last known location date is {1}".format(station_id, location_date.humanize()))
+                    self.log.warn(f"'{station_id}': last known location date is {location_date.humanize()}")
                     up_to_date = False
             else:
-                logger.warn("'{0}': no last known location".format(station_id))
+                self.log.warn(f"'{station_id}': no last known location")
                 return Status.RED
 
             if location_status and up_to_date:
@@ -35,8 +33,8 @@ class Pioupiou(Provider):
 
     def process_data(self):
         try:
-            logger.info("Processing Pioupiou data...")
-            result = requests.get("http://api.pioupiou.fr/v1/live-with-meta/all", timeout=(self.connect_timeout,
+            self.log.info('Processing Pioupiou data...')
+            result = requests.get('http://api.pioupiou.fr/v1/live-with-meta/all', timeout=(self.connect_timeout,
                                                                                            self.read_timeout))
             station_id = None
             for piou_station in result.json()['data']:
@@ -84,19 +82,17 @@ class Pioupiou(Provider):
                         )
                         new_measures.append(measure)
 
-                    self.insert_new_measures(measures_collection, station, new_measures, logger)
+                    self.insert_new_measures(measures_collection, station, new_measures)
 
                 except ProviderException as e:
-                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
+                    self.log.warn(f"Error while processing station '{station_id}': {e}")
                 except Exception as e:
-                    logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
-                    self.raven_client.captureException()
+                    self.log.exception(f"Error while processing station '{station_id}': {e}")
 
         except Exception as e:
-            logger.exception("Error while processing Pioupiou: {0}".format(e))
-            self.raven_client.captureException()
+            self.log.exception(f'Error while processing Pioupiou: {e}')
 
-        logger.info("Done !")
+        self.log.info('Done !')
 
 
 Pioupiou().process_data()

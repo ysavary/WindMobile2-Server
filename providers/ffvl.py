@@ -3,9 +3,7 @@ import requests
 from dateutil import tz
 from tenacity import retry, wait_random, stop_after_delay
 
-from commons.provider import get_logger, Provider, ProviderException, Status, Pressure
-
-logger = get_logger('ffvl')
+from commons.provider import Provider, ProviderException, Status, Pressure
 
 
 class Ffvl(Provider):
@@ -16,7 +14,7 @@ class Ffvl(Provider):
     def process_data(self):
         stations = {}
         try:
-            logger.info('Processing FFVL data...')
+            self.log.info('Processing FFVL data...')
 
             result = requests.get(
                 'http://data.ffvl.fr/json/balises.json', timeout=(self.connect_timeout, self.read_timeout))
@@ -38,16 +36,14 @@ class Ffvl(Provider):
                     stations[station['_id']] = station
 
                 except ProviderException as e:
-                    logger.warn("Error while processing station '{0}': {1}".format(ffvl_id, e))
+                    self.log.warn(f"Error while processing station '{ffvl_id}': {e}")
                 except Exception as e:
-                    logger.exception("Error while processing station '{0}': {1}".format(ffvl_id, e))
-                    self.raven_client.captureException()
+                    self.log.exception(f"Error while processing station '{ffvl_id}': {e}")
 
         except ProviderException as e:
-            logger.warn('Error while processing stations: {0}'.format(e))
+            self.log.warn(f'Error while processing stations: {e}')
         except Exception as e:
-            logger.exception('Error while processing stations: {0}'.format(e))
-            self.raven_client.captureException()
+            self.log.exception(f'Error while processing stations: {e}')
 
         try:
             @retry(wait=wait_random(min=1, max=3), stop=(stop_after_delay(15)))
@@ -66,7 +62,7 @@ class Ffvl(Provider):
                     ffvl_id = ffvl_measure['idbalise']
                     station_id = self.get_station_id(ffvl_id)
                     if station_id not in stations:
-                        raise ProviderException("Unknown station '{0}'".format(station_id))
+                        raise ProviderException(f"Unknown station '{station_id}'")
                     station = stations[station_id]
 
                     measures_collection = self.measures_collection(station_id)
@@ -87,21 +83,19 @@ class Ffvl(Provider):
                         )
                         new_measures.append(measure)
 
-                    self.insert_new_measures(measures_collection, station, new_measures, logger)
+                    self.insert_new_measures(measures_collection, station, new_measures)
 
                 except ProviderException as e:
-                    logger.warn("Error while processing measures for station '{0}': {1}".format(station_id, e))
+                    self.log.warn(f"Error while processing measures for station '{station_id}': {e}")
                 except Exception as e:
-                    logger.exception("Error while processing measures for station '{0}': {1}".format(station_id, e))
-                    self.raven_client.captureException()
+                    self.log.exception(f"Error while processing measures for station '{station_id}': {e}")
 
         except ProviderException as e:
-            logger.warn("Error while processing FFVL: '{0}'".format(e))
+            self.log.warn(f'Error while processing FFVL: {e}')
         except Exception as e:
-            logger.exception("Error while processing FFVL: '{0}'".format(e))
-            self.raven_client.captureException()
+            self.log.exception(f'Error while processing FFVL: {e}')
 
-        logger.info('...Done!')
+        self.log.info('...Done!')
 
 
 Ffvl().process_data()

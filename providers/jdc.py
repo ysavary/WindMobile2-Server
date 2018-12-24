@@ -2,9 +2,7 @@ import urllib.parse
 
 import requests
 
-from commons.provider import get_logger, Provider, ProviderException, Status, Pressure
-
-logger = get_logger('jdc')
+from commons.provider import Provider, ProviderException, Status, Pressure
 
 
 class Jdc(Provider):
@@ -27,14 +25,14 @@ class Jdc(Provider):
 
     def process_data(self):
         try:
-            logger.info("Processing JDC data...")
-            result = requests.get("http://meteo.jdc.ch/API/?Action=StationView&flags=all",
+            self.log.info('Processing JDC data...')
+            result = requests.get('http://meteo.jdc.ch/API/?Action=StationView&flags=all',
                                   timeout=(self.connect_timeout, self.read_timeout))
 
             try:
                 jdc_stations = result.json()['Stations']
-            except:
-                raise Exception("Action=StationView returns invalid json response")
+            except Exception:
+                raise Exception('Action=StationView returns invalid json response')
 
             for jdc_station in jdc_stations:
                 station_id = None
@@ -48,17 +46,18 @@ class Jdc(Provider):
                         jdc_station['longitude'],
                         self.get_status(jdc_station['status']),
                         altitude=jdc_station['altitude'],
-                        url=urllib.parse.urljoin(self.provider_url, "/station/" + str(jdc_station['serial'])))
+                        url=urllib.parse.urljoin(self.provider_url, '/station/' + str(jdc_station['serial'])))
                     station_id = station['_id']
 
                     try:
                         # Asking 2 days of data
-                        result = requests.get("http://meteo.jdc.ch/API/?Action=DataView&serial={jdc_id}&duration=172800"
-                                              .format(jdc_id=jdc_id), timeout=(self.connect_timeout, self.read_timeout))
+                        result = requests.get(
+                            f'http://meteo.jdc.ch/API/?Action=DataView&serial={jdc_id}&duration=172800',
+                            timeout=(self.connect_timeout, self.read_timeout))
                         try:
                             json = result.json()
                         except ValueError:
-                            raise Exception("Action=DataView returns invalid json response")
+                            raise Exception('Action=DataView returns invalid json response')
                         if json['ERROR'] == 'OK':
                             measures_collection = self.measures_collection(station_id)
 
@@ -84,34 +83,30 @@ class Jdc(Provider):
                                         )
                                         new_measures.append(measure)
                                     except ProviderException as e:
-                                        logger.warn("Error while processing measure '{0}' for station '{1}': {2}"
-                                                    .format(key, station_id, e))
+                                        self.log.warn(
+                                            f"Error while processing measure '{key}' for station '{station_id}': {e}")
                                     except Exception as e:
-                                        logger.exception("Error while processing measure '{0}' for station '{1}': {2}"
-                                                         .format(key, station_id, e))
-                                        self.raven_client.captureException()
+                                        self.log.exception(
+                                            f"Error while processing measure '{key}' for station '{station_id}': {e}")
 
-                            self.insert_new_measures(measures_collection, station, new_measures, logger)
+                            self.insert_new_measures(measures_collection, station, new_measures)
                         else:
-                            raise ProviderException("Action=Data returns an error: '{0}'".format(json['ERROR']))
+                            raise ProviderException(f"Action=Data returns an error: '{json['ERROR']}'")
 
                     except ProviderException as e:
-                        logger.warn("Error while processing measures for station '{0}': {1}".format(station_id, e))
+                        self.log.warn(f"Error while processing measures for station '{station_id}': {e}")
                     except Exception as e:
-                        logger.exception("Error while processing measures for station '{0}': {1}".format(station_id, e))
-                        self.raven_client.captureException()
+                        self.log.exception(f"Error while processing measures for station '{station_id}': {e}")
 
                 except ProviderException as e:
-                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
+                    self.log.warn(f"Error while processing station '{station_id}': {e}")
                 except Exception as e:
-                    logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
-                    self.raven_client.captureException()
+                    self.log.exception(f"Error while processing station '{station_id}': {e}")
 
         except Exception as e:
-            logger.exception("Error while processing JDC: {0}".format(e))
-            self.raven_client.captureException()
+            self.log.exception(f'Error while processing JDC: {e}')
 
-        logger.info("Done !")
+        self.log.info('Done !')
 
 
 Jdc().process_data()

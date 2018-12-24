@@ -14,8 +14,8 @@ if __name__ == '__main__':
 
     if args.qfe is None:
         qfe = TWxUtils.AltimeterToStationPressure(args.qnh, elevationM=args.alt)
-        print('qfe={}'.format(qfe))
+        print(f'qfe={qfe}')
 
     if args.qnh is None:
         qnh = TWxUtils.StationToAltimeter(args.qfe, elevationM=args.alt, algorithm='aaMADIS')
-        print('qnh={}'.format(qnh))
+        print(f'qnh={qnh}')

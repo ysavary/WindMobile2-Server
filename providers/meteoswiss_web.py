@@ -4,9 +4,7 @@ from lxml import html
 
 from commons import user_agents
 from commons.projections import ch_to_wgs_lat, ch_to_wgs_lon
-from commons.provider import get_logger, Provider, Status, ProviderException, Q_, ureg, Pressure
-
-logger = get_logger('meteoswiss')
+from commons.provider import Provider, Status, ProviderException, Q_, ureg, Pressure
 
 
 class MeteoSwiss(Provider):
@@ -34,7 +32,7 @@ class MeteoSwiss(Provider):
 
     def process_data(self):
         try:
-            logger.info("Processing MeteoSwiss data...")
+            self.log.info('Processing MeteoSwiss data...')
 
             base_url = 'https://www.meteoswiss.admin.ch'
             session = requests.Session()
@@ -178,19 +176,17 @@ class MeteoSwiss(Provider):
                         )
                         new_measures.append(measure)
 
-                    self.insert_new_measures(measures_collection, station, new_measures, logger)
+                    self.insert_new_measures(measures_collection, station, new_measures)
 
                 except ProviderException as e:
-                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
+                    self.log.warn(f"Error while processing station '{station_id}': {e}")
                 except Exception as e:
-                    logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
-                    self.raven_client.captureException()
+                    self.log.exception(f"Error while processing station '{station_id}': {e}")
 
         except Exception as e:
-            logger.exception("Error while processing MeteoSwiss: {0}".format(e))
-            self.raven_client.captureException()
+            self.log.exception(f'Error while processing MeteoSwiss: {e}')
 
-        logger.info("...Done!")
+        self.log.info('...Done!')
 
 
 MeteoSwiss().process_data()

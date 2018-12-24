@@ -6,10 +6,8 @@ import arrow
 from cachetools import hashkey, cached
 
 from commons import wgs84
-from commons.provider import get_logger, Provider, ProviderException, Status, ureg, Q_
-from settings import *
-
-logger = get_logger('windline')
+from commons.provider import Provider, ProviderException, Status, ureg, Q_
+from settings import WINDLINE_URL
 
 
 class NoMeasure(Exception):
@@ -54,34 +52,39 @@ class Windline(Provider):
             return Status.HIDDEN
 
     def get_property_id(self, cursor, key):
-        cursor.execute("SELECT tblstationpropertylistno FROM tblstationpropertylist WHERE uniquename=%s", (key,))
+        cursor.execute('SELECT tblstationpropertylistno FROM tblstationpropertylist WHERE uniquename=%s', (key,))
         try:
             return cursor.fetchone()[0]
         except TypeError:
-            raise ProviderException("No property '{0}'".format(key))
+            raise ProviderException(f"No property '{key}'")
 
     def get_property_value(self, cursor, station_no, property_id):
         cursor.execute(
-            "SELECT value FROM tblstationproperty WHERE tblstationno=%s AND tblstationpropertylistno=%s",
-            (station_no, property_id))
+            'SELECT value FROM tblstationproperty WHERE tblstationno=%s AND tblstationpropertylistno=%s',
+            (station_no, property_id)
+        )
         try:
             return cursor.fetchone()[0]
         except TypeError:
-            raise ProviderException("No property value for property '{0}'".format(property_id))
+            raise ProviderException(f"No property value for property '{property_id}'")
 
     def get_measures(self, cursor, station_id, data_id, start_date):
-        cursor.execute("""SELECT measuredate, data FROM tblstationdata
-            WHERE stationid=%s AND dataid=%s AND measuredate>=%s
-            ORDER BY measuredate""", (station_id, data_id, start_date))
+        cursor.execute(
+            'SELECT measuredate, data FROM tblstationdata '
+            'WHERE stationid=%s AND dataid=%s AND measuredate>=%s '
+            'ORDER BY measuredate',
+            (station_id, data_id, start_date)
+        )
         return cursor.fetchall()
 
     @cached(cache={}, key=lambda self, cursor, station_no, data_id: hashkey(station_no, data_id))
     def get_measure_correction(self, cursor, station_no, data_id):
         try:
             cursor.execute(
-                """SELECT onlyvalue FROM tblcalibrate WHERE tblstationno=%s AND tbldatatypeno=("""
-                """    SELECT tbldatatypeno FROM tbldatatype WHERE dataid=%s"""
-                """)""", (station_no, data_id))
+                'SELECT onlyvalue FROM tblcalibrate WHERE tblstationno=%s AND tbldatatypeno='
+                '(SELECT tbldatatypeno FROM tbldatatype WHERE dataid=%s)',
+                (station_no, data_id)
+            )
             return cursor.fetchone()[0]
         except (TypeError, ValueError):
             return None
@@ -111,7 +114,7 @@ class Windline(Provider):
 
     def process_data(self):
         try:
-            logger.info("Processing WINDLINE data...")
+            self.log.info('Processing WINDLINE data...')
 
             connection_info = urlparse(self.windline_url)
             mysql_connection = MySQLdb.connect(connection_info.hostname, connection_info.username,
@@ -123,11 +126,14 @@ class Windline(Provider):
             start_date = datetime.utcnow() - timedelta(days=2)
 
             # Fetch only stations that have a status (property_id=13)
-            mysql_cursor.execute("""SELECT tblstation.tblstationno, stationid, stationname, shortdescription, value
-                FROM tblstation
-                INNER JOIN tblstationproperty
-                ON tblstation.tblstationno = tblstationproperty.tblstationno
-                WHERE tblstationpropertylistno=%s""", (self.status_property_id,))
+            mysql_cursor.execute(
+                'SELECT tblstation.tblstationno, stationid, stationname, shortdescription, value '
+                'FROM tblstation '
+                'INNER JOIN tblstationproperty '
+                'ON tblstation.tblstationno = tblstationproperty.tblstationno '
+                'WHERE tblstationpropertylistno=%s',
+                (self.status_property_id,)
+            )
             for row in mysql_cursor.fetchall():
                 station_no = row[0]
                 windline_id = row[1]
@@ -140,7 +146,7 @@ class Windline(Provider):
                     try:
                         if 6000 <= int(windline_id) < 7000:
                             # Windline integrate holfuy stations with 6xxx ids
-                            raise ProviderException('{id} is an holfuy station, discarding'.format(id=windline_id))
+                            raise ProviderException(f'{windline_id} is an holfuy station, discarding')
                     except ValueError:
                         pass
 
@@ -175,21 +181,27 @@ class Windline(Provider):
                                 key = arrow.get(wind_average_row[0]).timestamp
                                 if key not in [measure['_id'] for measure in new_measures] and \
                                         not self.has_measure(measures_collection, key):
+
                                     wind_average = Q_(float(wind_average_row[1]), ureg.meter / ureg.second)
 
                                     measure_date = wind_average_row[0]
 
-                                    wind_maximum = Q_(float(
-                                        self.get_measure_value(wind_maximum_rows,
-                                                               measure_date - timedelta(seconds=10),
-                                                               measure_date + timedelta(seconds=10))),
+                                    wind_maximum = Q_(float(self.get_measure_value(
+                                        wind_maximum_rows,
+                                        measure_date - timedelta(seconds=10),
+                                        measure_date + timedelta(seconds=10))),
                                         ureg.meter / ureg.second)
 
                                     wind_direction = self.get_measure_value(
                                         wind_direction_rows,
-                                        measure_date - timedelta(seconds=10), measure_date + timedelta(seconds=10))
-                                    wind_direction = self.get_corrected_value(mysql_cursor, wind_direction, station_no,
-                                                                              self.wind_direction_type)
+                                        measure_date - timedelta(seconds=10),
+                                        measure_date + timedelta(seconds=10))
+
+                                    wind_direction = self.get_corrected_value(
+                                        mysql_cursor,
+                                        wind_direction,
+                                        station_no,
+                                        self.wind_direction_type)
 
                                     temperature = self.get_last_measure_value(
                                         temperature_rows,
@@ -212,30 +224,28 @@ class Windline(Provider):
                             except NoMeasure:
                                 pass
 
-                        self.insert_new_measures(measures_collection, station, new_measures, logger)
+                        self.insert_new_measures(measures_collection, station, new_measures)
 
                     except ProviderException as e:
-                        logger.warn("Error while processing measures for station '{0}': {1}".format(station_id, e))
+                        self.log.warn(f"Error while processing measures for station '{station_id}': {e}")
                     except Exception as e:
-                        logger.exception("Error while processing measures for station '{0}': {1}".format(station_id, e))
-                        self.raven_client.captureException()
+                        self.log.exception(f"Error while processing measures for station '{station_id}': {e}")
 
                 except ProviderException as e:
-                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
+                    self.log.warn(f"Error while processing station '{station_id}': {e}")
                 except Exception as e:
-                    logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
-                    self.raven_client.captureException()
+                    self.log.exception(f"Error while processing station '{station_id}': {e}")
 
         except Exception as e:
-            logger.exception("Error while processing Windline: {0}".format(e))
-            self.raven_client.captureException()
+            self.log.exception(f'Error while processing Windline: {e}')
         finally:
             try:
                 mysql_cursor.close()
                 mysql_connection.close()
-            except:
+            except Exception:
                 pass
 
-        logger.info("Done !")
+        self.log.info('Done !')
+
 
 Windline().process_data()

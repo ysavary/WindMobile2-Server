@@ -14,15 +14,17 @@ pint = "==0.8.1"
 pyaml = "==16.9.0"
 pymongo = "==3.0.3"
 pytz = "==2018.5"
-raven = "==6.9.0"
 redis = "==2.10.3"
 requests = "==2.19.1"
+sentry-sdk = "==0.6.5"
 scikit-learn = "==0.20.0"
 scipy = "==0.19.0"
 tenacity = "==5.0.2"
 xmltodict = "==0.10.2"
 
 [dev-packages]
+"flake8" = "*"
+"flake8-quotes" = "*"
 
 [requires]
 python_version = "3.6"

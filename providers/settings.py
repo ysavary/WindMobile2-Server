@@ -13,6 +13,6 @@ CHECKWX_API_KEY = ''
 SENTRY_URL = ''
 
 try:
-    from local_settings import *
+    from local_settings import *  # noqa
 except ImportError:
     pass

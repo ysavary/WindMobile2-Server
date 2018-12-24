@@ -1,14 +1,12 @@
 import arrow
 import arrow.parser
 import requests
-
-from commons.provider import get_logger, Provider, ProviderException
-
 # Disable urllib3 warning because https://www.windspots.com has a certificates chain issue
 import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-logger = get_logger('windspots')
+from commons.provider import Provider, ProviderException
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class Windspots(Provider):
@@ -18,8 +16,8 @@ class Windspots(Provider):
 
     def process_data(self):
         try:
-            logger.info("Processing WindsSpots data...")
-            result = requests.get("https://api.windspots.com/windmobile/stationinfos?allStation=true",
+            self.log.info('Processing WindsSpots data...')
+            result = requests.get('https://api.windspots.com/windmobile/stationinfos?allStation=true',
                                   timeout=(self.connect_timeout, self.read_timeout), verify=False)
 
             for windspots_station in result.json()['stationInfo']:
@@ -39,13 +37,12 @@ class Windspots(Provider):
                     try:
                         # Asking 2 days of data
                         result = requests.get(
-                            "https://api.windspots.com/windmobile/stationdatas/windspots:{windspots_id}".format(
-                                windspots_id=windspots_id),
+                            f'https://api.windspots.com/windmobile/stationdatas/windspots:{windspots_id}',
                             timeout=(self.connect_timeout, self.read_timeout), verify=False)
                         try:
                             windspots_measure = result.json()
                         except ValueError:
-                            raise ProviderException("Action=Data return invalid json response")
+                            raise ProviderException('Action=Data return invalid json response')
 
                         measures_collection = self.measures_collection(station_id)
 
@@ -54,13 +51,13 @@ class Windspots(Provider):
                             # Weird, there are timezone mistakes in windspots provider!
                             key = arrow.get(windspots_measure['@lastUpdate']).replace(tzinfo='Europe/Zurich').timestamp
                         except arrow.parser.ParserError:
-                            raise ProviderException("Unable to parse measure date: '{0}".format(
-                                windspots_measure['@lastUpdate']))
+                            raise ProviderException(
+                                f"Unable to parse measure date: '{windspots_measure['@lastUpdate']}")
 
                         wind_direction_last = windspots_measure['windDirectionChart']['serie']['points'][0]
                         wind_direction_key = int(wind_direction_last['date']) // 1000
                         if arrow.get(key).minute != arrow.get(wind_direction_key).minute:
-                            logger.warn(
+                            self.log.warn(
                                 "{name} ({id}): wind direction time '{direction}' is inconsistent with measure "
                                 "time '{key}'"
                                 .format(
@@ -82,34 +79,29 @@ class Windspots(Provider):
                                 )
                                 new_measures.append(measure)
                             except ProviderException as e:
-                                logger.warn("Error while processing measure '{0}' for station '{1}': {2}"
-                                            .format(key, station_id, e))
+                                self.log.warn(f"Error while processing measure '{key}' for station '{station_id}': {e}")
                             except Exception as e:
-                                logger.exception("Error while processing measure '{0}' for station '{1}': {2}"
-                                                 .format(key, station_id, e))
-                                self.raven_client.captureException()
+                                self.log.exception(
+                                    f"Error while processing measure '{key}' for station '{station_id}': {e}")
 
-                        self.insert_new_measures(measures_collection, station, new_measures, logger)
+                        self.insert_new_measures(measures_collection, station, new_measures)
 
                     except ProviderException as e:
-                        logger.warn("Error while processing measure for station '{0}': {1}".format(station_id, e))
+                        self.log.warn(f"Error while processing measure for station '{station_id}': {e}")
                     except Exception as e:
-                        logger.exception("Error while processing measure for station '{0}': {1}".format(station_id, e))
-                        self.raven_client.captureException()
+                        self.log.exception(f"Error while processing measure for station '{station_id}': {e}")
 
                 except ProviderException as e:
-                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
+                    self.log.warn(f"Error while processing station '{station_id}': {e}")
                 except Exception as e:
-                    logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
-                    self.raven_client.captureException()
+                    self.log.exception(f"Error while processing station '{station_id}': {e}")
 
         except ProviderException as e:
-            logger.warn("Error while processing Windspots: {0}".format(e))
+            self.log.warn(f'Error while processing Windspots: {e}')
         except Exception as e:
-            logger.exception("Error while processing Windspots: {0}".format(e))
-            self.raven_client.captureException()
+            self.log.exception(f'Error while processing Windspots: {e}')
 
-        logger.info("Done !")
+        self.log.info('Done !')
 
 
 Windspots().process_data()

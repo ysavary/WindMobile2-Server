@@ -9,6 +9,7 @@ def dms2dd(degrees, minutes, direction):
         dd *= -1
     return dd
 
+
 with open('stations.json', 'w') as out_file:
     # Another maintained version here: http://weather.rap.ucar.edu/surface/stations.txt
     request = requests.get('http://aviationweather.gov/docs/metar/stations.txt', stream=True)

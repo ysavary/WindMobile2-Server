@@ -6,13 +6,11 @@ from dateutil import tz
 from lxml import html
 
 from commons import user_agents
-from commons.provider import get_logger, Provider, Status, ProviderException
+from commons.provider import Provider, Status, ProviderException
 
 # Disable urllib3 warning because https://iweathar.co.za has a certificates chain issue
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-logger = get_logger('iweathar')
 
 
 class IWeathar(Provider):
@@ -22,10 +20,10 @@ class IWeathar(Provider):
 
     def process_data(self):
         try:
-            logger.info("Processing iWeathar data...")
+            self.log.info('Processing iWeathar data...')
 
-            list_pattern = re.compile(r"marker = new PdMarker\(new GLatLng\((?P<lat>[+-]?([0-9]*[.])?[0-9]+), "
-                                      r"(?P<lon>[+-]?([0-9]*[.])?[0-9]+)\), icon(.*?)"
+            list_pattern = re.compile(r'marker = new PdMarker\(new GLatLng\((?P<lat>[+-]?([0-9]*[.])?[0-9]+), '
+                                      r'(?P<lon>[+-]?([0-9]*[.])?[0-9]+)\), icon(.*?)'
                                       r"var html = \"(?P<name>.*?)<br><a href=\\'display\.php\?s_id=(?P<id>[0-9]+)\\'",
                                       flags=re.DOTALL)
 
@@ -114,19 +112,17 @@ class IWeathar(Provider):
                         )
                         new_measures.append(measure)
 
-                    self.insert_new_measures(measures_collection, station, new_measures, logger)
+                    self.insert_new_measures(measures_collection, station, new_measures)
 
                 except ProviderException as e:
-                    logger.warn("Error while processing station '{0}': {1}".format(station_id, e))
+                    self.log.warn(f"Error while processing station '{station_id}': {e}")
                 except Exception as e:
-                    logger.exception("Error while processing station '{0}': {1}".format(station_id, e))
-                    self.raven_client.captureException()
+                    self.log.exception(f"Error while processing station '{station_id}': {e}")
 
         except Exception as e:
-            logger.exception("Error while processing iWeathar: {0}".format(e))
-            self.raven_client.captureException()
+            self.log.exception(f'Error while processing iWeathar: {e}')
 
-        logger.info("...Done!")
+        self.log.info('...Done!')
 
 
 IWeathar().process_data()

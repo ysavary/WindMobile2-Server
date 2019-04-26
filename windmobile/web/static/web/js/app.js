@@ -133,8 +133,8 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 $urlRouterProvider.otherwise('/list');
             }
         }])
-    .run(['$rootScope', '$state', '$location', '$window', '$interval', '$timeout', '$translate', 'visibilityBroadcaster',
-        function ($rootScope, $state, $location, $window, $interval, $timeout, $translate) {
+    .run(['$rootScope', '$state', '$location', '$window', '$interval', '$timeout', '$translate', 'utils', 'visibilityBroadcaster',
+        function ($rootScope, $state, $location, $window, $interval, $timeout, $translate, utils) {
         var self = this;
 
         $rootScope.$on('ocLazyLoad.fileLoaded', function (event, file) {
@@ -260,7 +260,7 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
             }
         }, 120000);
         $rootScope.$on('$stateChangeStart', function (evt, to, params) {
-            if ((utils.inIframe()) && (to.name === 'map')) {
+            if (utils.inIframe() && (to.name === 'map')) {
                 evt.preventDefault();
                 $state.go('list', params);
             }

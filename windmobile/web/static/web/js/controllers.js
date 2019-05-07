@@ -60,7 +60,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 if (token) {
                     $http({
                         method: 'GET',
-                        url: '/api/2/users/profile/',
+                        url: utils.apiUserUrl + '/users/profile/',
                         headers: {'Authorization': 'JWT ' + token}
                     }).then(function (response) {
                         var data = response.data;
@@ -101,7 +101,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         if (self.profile.favorites.indexOf(stationId) > -1) {
                             $http({
                                 method: 'DELETE',
-                                url: '/api/2/users/profile/favorites/' + stationId + '/',
+                                url: utils.apiUserUrl + '/users/profile/favorites/' + stationId + '/',
                                 headers: {'Authorization': 'JWT ' + token, 'Content-Type': 'application/json'}
                             }).then(function (response) {
                                 self.getProfile();
@@ -113,7 +113,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         } else {
                             $http({
                                 method: 'POST',
-                                url: '/api/2/users/profile/favorites/' + stationId + '/',
+                                url: utils.apiUserUrl + '/users/profile/favorites/' + stationId + '/',
                                 headers: {'Authorization': 'JWT ' + token, 'Content-Type': 'application/json'}
                             }).then(function (response) {
                                 self.getProfile();
@@ -186,7 +186,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         favoritesParam.ids = $scope.$app.profile.favorites;
                         $http({
                             method: 'GET',
-                            url: '/api/2/stations/',
+                            url: utils.apiUrl + '/stations/',
                             params: favoritesParam
                         }).then(function (response) {
                             self.stations = response.data;
@@ -214,7 +214,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                         self.listCanceler = $q.defer();
                         $http({
                             method: 'GET',
-                            url: '/api/2/stations/',
+                            url: utils.apiUrl + '/stations/',
                             params: listParam,
                             timeout: self.listCanceler.promise
                         }).then(function (response) {
@@ -239,7 +239,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                     };
                     $http({
                         method: 'GET',
-                        url: '/api/2/stations/' + station._id + '/historic',
+                        url: utils.apiUrl + '/stations/' + station._id + '/historic/',
                         params: params
                     }).success(function (data) {
                         var historic = {
@@ -533,7 +533,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
 
                 $http({
                     method: 'GET',
-                    url: '/api/2/stations/',
+                    url: utils.apiUrl + '/stations/',
                     params: params
                 }).success(displayMarkers);
             }
@@ -545,7 +545,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 };
                 $http({
                     method: 'GET',
-                    url: '/api/2/stations/' + self.selectedStation._id + '/historic',
+                    url: utils.apiUrl + '/stations/' + self.selectedStation._id + '/historic/',
                     params: params
                 }).success(function (data) {
                     var historic = {
@@ -766,7 +766,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 };
                 $http({
                     method: 'GET',
-                    url: '/api/2/stations/' + $stateParams.stationId + '/historic',
+                    url: utils.apiUrl + '/stations/' + $stateParams.stationId + '/historic/',
                     params: params
                 }).success(function (data) {
                     self.stationWindChart = data;
@@ -781,7 +781,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 };
                 $http({
                     method: 'GET',
-                    url: '/api/2/stations/' + $stateParams.stationId + '/historic',
+                    url: utils.apiUrl + '/stations/' + $stateParams.stationId + '/historic/',
                     params: params
                 }).success(function (data) {
                     self.stationAirChart = data;
@@ -791,7 +791,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
             this.getStation = function () {
                 $http({
                     method: 'GET',
-                    url: '/api/2/stations/' + $stateParams.stationId
+                    url: utils.apiUrl + '/stations/' + $stateParams.stationId + '/'
                 }).success(function (data) {
                     self.station = data;
 
@@ -821,7 +821,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 };
                 $http({
                     method: 'GET',
-                    url: '/api/2/stations/' + $stateParams.stationId + '/historic',
+                    url: utils.apiUrl + '/stations/' + $stateParams.stationId + '/historic/',
                     params: params
                 }).success(function (data) {
                     var historic = {
@@ -921,7 +921,7 @@ angular.module('windmobile.controllers', ['windmobile.services'])
                 if (self.username && self.password) {
                     $http({
                         method: 'POST',
-                        url: '/api/2/auth/login/',
+                        url: utils.apiUserUrl + '/auth/login/',
                         data: {
                             username: self.username,
                             password: self.password

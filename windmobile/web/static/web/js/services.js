@@ -100,7 +100,10 @@ angular.module('windmobile.services', [])
 
             roundTo3Digits: function (num) {
                 return +(Math.round(num + "e+3") + "e-3");
-            }
+            },
+
+            apiUrl: "https://winds.mobi/api/2.1",
+            apiUserUrl: "https://winds.mobi/api/2"
         }
     }])
     .factory('visibilityBroadcaster', ['$rootScope', '$document', function ($rootScope, $document) {

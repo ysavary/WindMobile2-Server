@@ -259,10 +259,14 @@ angular.module('windmobile', [require('angular-sanitize'), require('angular-ui-r
                 $rootScope.$broadcast('onRefreshInterval');
             }
         }, 120000);
-        $rootScope.$on('$stateChangeStart', function (evt, to, params) {
-            if (utils.inIframe() && (to.name === 'map')) {
-                evt.preventDefault();
-                $state.go('list', params);
+        $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState) {
+            if (utils.inIframe()) {
+                // Custom behavior in iframe to decrease the number of google map displays
+                if (toState.name === 'map' && !fromState.parent) {
+                    console.log('You are in a iframe: refusing to load /map on page load');
+                    event.preventDefault();
+                    $state.go('list', toParams);
+                }
             }
         });
         $rootScope.$on('$stateChangeSuccess',
